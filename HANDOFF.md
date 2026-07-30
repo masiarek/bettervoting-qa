@@ -81,7 +81,7 @@ Seven of the sixteen BV240 cases have empirical backing from a running stack: **
 
 Not verified: the non-English locales, and the two-browser mid-election flip (BV240p).
 
-Three of my own claims were **wrong** and got corrected by checking — recorded in the pages so they don't get re-inherited:
+Four of my own claims were **wrong** and got corrected by checking — recorded in the pages so they don't get re-inherited:
 
 1. BV240h's article URL was marked an unverified prediction; it returns 200.
 2. BV240o claimed the new keys create translator work. The *banner* keys don't (PRIORITY 99, beside `draft_warning`). The *dialog* key does (PRIORITY 0).
