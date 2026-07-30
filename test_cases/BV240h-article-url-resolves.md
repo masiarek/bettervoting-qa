@@ -112,6 +112,8 @@ https://docs.bettervoting.com/help/preliminary_results.html
 
 # Notes
 
+**URL verified 2026-07-30.** `https://docs.bettervoting.com/help/preliminary_results.html` returns **200**; the extensionless `/help/preliminary_results` also resolves. This was previously recorded as an unverified prediction — it is now confirmed, and the URL shipped in PR #1465.
+
 - **Run step 1 before the PR is written, not during review.** It costs one command and it is the only part of this case that can change what gets built.
 - **A 200 is not proof you got the right page.** Static docs sites commonly serve a themed "not found" page with a 200. Requirement 3 is why step 3 says to look at the content, not the status bar.
 - **Copy the final URL into the code, not the pretty one.** If step 1 shows a redirect, the code should carry the destination.
