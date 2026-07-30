@@ -135,6 +135,8 @@ Requirements 1–3 are the case. 4–6 are the implementation being the *right* 
 
 # Notes
 
+**Correction (2026-07-30): the two existing Playwright specs should pass unchanged.** This page said to expect selector churn. A read of the specs says otherwise — every selector is role-plus-accessible-name based, the notice adds no button/radio/link whose name collides, and the two substring text matchers that run on the ballot page target warning strings the new copy does not contain. The one loose matcher, `getByText('open')`, runs on Admin Home where the notice does not render. Static read, not a test run.
+
 **The mechanism, and why this is predicted to fail.** `components/util.tsx:235` renders markdown links as `target={v['newWindow'] ? '_blank' : '_self'}` — **same-tab by default**, opt-in to the new tab. `ElectionStateWarning.tsx:17,19` calls `t(title)` / `t(description)` with **no values object**, so it has no way to pass `newWindow`. So if the ballot-side link is written the obvious way — a markdown link inside an i18n value, exactly as `en.yaml:703` already does for a tip — it renders `target='_self'` and there is no flag to flip from the calling component. The failure is the default behaviour of the path of least resistance. (Line numbers per the integration map's June checkout; they may drift a few lines on `main`.)
 
 **Therefore: the ballot-side link must not be a markdown link in an i18n value.** It has to be an explicit `<Link target='_blank' rel='noreferrer'>` in `ElectionStateWarning`'s `children` slot, copying `GenericBallotView.tsx:130-134`.

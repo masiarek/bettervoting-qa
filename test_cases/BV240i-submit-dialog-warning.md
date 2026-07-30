@@ -124,6 +124,8 @@ Proposed wording — **reference only, not yet approved**:
 
 # Notes
 
+**Correction (2026-07-30): the two existing Playwright specs should pass unchanged.** This page said to expect selector churn. A read of the specs says otherwise — every selector is role-plus-accessible-name based, the notice adds no button/radio/link whose name collides, and the two substring text matchers that run on the ballot page target warning strings the new copy does not contain. The one loose matcher, `getByText('open')`, runs on Admin Home where the notice does not render. Static read, not a test run.
+
 **One sentence, and why the limit is a requirement rather than a style preference.** The dialog's job is to show the voter every race and every score for confirmation. On a phone that content already fills the dialog; a paragraph of privacy copy inserted above it pushes the scores below the fold, and the voter confirms a ballot they can no longer see. Requirement 5 is the assertion that carries this — requirement 2 is just its cause.
 
 **The placement is feasible — this is observed, not assumed.** Captured on production 2026-07-29 during the BV230-r1 retest (and recorded in BV240b's baseline table), the dialog holds only: Receipt Email (Optional), the race title, the three candidate scores, and CANCEL / SUBMIT. It is sparse. There is room for one sentence without crowding it, so "no space in the dialog" is not a valid objection to this case.
