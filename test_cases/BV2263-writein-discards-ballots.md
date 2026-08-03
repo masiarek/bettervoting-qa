@@ -1,12 +1,13 @@
-# BV-AB1 — an approved write-in discards ordinary ballots
+# BV2263 — an approved write-in discards ordinary ballots
 
 > **Baseline capture — recorded before any fix.** Everything under *Actual result* is what BetterVoting
 > does today (2026-08-02, production). The point of this page is to make the fix verifiable: when the
 > change lands, re-run these steps and the *Expected after the fix* section is the assertion.
 >
-> **Provisional test ID.** `BV-AB1` is a local id, not a row in the
-> [test-case sheet](https://docs.google.com/spreadsheets/d/1EXQsABY2qEu8kKQJGQdyQHn-C89hbCnNqZoGxKXZJNE/edit?gid=0#gid=0) yet.
-> Paste-ready rows: [`BV-AB-sheet-rows.tsv`](BV-AB-sheet-rows.tsv).
+> **Sheet row still needed.** `BV2263` was allocated from the block after the highest id observed across
+> the repos (BV2262) — it is not yet a row in the
+> [test-case sheet](https://docs.google.com/spreadsheets/d/1EXQsABY2qEu8kKQJGQdyQHn-C89hbCnNqZoGxKXZJNE/edit?gid=0#gid=0).
+> Paste-ready: [`BV2263-2267-sheet-rows.tsv`](BV2263-2267-sheet-rows.tsv). If it collides with an existing row, renumber here.
 
 ## Purpose
 
@@ -43,7 +44,7 @@ Both races are on the same ballot paper, so every voter voted in both, identical
 
 ## Actual result — today
 
-![Both races](screenshots/BV-AB1-writein-both-races.png)
+![Both races](screenshots/BV2263-writein-both-races.png)
 
 | | Race 1 — write-in | Race 2 — official |
 |---|---|---|

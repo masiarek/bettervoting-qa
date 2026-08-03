@@ -58,7 +58,9 @@ Key findings, all verified by running BetterVoting's own tabulator:
 - **It is two changes, not one**, and they affect disjoint ballot sets. The half that produces the ugly reporting is the half that's blocked on the data model anyway.
 - **[#1035](https://github.com/Equal-Vote/bettervoting/issues/1035) is a hard prerequisite**, not a low-priority sibling: today's abstention rule is what hides a division-by-zero in the runoff pie.
 
-→ [`analysis/flat-scores-abstention/`](analysis/flat-scores-abstention/) · upstream reference cases: [Flat scores, ties & tie-breaking](https://masiarek.github.io/star-voting-library/01_STAR/03_Criteria/Flat_scores_ties/index.html)
+→ [`analysis/flat-scores-abstention/`](analysis/flat-scores-abstention/) · baselines: [`test_cases/BV2263-2267-index.md`](test_cases/BV2263-2267-index.md) · upstream reference cases: [Flat scores, ties & tie-breaking](https://masiarek.github.io/star-voting-library/01_STAR/03_Criteria/Flat_scores_ties/index.html)
+
+Filed upstream from this work: [#1470](https://github.com/Equal-Vote/bettervoting/issues/1470) (write-in discards ballots, live repro), [#1471](https://github.com/Equal-Vote/bettervoting/issues/1471) (chart split denominator), plus root-cause comments on [#1035](https://github.com/Equal-Vote/bettervoting/issues/1035#issuecomment-5166192037) and [#1053](https://github.com/Equal-Vote/bettervoting/issues/1053#issuecomment-5166296842).
 
 ### #1350 — Add a disclaimer related to preliminary results (OPEN, assigned to Adam)
 

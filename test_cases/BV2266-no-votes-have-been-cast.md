@@ -1,12 +1,13 @@
-# BV-AB4 — five voters, and the results page says no votes were cast
+# BV2266 — five voters, and the results page says no votes were cast
 
 > **Baseline capture — recorded before any fix.** Everything under *Actual result* is what BetterVoting
 > does today (2026-08-02, production). The point of this page is to make the fix verifiable: when the
 > change lands, re-run these steps and the *Expected after the fix* section is the assertion.
 >
-> **Provisional test ID.** `BV-AB4` is a local id, not a row in the
-> [test-case sheet](https://docs.google.com/spreadsheets/d/1EXQsABY2qEu8kKQJGQdyQHn-C89hbCnNqZoGxKXZJNE/edit?gid=0#gid=0) yet.
-> Paste-ready rows: [`BV-AB-sheet-rows.tsv`](BV-AB-sheet-rows.tsv).
+> **Sheet row still needed.** `BV2266` was allocated from the block after the highest id observed across
+> the repos (BV2262) — it is not yet a row in the
+> [test-case sheet](https://docs.google.com/spreadsheets/d/1EXQsABY2qEu8kKQJGQdyQHn-C89hbCnNqZoGxKXZJNE/edit?gid=0#gid=0).
+> Paste-ready: [`BV2263-2267-sheet-rows.tsv`](BV2263-2267-sheet-rows.tsv). If it collides with an existing row, renumber here.
 
 ## Purpose
 
@@ -39,7 +40,7 @@ Ann  Ben  Cal
 
 ## Actual result — today
 
-![No votes have been cast](screenshots/BV-AB4-no-votes-cast.png)
+![No votes have been cast](screenshots/BV2266-no-votes-cast.png)
 
 > **Still waiting for results**
 > **No votes have been cast**
@@ -56,7 +57,7 @@ In the Bloc STAR variant of this ([#1065](https://github.com/Equal-Vote/bettervo
 
 The page reports **5 voters** and a three-way tie at 15 points each, resolved by the tie-break cascade. The word "abstention" appears nowhere, because nobody abstained.
 
-Note this case is also the one that would newly reach the BV-AB2 code path — worth re-running BV-AB2 in the same pass.
+Note this case is also the one that would newly reach the BV2264 code path — worth re-running BV2264 in the same pass.
 
 ## Related
 

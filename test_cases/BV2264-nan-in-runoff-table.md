@@ -1,12 +1,13 @@
-# BV-AB2 — NaN% in the runoff table when nobody prefers either finalist
+# BV2264 — NaN% in the runoff table when nobody prefers either finalist
 
 > **Baseline capture — recorded before any fix.** Everything under *Actual result* is what BetterVoting
 > does today (2026-08-02, production). The point of this page is to make the fix verifiable: when the
 > change lands, re-run these steps and the *Expected after the fix* section is the assertion.
 >
-> **Provisional test ID.** `BV-AB2` is a local id, not a row in the
-> [test-case sheet](https://docs.google.com/spreadsheets/d/1EXQsABY2qEu8kKQJGQdyQHn-C89hbCnNqZoGxKXZJNE/edit?gid=0#gid=0) yet.
-> Paste-ready rows: [`BV-AB-sheet-rows.tsv`](BV-AB-sheet-rows.tsv).
+> **Sheet row still needed.** `BV2264` was allocated from the block after the highest id observed across
+> the repos (BV2262) — it is not yet a row in the
+> [test-case sheet](https://docs.google.com/spreadsheets/d/1EXQsABY2qEu8kKQJGQdyQHn-C89hbCnNqZoGxKXZJNE/edit?gid=0#gid=0).
+> Paste-ready: [`BV2263-2267-sheet-rows.tsv`](BV2263-2267-sheet-rows.tsv). If it collides with an existing row, renumber here.
 
 ## Purpose
 
@@ -42,15 +43,15 @@ Header reads **3 voters** — no ballot is an abstention here, so all three are 
 
 **Runoff table — `NaN%` in "% Between Finalists":**
 
-![Runoff table showing NaN%](screenshots/BV-AB2-runoff-table-NaN.png)
+![Runoff table showing NaN%](screenshots/BV2264-runoff-table-NaN.png)
 
 **Bar view** — both finalists at 0, Equal Support 100%, majority marker pinned at 0:
 
-![Charts](screenshots/BV-AB2-charts.png)
+![Charts](screenshots/BV2264-charts.png)
 
 **Pie view** — renders completely empty, with only a legend and the footnote:
 
-![Empty pie](screenshots/BV-AB2-pie-empty.png)
+![Empty pie](screenshots/BV2264-pie-empty.png)
 
 ### What is wrong
 

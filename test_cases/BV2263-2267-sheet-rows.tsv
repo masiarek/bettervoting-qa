@@ -1,0 +1,6 @@
+Test ID	Title	Election	Method	Upstream issue	One-line expected failure
+BV2263	An approved write-in discards ordinary ballots	43jp39	STAR	#1470	Two identical races disagree on electorate and winner
+BV2264	NaN% in the runoff table with a zero runoff denominator	3d8qdr	STAR	#1035	Table shows NaN%; pie renders empty
+BV2265	Runoff chart labels and majority marker use different denominators	3pfb7j	STAR	#1471	33% winner crosses a 27.8% majority line
+BV2266	Five flat ballots reported as no votes cast	p2qrv6	STAR	#1052, #1065	Results page says nothing was cast
+BV2267	Full equal support shown to the voter as an abstention	p9pvc8	STAR	#1053	Submit dialog says Abstained
