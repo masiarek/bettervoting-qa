@@ -1,12 +1,21 @@
-# DRAFT — not posted
+# #1470 — write-in abstention discards ordinary ballots
 
-Ticket drafted 2026-08-02 for `Equal-Vote/bettervoting`. **Nothing has been posted upstream.** Awaiting Adam's review.
+**Posted upstream 2026-08-02: [Equal-Vote/bettervoting#1470](https://github.com/Equal-Vote/bettervoting/issues/1470)**
 
-Two notes before it goes anywhere:
+Live repro: **[bettervoting.com/43jp39/results](https://bettervoting.com/43jp39/results)** (BV-WI1, created 2026-08-02, publicly readable, results verifiable with one unauthenticated `curl`).
 
-- **Live repro built: [bettervoting.com/43jp39/results](https://bettervoting.com/43jp39/results)** (BV-WI1, created 2026-08-02, publicly readable). The live numbers match the tabulator-level prediction exactly. Election admin details are in the session notes, **not in this repo** — the claim key grants ownership of the election and this repo is public.
-- **Deliberately framed as independent of [#884](https://github.com/Equal-Vote/bettervoting/issues/884).** This is a bug under the current policy, whatever anyone thinks of that policy. The abstention-policy argument is mentioned once, at the end, as a note — not as the ask. Leading with #884 would turn a fixable bug into a rerun of a year-old disagreement.
-- **Temporary access expires 10 hours after creation** (`TEMPORARY_ACCESS_HOURS = 10`). After that the election can't be administered or deleted by anyone unless Adam claims it from his signed-in account first, via `POST /API/Election/43jp39/claim` with the claim key. Worth doing if this election is going to be cited upstream.
+Filed as a bug **independent of [#884](https://github.com/Equal-Vote/bettervoting/issues/884)** — it is wrong under the current policy, whatever anyone decides about that policy. The suggested fix (normalise `marks` over the candidate set *before* running the stat tests rather than after) is behaviour-preserving for any ballot that already covers every candidate, so it needs no policy decision. #884 is mentioned once, in a closing note.
+
+## Housekeeping
+
+- **The claim key is deliberately not in this repo** — it grants ownership of the election and this repo is public. It is in the session notes.
+- **Temporary guest access expires 10 hours after creation** (`TEMPORARY_ACCESS_HOURS = 10`). Now that the election is cited upstream, it should be claimed to Adam's account via `POST /API/Election/43jp39/claim`, or nobody will be able to administer or delete it.
+- **`vgwvjr` is an orphan.** A first attempt set `owner_id` to a bare UUID. The guest-ownership gate (`elections.controllers.ts:86-97`) requires `owner_id` to follow the `v-` temp-id convention **and** a `{election_id}_claim_key` cookie hashing to the stored `claim_key_hash`; a bare UUID can never obtain the owner role. It holds the same ballots but its write-in could not be approved, and it can't be administered or deleted. Harmless, but it's there.
+- **Correction worth carrying forward:** administering a guest-created election needs the claim-key cookie as well as `temp_id`. The earlier `mj26yj` retest election has a bare-UUID owner too, so it is in the same position.
+
+## What was posted
+
+Everything below the line is the issue body as filed.
 
 ---
 
