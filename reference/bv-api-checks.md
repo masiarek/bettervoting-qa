@@ -109,4 +109,15 @@ await fetch('/API/Election/<id>/setOpenState', {method:'POST', credentials:'incl
   body: JSON.stringify({open:false, expected_update_date: cur.election.update_date})});
 ```
 
-**Known orphans** (bare-UUID `owner_id`, so unadministrable): `vgwvjr`, and `mj26yj` from the earlier Ranked Robin retest.
+### Known orphans — and why they can't be rescued
+
+| Election | `owner_id` | `claim_key_hash` | Age at check | Verdict |
+|---|---|---|---|---|
+| `mj26yj` (Ranked Robin retest, cited in closed [#886](https://github.com/Equal-Vote/bettervoting/issues/886)) | bare UUID | **absent** | 40 h | unrecoverable |
+| `vgwvjr` (created in error 2026-08-02) | bare UUID | absent | — | unrecoverable |
+
+`mj26yj` fails **three** of the four conditions independently: `owner_id` isn't on the `v-` convention, there is no `claim_key_hash` to produce a preimage for, and it is long past the 10-hour window. The missing `claim_key_hash` is the structural one — adding it would need `canEditElection`, which needs the owner role, which needs the `claim_key_hash`. Circular, so **no cookie or API call can recover it**. Only a `system_admin` can reassign ownership.
+
+Practical consequence: both remain `state: open` forever, so anyone can still cast ballots in them and move the numbers. Where such an election is cited as evidence, **freeze a snapshot** — see `reference/frozen/`, captured via the three anonymous GETs (`/Election/{id}`, `/ElectionResult/{id}`, `/Election/{id}/anonymizedBallots`).
+
+**Avoid creating more:** always create API elections with `owner_id` on the `v-` convention *and* a `claim_key_hash`, even for throwaway tests. The web wizard always does both; hand-rolled API calls are the only way to produce an orphan.

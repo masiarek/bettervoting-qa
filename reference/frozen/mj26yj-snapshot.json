@@ -1,0 +1,667 @@
+{
+ "anonymized_ballots": {
+  "ballots": [
+   {
+    "ballot_id": "b-3gyh2cy6",
+    "election_id": "mj26yj",
+    "precinct": null,
+    "votes": [
+     {
+      "race_id": "race1",
+      "scores": [
+       {
+        "candidate_id": "ann",
+        "score": 1
+       },
+       {
+        "candidate_id": "bob",
+        "score": 2
+       },
+       {
+        "candidate_id": "cal",
+        "score": null
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "ballot_id": "b-wbcq8ytc",
+    "election_id": "mj26yj",
+    "precinct": null,
+    "votes": [
+     {
+      "race_id": "race1",
+      "scores": [
+       {
+        "candidate_id": "ann",
+        "score": null
+       },
+       {
+        "candidate_id": "bob",
+        "score": 2
+       },
+       {
+        "candidate_id": "cal",
+        "score": 1
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "ballot_id": "b-dm3mffqw",
+    "election_id": "mj26yj",
+    "precinct": null,
+    "votes": [
+     {
+      "race_id": "race1",
+      "scores": [
+       {
+        "candidate_id": "ann",
+        "score": 1
+       },
+       {
+        "candidate_id": "bob",
+        "score": 2
+       },
+       {
+        "candidate_id": "cal",
+        "score": null
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "ballot_id": "b-cm4q3r6p",
+    "election_id": "mj26yj",
+    "precinct": null,
+    "votes": [
+     {
+      "race_id": "race1",
+      "scores": [
+       {
+        "candidate_id": "ann",
+        "score": null
+       },
+       {
+        "candidate_id": "bob",
+        "score": 1
+       },
+       {
+        "candidate_id": "cal",
+        "score": null
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "ballot_id": "b-r2q89bq6",
+    "election_id": "mj26yj",
+    "precinct": null,
+    "votes": [
+     {
+      "race_id": "race1",
+      "scores": [
+       {
+        "candidate_id": "ann",
+        "score": 1
+       },
+       {
+        "candidate_id": "bob",
+        "score": 2
+       },
+       {
+        "candidate_id": "cal",
+        "score": null
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "ballot_id": "b-442pj4y7",
+    "election_id": "mj26yj",
+    "precinct": null,
+    "votes": [
+     {
+      "race_id": "race1",
+      "scores": [
+       {
+        "candidate_id": "ann",
+        "score": 1
+       },
+       {
+        "candidate_id": "bob",
+        "score": 1
+       },
+       {
+        "candidate_id": "cal",
+        "score": 1
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "ballot_id": "b-cd8mgbjr",
+    "election_id": "mj26yj",
+    "precinct": null,
+    "votes": [
+     {
+      "race_id": "race1",
+      "scores": [
+       {
+        "candidate_id": "ann",
+        "score": 1
+       },
+       {
+        "candidate_id": "bob",
+        "score": 2
+       },
+       {
+        "candidate_id": "cal",
+        "score": null
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "ballot_id": "b-vjyqx338",
+    "election_id": "mj26yj",
+    "precinct": null,
+    "votes": [
+     {
+      "race_id": "race1",
+      "scores": [
+       {
+        "candidate_id": "ann",
+        "score": 1
+       },
+       {
+        "candidate_id": "bob",
+        "score": 2
+       },
+       {
+        "candidate_id": "cal",
+        "score": null
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "ballot_id": "b-3kwv88jp",
+    "election_id": "mj26yj",
+    "precinct": null,
+    "votes": [
+     {
+      "race_id": "race1",
+      "scores": [
+       {
+        "candidate_id": "ann",
+        "score": null
+       },
+       {
+        "candidate_id": "bob",
+        "score": 1
+       },
+       {
+        "candidate_id": "cal",
+        "score": 1
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "ballot_id": "b-9jfk2ytw",
+    "election_id": "mj26yj",
+    "precinct": null,
+    "votes": [
+     {
+      "race_id": "race1",
+      "scores": [
+       {
+        "candidate_id": "ann",
+        "score": null
+       },
+       {
+        "candidate_id": "bob",
+        "score": null
+       },
+       {
+        "candidate_id": "cal",
+        "score": 1
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "ballot_id": "b-jhb3pqd7",
+    "election_id": "mj26yj",
+    "precinct": null,
+    "votes": [
+     {
+      "race_id": "race1",
+      "scores": [
+       {
+        "candidate_id": "ann",
+        "score": null
+       },
+       {
+        "candidate_id": "bob",
+        "score": 2
+       },
+       {
+        "candidate_id": "cal",
+        "score": 1
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "ballot_id": "b-4bt2b8yk",
+    "election_id": "mj26yj",
+    "precinct": null,
+    "votes": [
+     {
+      "race_id": "race1",
+      "scores": [
+       {
+        "candidate_id": "ann",
+        "score": 2
+       },
+       {
+        "candidate_id": "bob",
+        "score": 1
+       },
+       {
+        "candidate_id": "cal",
+        "score": null
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ },
+ "captured_utc": "2026-08-03T03:25:20+00:00",
+ "election": {
+  "election": {
+   "admin_ids": null,
+   "audit_ids": null,
+   "ballot_source": "live_election",
+   "claim_key_hash": null,
+   "create_date": "2026-08-01T11:27:05.124Z",
+   "credential_ids": null,
+   "description": "Re-test of BV1550 (github Equal-Vote/bettervoting #885 / #886) after the 2026 tiebreaker overhaul.",
+   "election_id": "mj26yj",
+   "end_time": null,
+   "frontend_url": "",
+   "head": true,
+   "is_public": null,
+   "owner_id": "61abacb9-15a6-49f2-b8bd-16c8764783f4",
+   "public_archive_id": null,
+   "races": [
+    {
+     "candidates": [
+      {
+       "candidate_id": "ann",
+       "candidate_name": "Ann"
+      },
+      {
+       "candidate_id": "bob",
+       "candidate_name": "Bob"
+      },
+      {
+       "candidate_id": "cal",
+       "candidate_name": "Cal"
+      }
+     ],
+     "num_winners": 1,
+     "race_id": "race1",
+     "title": "BV1550-R1 - Ranked Robin - 3 cand - 12 ballots",
+     "voting_method": "RankedRobin"
+    }
+   ],
+   "settings": {
+    "public_results": true,
+    "random_candidate_order": false,
+    "term_type": "poll",
+    "voter_access": "open",
+    "voter_authentication": {}
+   },
+   "start_time": null,
+   "state": "open",
+   "title": "BV1550-R1 - Ranked Robin - 3 cand - 12 ballots - RRBN retest",
+   "update_date": "1785583625124"
+  },
+  "precinctFilteredElection": {
+   "admin_ids": null,
+   "audit_ids": null,
+   "ballot_source": "live_election",
+   "claim_key_hash": null,
+   "create_date": "2026-08-01T11:27:05.124Z",
+   "credential_ids": null,
+   "description": "Re-test of BV1550 (github Equal-Vote/bettervoting #885 / #886) after the 2026 tiebreaker overhaul.",
+   "election_id": "mj26yj",
+   "end_time": null,
+   "frontend_url": "",
+   "head": true,
+   "is_public": null,
+   "owner_id": "61abacb9-15a6-49f2-b8bd-16c8764783f4",
+   "public_archive_id": null,
+   "races": [
+    {
+     "candidates": [
+      {
+       "candidate_id": "ann",
+       "candidate_name": "Ann"
+      },
+      {
+       "candidate_id": "bob",
+       "candidate_name": "Bob"
+      },
+      {
+       "candidate_id": "cal",
+       "candidate_name": "Cal"
+      }
+     ],
+     "num_winners": 1,
+     "race_id": "race1",
+     "title": "BV1550-R1 - Ranked Robin - 3 cand - 12 ballots",
+     "voting_method": "RankedRobin"
+    }
+   ],
+   "settings": {
+    "public_results": true,
+    "random_candidate_order": false,
+    "term_type": "poll",
+    "voter_access": "open",
+    "voter_authentication": {}
+   },
+   "start_time": null,
+   "state": "open",
+   "title": "BV1550-R1 - Ranked Robin - 3 cand - 12 ballots - RRBN retest",
+   "update_date": "1785583625124"
+  },
+  "voterAuth": {
+   "authorized_voter": true,
+   "has_voted": false,
+   "permissions": [],
+   "roles": []
+  }
+ },
+ "election_id": "mj26yj",
+ "results": {
+  "election": {
+   "admin_ids": null,
+   "audit_ids": null,
+   "auth_key": null,
+   "ballot_source": "live_election",
+   "claim_key_hash": null,
+   "create_date": "2026-08-01T11:27:05.124Z",
+   "credential_ids": null,
+   "description": "Re-test of BV1550 (github Equal-Vote/bettervoting #885 / #886) after the 2026 tiebreaker overhaul.",
+   "election_id": "mj26yj",
+   "end_time": null,
+   "frontend_url": "",
+   "head": true,
+   "is_public": null,
+   "owner_id": "61abacb9-15a6-49f2-b8bd-16c8764783f4",
+   "public_archive_id": null,
+   "races": [
+    {
+     "candidates": [
+      {
+       "candidate_id": "ann",
+       "candidate_name": "Ann"
+      },
+      {
+       "candidate_id": "bob",
+       "candidate_name": "Bob"
+      },
+      {
+       "candidate_id": "cal",
+       "candidate_name": "Cal"
+      }
+     ],
+     "num_winners": 1,
+     "race_id": "race1",
+     "title": "BV1550-R1 - Ranked Robin - 3 cand - 12 ballots",
+     "voting_method": "RankedRobin"
+    }
+   ],
+   "settings": {
+    "public_results": true,
+    "random_candidate_order": false,
+    "term_type": "poll",
+    "voter_access": "open",
+    "voter_authentication": {}
+   },
+   "start_time": null,
+   "state": "open",
+   "title": "BV1550-R1 - Ranked Robin - 3 cand - 12 ballots - RRBN retest",
+   "update_date": "1785583625124"
+  },
+  "results": [
+   {
+    "elected": [
+     {
+      "copelandScore": 1.5,
+      "id": "ann",
+      "name": "Ann",
+      "tieBreakOrder": 0,
+      "votesPreferredOver": {
+       "ann": 0,
+       "bob": 5,
+       "cal": 6
+      },
+      "winsAgainst": {
+       "ann": false,
+       "bob": false,
+       "cal": true
+      }
+     }
+    ],
+    "other": [
+     {
+      "copelandScore": 1.5,
+      "id": "bob",
+      "name": "Bob",
+      "tieBreakOrder": 1,
+      "votesPreferredOver": {
+       "ann": 5,
+       "bob": 0,
+       "cal": 7
+      },
+      "winsAgainst": {
+       "ann": false,
+       "bob": false,
+       "cal": true
+      }
+     },
+     {
+      "copelandScore": 0,
+      "id": "cal",
+      "name": "Cal",
+      "tieBreakOrder": 2,
+      "votesPreferredOver": {
+       "ann": 4,
+       "bob": 3,
+       "cal": 0
+      },
+      "winsAgainst": {
+       "ann": false,
+       "bob": false,
+       "cal": false
+      }
+     }
+    ],
+    "perm": [
+     "ann",
+     "bob",
+     "cal"
+    ],
+    "roundResults": [
+     {
+      "logs": [
+       "Ann picked in random tie-breaker, more robust tiebreaker not yet implemented."
+      ],
+      "runner_up": [],
+      "tieBreakType": "random",
+      "tied": [
+       {
+        "copelandScore": 1.5,
+        "id": "ann",
+        "name": "Ann",
+        "tieBreakOrder": 0,
+        "votesPreferredOver": {
+         "ann": 0,
+         "bob": 5,
+         "cal": 6
+        },
+        "winsAgainst": {
+         "ann": false,
+         "bob": false,
+         "cal": true
+        }
+       },
+       {
+        "copelandScore": 1.5,
+        "id": "bob",
+        "name": "Bob",
+        "tieBreakOrder": 1,
+        "votesPreferredOver": {
+         "ann": 5,
+         "bob": 0,
+         "cal": 7
+        },
+        "winsAgainst": {
+         "ann": false,
+         "bob": false,
+         "cal": true
+        }
+       }
+      ],
+      "winners": [
+       {
+        "copelandScore": 1.5,
+        "id": "ann",
+        "name": "Ann",
+        "tieBreakOrder": 0,
+        "votesPreferredOver": {
+         "ann": 0,
+         "bob": 5,
+         "cal": 6
+        },
+        "winsAgainst": {
+         "ann": false,
+         "bob": false,
+         "cal": true
+        }
+       }
+      ]
+     }
+    ],
+    "summaryData": {
+     "candidates": [
+      {
+       "copelandScore": 1.5,
+       "id": "ann",
+       "name": "Ann",
+       "tieBreakOrder": 0,
+       "votesPreferredOver": {
+        "ann": 0,
+        "bob": 5,
+        "cal": 6
+       },
+       "winsAgainst": {
+        "ann": false,
+        "bob": false,
+        "cal": true
+       }
+      },
+      {
+       "copelandScore": 1.5,
+       "id": "bob",
+       "name": "Bob",
+       "tieBreakOrder": 1,
+       "votesPreferredOver": {
+        "ann": 5,
+        "bob": 0,
+        "cal": 7
+       },
+       "winsAgainst": {
+        "ann": false,
+        "bob": false,
+        "cal": true
+       }
+      },
+      {
+       "copelandScore": 0,
+       "id": "cal",
+       "name": "Cal",
+       "tieBreakOrder": 2,
+       "votesPreferredOver": {
+        "ann": 4,
+        "bob": 3,
+        "cal": 0
+       },
+       "winsAgainst": {
+        "ann": false,
+        "bob": false,
+        "cal": false
+       }
+      }
+     ],
+     "nAbstentions": 0,
+     "nOutOfBoundsVotes": 0,
+     "nTallyVotes": 12
+    },
+    "tieBreakType": "random",
+    "tied": [
+     {
+      "copelandScore": 1.5,
+      "id": "ann",
+      "name": "Ann",
+      "tieBreakOrder": 0,
+      "votesPreferredOver": {
+       "ann": 0,
+       "bob": 5,
+       "cal": 6
+      },
+      "winsAgainst": {
+       "ann": false,
+       "bob": false,
+       "cal": true
+      }
+     },
+     {
+      "copelandScore": 1.5,
+      "id": "bob",
+      "name": "Bob",
+      "tieBreakOrder": 1,
+      "votesPreferredOver": {
+       "ann": 5,
+       "bob": 0,
+       "cal": 7
+      },
+      "winsAgainst": {
+       "ann": false,
+       "bob": false,
+       "cal": true
+      }
+     }
+    ],
+    "votingMethod": "RankedRobin"
+   }
+  ]
+ }
+}
