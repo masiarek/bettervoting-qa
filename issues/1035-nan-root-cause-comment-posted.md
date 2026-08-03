@@ -36,8 +36,11 @@ This is the R2 prerequisite from [`../analysis/flat-scores-abstention/04-options
 |---|---|
 | Both ballot sets give `finalistVotes = 0` with `nTallyVotes = 3` | **executed** — `probe/nan-repro.ts` against real `Star()` |
 | The two division sites | read from source at `8d2b3f9` |
-| `NaN%` renders in the browser | **not verified in a browser** — read from recharts semantics. Corroborated by the screenshot in the issue itself, which shows `NaN` in production |
+| `NaN%` renders in the runoff table | **verified in a browser** 2026-08-02 — see [`../test_cases/BV-AB2-nan-in-runoff-table.md`](../test_cases/BV-AB2-nan-in-runoff-table.md) |
+| `NaN%` renders in the pie chart | **refuted.** Recharts draws no sectors when every value is 0, so the label callback never runs and the pie is blank, not `NaN`. Comment corrected upstream |
 
-## Not claimed
+## Corrected after the fact
 
-No live repro election was built for this one. The issue already carries a production screenshot of the symptom, so the new information is the mechanism, not the existence.
+The first version of the comment claimed `NaN%` on **both** the runoff table and the pie chart. Building the BV-AB2 baseline capture refuted the pie half: recharts renders no sectors when every value is zero, so the label callback never runs and the chart is simply **empty**. Same root condition, different symptom, probably a different fix.
+
+The comment was edited in place to say so explicitly rather than quietly, and now links the live repro `3d8qdr`. This is the second prediction-vs-screenshot miss this session — the repo convention about marking source-derived expectations as predictions earns its place.
