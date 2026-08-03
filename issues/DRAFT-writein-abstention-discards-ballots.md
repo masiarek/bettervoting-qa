@@ -4,8 +4,9 @@ Ticket drafted 2026-08-02 for `Equal-Vote/bettervoting`. **Nothing has been post
 
 Two notes before it goes anywhere:
 
-- **No live BetterVoting election reproduces this yet.** Everything below was executed against the real `Star()` tabulator with hand-built CVR input, and the `marks`-construction premise was read from `getElectionResultsController.ts`. Building an actual election on bettervoting.com with an approved write-in is the obvious next step and would make the report much harder to wave off. Per this repo's conventions, that gap is stated in the ticket itself rather than glossed.
+- **Live repro built: [bettervoting.com/43jp39/results](https://bettervoting.com/43jp39/results)** (BV-WI1, created 2026-08-02, publicly readable). The live numbers match the tabulator-level prediction exactly. Election admin details are in the session notes, **not in this repo** — the claim key grants ownership of the election and this repo is public.
 - **Deliberately framed as independent of [#884](https://github.com/Equal-Vote/bettervoting/issues/884).** This is a bug under the current policy, whatever anyone thinks of that policy. The abstention-policy argument is mentioned once, at the end, as a note — not as the ask. Leading with #884 would turn a fixable bug into a rerun of a year-old disagreement.
+- **Temporary access expires 10 hours after creation** (`TEMPORARY_ACCESS_HOURS = 10`). After that the election can't be administered or deleted by anyone unless Adam claims it from his signed-in account first, via `POST /API/Election/43jp39/claim` with the claim key. Worth doing if this election is going to be cited upstream.
 
 ---
 
@@ -23,30 +24,41 @@ Those ballots are not abstentions. Relative to the actual candidate set they exp
 
 The trigger is that a ballot's `marks` object only contains keys for candidates **that ballot listed**, while the abstention test runs on those raw keys, before the ballot is normalised over the full candidate set.
 
-### Reproduction
+### Reproduction — live on bettervoting.com
 
-Race with two official candidates **A** and **B**, write-in **C** submitted by one voter and approved. Seven ballots:
+**<https://bettervoting.com/43jp39/results>**
 
-```
-4 × {A:4, B:4}          ← ordinary ballots; no key for C, because these voters didn't write C in
-    {A:4, B:2, C:3}
-    {A:0, B:3, C:5}
-    {A:1, B:2, C:0}
-```
+One election, **two races, same seven ballots, same voters**. The only difference is whether Cedar is a write-in or an official candidate:
 
-Executed against `Star()` at `8d2b3f9`:
-
-| | Current behaviour | If the four `{A:4,B:4}` ballots are counted |
+| | Race 1 — Cedar is an approved **write-in** | Race 2 — Cedar is an **official candidate** |
 |---|---|---|
-| Tally votes | **3** | 7 |
+| Voters reported | **3** | **7** |
 | Abstentions | **4** | 0 |
-| Scores | C 8, B 7, A 5 | B 23, A 21, C 8 |
-| Finalists | C, B | B, A |
-| **Winner** | **C — the write-in** | **B** |
+| Scores | Cedar 8, Ben 7, Ann 5 | Ben 23, Ann 21, Cedar 8 |
+| **Winner** | **Cedar** | **Ben** |
+| Tie-break | none | none |
 
-No tie-break is involved in either run (`tieBreakType = none`).
+The ballots (identical in both races):
 
-Four of the seven voters gave both official candidates four stars. Every one of those ballots was discarded, and the race was decided by the three ballots that happened to mention the write-in — electing a candidate that exactly one voter scored above zero.
+```
+4 × Ann 4, Ben 4      ← these voters did not write Cedar in
+    Ann 4, Ben 2, Cedar 3
+    Ann 0, Ben 3, Cedar 5
+    Ann 1, Ben 2, Cedar 0
+```
+
+Four of the seven voters gave both official candidates four stars. In race 2 those ballots count, because Cedar is simply left blank on them. In race 1 they are **discarded as abstentions**, and the race is decided by the three ballots that happened to mention the write-in — electing a candidate exactly one voter scored above zero.
+
+Nothing here is contrived: write-ins are a normal feature, and "I like both of the official candidates equally" is the most ordinary ballot there is.
+
+Anyone can verify without logging in:
+
+```bash
+curl -s https://bettervoting.com/API/ElectionResult/43jp39 \
+  | jq '.results[] | {tally: .summaryData.nTallyVotes, abstentions: .summaryData.nAbstentions, winner: .elected[0].name}'
+```
+
+The same numbers reproduce by running `Star()` directly at `8d2b3f9` on the equivalent CVR.
 
 ### Root cause
 
@@ -113,9 +125,9 @@ Independently, dropping `markAllEqualAsAbstention` for STAR would also fix this 
 |---|---|
 | `marks` built only from `vote.scores` | read from `getElectionResultsController.ts:77-104` |
 | Abstention test runs pre-normalisation | read from `Util.ts:96-131` |
-| The 7-ballot counterexample | **executed** against real `Star()` at `8d2b3f9`, both flag settings |
+| The 7-ballot counterexample | **executed** against real `Star()` at `8d2b3f9`, both flag settings — **and reproduced live** on bettervoting.com (`43jp39`), numbers identical |
 | 978/17,248 flip rate | **executed** — own two-pass fuzz, seeded PRNG, generator described in the ticket |
 | Approval/Plurality/IRV unaffected | reasoned from the `every(m => m === 0)` test; **not** separately fuzzed |
-| Live BetterVoting election | **not done** — stated as a gap in the ticket |
+| Live BetterVoting election | **done** — `43jp39`, created via the public API as a guest, write-in approved via `setWriteInResults`, results readable anonymously |
 
 A claim that the sandbox CSV parser is a second source of sparse ballots was **checked and dropped**: `Sandbox.tsx:38-48` length-checks each row against `nCandidates` and raises an error, so short rows don't reach the tabulator.
