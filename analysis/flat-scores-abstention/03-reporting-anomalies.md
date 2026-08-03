@@ -131,7 +131,7 @@ This is the one that would land on production the day the fix ships, and it is t
 
 ### The election
 
-[`star-voting-library` case 08](https://masiarek.github.io/star-voting-library/01_STAR/Flat_scores_ties/Flat_scores_ties_08_all_flat_zero_count.html) — five voters, three candidates, every ballot flat at a different level:
+[`star-voting-library` case 08](https://masiarek.github.io/star-voting-library/01_STAR/03_Criteria/Flat_scores_ties/Flat_scores_ties_08_all_flat_zero_count.html) — five voters, three candidates, every ballot flat at a different level:
 
 ```
 Anchovy, Basil, Caper

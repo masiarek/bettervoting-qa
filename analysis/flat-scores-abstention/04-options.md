@@ -151,7 +151,7 @@ Results are tabulated live per request, so a deploy silently changes the reporte
 
 ### R4 — Pin the decision in fixtures
 
-The eight [`Flat_scores_ties`](https://masiarek.github.io/star-voting-library/01_STAR/Flat_scores_ties/index.html) cases already exist as YAML with verified reference output. Land them as tabulator tests asserting `nTallyVotes`, `nAbstentions`, and the winner, with the policy stated in the test name. Then the next person who wonders why `5,5,5` counts does not have to excavate #884.
+The eight [`Flat_scores_ties`](https://masiarek.github.io/star-voting-library/01_STAR/03_Criteria/Flat_scores_ties/index.html) cases already exist as YAML with verified reference output. Land them as tabulator tests asserting `nTallyVotes`, `nAbstentions`, and the winner, with the policy stated in the test name. Then the next person who wonders why `5,5,5` counts does not have to excavate #884.
 
 ---
 

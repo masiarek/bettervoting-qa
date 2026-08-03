@@ -58,7 +58,7 @@ Key findings, all verified by running BetterVoting's own tabulator:
 - **It is two changes, not one**, and they affect disjoint ballot sets. The half that produces the ugly reporting is the half that's blocked on the data model anyway.
 - **[#1035](https://github.com/Equal-Vote/bettervoting/issues/1035) is a hard prerequisite**, not a low-priority sibling: today's abstention rule is what hides a division-by-zero in the runoff pie.
 
-→ [`analysis/flat-scores-abstention/`](analysis/flat-scores-abstention/) · upstream reference cases: [Flat scores, ties & tie-breaking](https://masiarek.github.io/star-voting-library/01_STAR/Flat_scores_ties/index.html)
+→ [`analysis/flat-scores-abstention/`](analysis/flat-scores-abstention/) · upstream reference cases: [Flat scores, ties & tie-breaking](https://masiarek.github.io/star-voting-library/01_STAR/03_Criteria/Flat_scores_ties/index.html)
 
 ### #1350 — Add a disclaimer related to preliminary results (OPEN, assigned to Adam)
 

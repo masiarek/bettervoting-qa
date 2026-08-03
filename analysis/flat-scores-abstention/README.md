@@ -4,13 +4,18 @@
 
 Short answer: **they are partly right.** The tabulation rule is wrong, but two of the three reasons people give for leaving it alone are real, and one of them is a genuine regression risk that would land the day the fix ships. There is a sequencing that gets the fix in without any of it. That's the recommendation in [`04-options.md`](04-options.md).
 
+Two findings carry more weight than the rest:
+
+- **Equal Vote's own prior engine disagrees with the current rule.** [`Equal-Vote/starpy`](https://github.com/Equal-Vote/starpy) has no abstention handling at all — it sums every ballot row and counts only strict preferences. #884 diverged not from an outside implementation but from Equal Vote's own lineage, and from its own published hand-count protocol. See [`06-what-the-rules-say.md`](06-what-the-rules-say.md).
+- **"The winner never changes" does not make this cosmetic.** An 80-member organisation with a 50%-turnout quorum, 44 members voting, 30 of them scoring both nominees `5,5`: BetterVoting reports **14 voters** and the quorum **fails**. Same winner, different governance outcome.
+
 ## The bug in one paragraph
 
 BetterVoting classifies a STAR ballot as an **abstention** if every mark is equal after `null` is coerced to `0`. So `5,5,5`, `3,3,3`, `0,0,0` and `0,null,null` are all treated the same way: the ballot is **removed from the tally entirely** — it adds nothing to the score totals, nothing to the pairwise matrix, and does not count toward `nTallyVotes`. A voter who gave every candidate five stars is told they "Abstained — No preference." An election in which every ballot is flat reports *"Still waiting for results. No votes have been cast"* and, in some configurations, still names a winner. The reference implementation (Larry Hastings' `starvote`) counts any explicitly scored ballot as cast and abstains only a **truly blank** ballot; the flat ballot lands in the runoff's **Equal Support** bucket, where it belongs.
 
 Source of the rule: [`Util.ts:96-103`](https://github.com/Equal-Vote/bettervoting/blob/main/packages/backend/src/Tabulators/Util.ts#L96-L103), enabled for STAR at [`Star.ts:13`](https://github.com/Equal-Vote/bettervoting/blob/main/packages/backend/src/Tabulators/Star.ts#L13) and for STAR-PR at [`AllocatedScore.ts:26`](https://github.com/Equal-Vote/bettervoting/blob/main/packages/backend/src/Tabulators/AllocatedScore.ts#L26). The policy was decided deliberately in [#884](https://github.com/Equal-Vote/bettervoting/issues/884) — this is not an accident anyone forgot to fix.
 
-Upstream reference cases: [Flat scores, ties & tie-breaking](https://masiarek.github.io/star-voting-library/01_STAR/Flat_scores_ties/index.html) in `star-voting-library`, cases 07 and 08.
+Upstream reference cases: [Flat scores, ties & tie-breaking](https://masiarek.github.io/star-voting-library/01_STAR/03_Criteria/Flat_scores_ties/index.html) in `star-voting-library`, cases 07 and 08.
 
 ## The three hesitations, graded
 
@@ -29,6 +34,7 @@ Upstream reference cases: [Flat scores, ties & tie-breaking](https://masiarek.gi
 | [`03-reporting-anomalies.md`](03-reporting-anomalies.md) | The "reporting looks strange" claim, with worked before/after numbers. This is the heart of it |
 | [`04-options.md`](04-options.md) | Six options from "do nothing" to "full data-model fix", with cost, blast radius, and a recommended sequence |
 | [`05-issue-map.md`](05-issue-map.md) | Which half of the rule causes each ticket — the join onto the roster in `star-voting-library`. **Also: every evidence link on #1407 is a dead 404** |
+| [`06-what-the-rules-say.md`](06-what-the-rules-say.md) | The policy half: STAR's published canon, election-administration standards, the quorum hazard, and what other engines do |
 
 ## The one-line recommendation
 
