@@ -22,7 +22,7 @@ Upstream reference cases: [Flat scores, ties & tie-breaking](https://masiarek.gi
 | # | The hesitation | Verdict |
 |---|---|---|
 | 1 | *"The runoff chart looks wrong after the fix"* | **Real, and unavoidable.** The Equal Support bar grows by exactly the number of flat ballots and can become the tallest bar on the chart, above the winner. See [`03-reporting-anomalies.md`](03-reporting-anomalies.md). |
-| 2 | *"It'll break something else"* | **Real, and worse than people think.** The fix un-hides a division-by-zero that is currently masked, and it changes the quota in proportional STAR — an outcome change, not a display change. See [`02-blast-radius.md`](02-blast-radius.md). |
+| 2 | *"It'll break something else"* | **Real, but narrower than feared.** It widens an existing division-by-zero (already live — #1035), and it changes the quota in proportional STAR, which flips seats. Single-winner and Bloc STAR survived a 55,000-election falsification attempt. See [`02-blast-radius.md`](02-blast-radius.md). |
 | 3 | *"Ties and random tie-break order will shift"* | **False.** The random tie-break seed is derived from the **raw** ballot count, not the tally count, and is explicitly documented as such. Nothing about the shuffle moves. See [`02-blast-radius.md` §6](02-blast-radius.md). |
 
 ## What the pages contain
@@ -45,6 +45,16 @@ The change everyone argues about is actually two independent edits:
 - **(a)** stop passing `markAllEqualAsAbstention = true` for STAR — makes `5,5,5` and `3,3,3` cast votes;
 - **(b)** stop coercing `null → 0` — makes explicit `0,0,0` distinct from blank.
 
-(a) is four characters, fixes most of the reported cases, and makes STAR consistent with every other method on the platform. (b) touches Approval, Plurality, IRV and the bulk-upload data model, and is a much larger conversation. **They have been argued as one change, and that is why the discussion has not moved in a year.**
+(a) is four characters, fixes most of the reported cases, makes STAR consistent with every other method on the platform, and structurally fixes the write-in bug below. (b) changes Approval, Plurality, IRV and **STV** semantics — it is implementable (the data model preserves nulls on every path, contrary to an earlier draft here), but it is a much larger conversation. **They have been argued as one change, and that is why the discussion has not moved in a year.**
 
-Before either lands, [#1035](https://github.com/Equal-Vote/bettervoting/issues/1035) (the `NaN%` in the runoff pie) must be fixed, because today the abstention rule is what hides it.
+Before either lands, [#1035](https://github.com/Equal-Vote/bettervoting/issues/1035) (the `NaN%` in the runoff pie) must be fixed. It is already live today — the abstention rule keeps its trigger set narrow, and the fix widens it.
+
+## The finding that reverses the burden of proof
+
+Checking what the *change* would break turned up four live defects that are nobody's ticket. The first one matters most:
+
+**An approved write-in silently deletes ordinary ballots — and flips winners.** A ballot's `marks` only carries keys that ballot listed, and no voter carries a key for a write-in someone *else* added. The abstention test runs on those raw keys, before the zero-fill. So once a write-in is approved, every ballot scoring all official candidates equally and non-zero is deleted as an "abstention" — though zero-filled it strictly prefers every official over the write-in. Executed: the write-in wins under today's rule, loses under the fix. The winner flips in **10,632 of 40,000** fuzzed elections.
+
+**Edit (a) structurally fixes this class**, because "all marks zero" is invariant under zero-filling missing keys while "all marks equal" is not.
+
+That reframes the whole discussion: the question is not whether it is safe to change the rule, but how long it is safe to keep it.

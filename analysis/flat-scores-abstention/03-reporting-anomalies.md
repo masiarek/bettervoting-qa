@@ -159,11 +159,19 @@ The widget now renders, and:
 
 The `noPreferencePercentage` footnote *is* guarded (`nTallyVotes > 0 ? … : '0.0'`, lines 54-56). The pie's internal `percent` is not.
 
-So the fix **converts [#1052](https://github.com/Equal-Vote/bettervoting/issues/1052)/[#1065](https://github.com/Equal-Vote/bettervoting/issues/1065) into [#1035](https://github.com/Equal-Vote/bettervoting/issues/1035)** — one wrong message becomes a different wrong message, in *more* elections than today, because any race where the two finalists tie at zero head-to-head now reaches this code path with ballots in it.
+So the fix **converts [#1052](https://github.com/Equal-Vote/bettervoting/issues/1052)/[#1065](https://github.com/Equal-Vote/bettervoting/issues/1065) into [#1035](https://github.com/Equal-Vote/bettervoting/issues/1035)** — one wrong message becomes a different wrong message, in *more* elections than today.
 
-`NaN%` on a live results page is a worse look than a wrong sentence, and it is the reasonable core of "the reporting looks strange". The mitigation is trivial and independently useful: **fix #1035 first**, then flip the rule. See option **R2** in [`04-options.md`](04-options.md).
+### Correction: the rule does not *hide* #1035, it narrows it
 
-> The `NaN` mechanism is read from source here, but it is corroborated: #1035 already reports `NaN` in production for an equal-ties race, which is the same zero-denominator path reached by a different route.
+An earlier draft of this page said today's abstention rule hides the `NaN` by making the widget never render. **That is too strong**, and the distinction matters for how #1035 gets prioritised.
+
+`NaN` is reachable **today**, with `nTallyVotes > 0`. Three candidates, every ballot `{A:5, B:5, C:0}`: tally = 3, finalists A and B, and `finalistVotes = 0` — so [`STARDetailedResults.tsx:69`](https://github.com/Equal-Vote/bettervoting/blob/main/packages/frontend/src/components/Election/Results/STAR/STARDetailedResults.tsx#L69) (`runoffVotes / finalistVotes`) *and* the recharts pie both render `NaN%`. `Results.tsx:485` does not gate this case at all.
+
+So the accurate statement is: **the abstention rule keeps the trigger set narrow; the fix widens it** — most visibly to two-candidate all-flat elections, which today short-circuit before rendering.
+
+That does not change the recommendation, only its justification. #1035 should be fixed first because it is **already live and currently under-reported**, not because the fix would create it. See option **R2** in [`04-options.md`](04-options.md).
+
+> Mechanism read from source plus recharts semantics; not rendered in a browser here. Corroborated by #1035 itself, which reports `NaN` in production for an equal-ties race.
 
 ---
 

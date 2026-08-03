@@ -64,6 +64,8 @@ After this, a STAR ballot abstains under exactly the rule Approval, Plurality an
 | **Outcome change** | none for single-winner or Bloc STAR (verified by execution — [`02-blast-radius.md`](02-blast-radius.md)); **yes for STAR-PR** |
 | **Retroactive** | yes, on displayed numbers — mitigate with R3 |
 
+**It also fixes a live winner-flipping bug.** Once a write-in is approved, today's rule deletes every ballot that scored the official candidates equally and non-zero, because the abstention test runs on the ballot's raw `marks` keys before the zero-fill. "All marks zero" is invariant under zero-filling missing keys; "all marks equal" is not. Executed counterexample and 10,632/40,000 fuzz flips in [`02-blast-radius.md`](02-blast-radius.md) § 0.1. **This alone is a stronger argument for edit (a) than anything in the reporting discussion.**
+
 **It also avoids the ugliest reporting anomaly.** Because `makeAbstentionTest()` still tests *"all marks zero"*, an all-`0,0` protest ballot keeps abstaining, so the "four zero-ballots halve every candidate's average" effect in [`03-reporting-anomalies.md`](03-reporting-anomalies.md) § Anomaly 2 **does not happen under this option** — confirmed by execution. That distortion belongs entirely to edit (b), which is blocked on the data model anyway. This is the single strongest reason to split the change.
 
 **Do STAR and STAR-PR separately.** The flag is per-tabulator, so `AllocatedScore.ts:26` can stay `true` while `Star.ts:13` changes. STAR-PR's quota is derived from the tally count and its allocation is not a set of order-preserving comparisons, so it needs its own test matrix before it moves. Decoupling them turns one blocked change into one shippable change plus one scheduled one.
@@ -79,11 +81,11 @@ Also drop the `?? 0`, so only a **truly blank** ballot abstains. Exactly matches
 | | |
 |---|---|
 | **Fixes** | everything in Option B, plus #1090 and the #754 residue |
-| **Blocked by** | [`OrderedVote = number[]`](https://github.com/Equal-Vote/bettervoting/blob/main/packages/shared/src/domain_model/Vote.ts#L13) — bulk-uploaded ballots have no null channel, so for uploaded elections blank and explicit-zero may be genuinely indistinguishable at rest |
-| **Also touches** | Approval, Plurality, IRV — an all-zero Approval ballot ("I approve nobody") becomes a cast vote, changing every plurality/approval percentage |
-| **Cost** | data-model work, a migration decision, and a policy call on uploaded elections |
+| **Feasible?** | **Yes — I had this wrong earlier.** `OrderedVote = number[]` is a runtime lie: `cvrParsers.tsx` emits `null` for unranked and `castVoteController.ts:141-144` passes it through. Nulls survive every ingestion path, and ballots are stored as raw JSON. No migration is required to *distinguish* blank from zero |
+| **Also changes** | Approval, Plurality, IRV — an all-zero Approval ballot ("I approve nobody") becomes a cast vote, changing every approval/plurality percentage — **and STV**, whose fixed quota (`IRV.ts:73`) shifts the elected set in 961/20,000 fuzzed 2-seat elections. Single-winner IRV is immune (quota recomputed per round) |
+| **Cost** | the reporting distortion in `03` § Anomaly 2 lives here, and four methods need re-validation |
 
-**Verdict:** the right end state, the wrong next step. Split it out and let it have its own thread — it is a *data* question, not a tabulation question.
+**Verdict:** the right end state, still the wrong next step — but on **blast radius**, not on feasibility. Split it out and let it have its own thread.
 
 ---
 
@@ -164,8 +166,12 @@ The eight [`Flat_scores_ties`](https://masiarek.github.io/star-voting-library/01
 | 3 | **Option A** — fix the misleading copy | zero backend risk; stops telling full-support voters they abstained | — |
 | 4 | **Option D** — three-bucket reporting | makes step 5 visually uneventful; settles the actual disagreement | needs 1, 2 |
 | 5 | **Option B (STAR only)** + **R3** date gate + **R4** fixtures | the tabulation fix, now boring | needs 1, 4 |
-| 6 | **Option B for STAR-PR**, with its own test matrix | quota change needs evidence, not argument | needs 5 |
-| 7 | **Option C** — the `null` vs `0` data question | separate thread; starts with "what do bulk uploads store?" | needs 6 |
+| 6 | **Option B for STAR-PR**, with its own test matrix | the quota change flips seats — worked example in `02` § 1.1, stable across all 24 tiebreak permutations | needs 5, and R5 |
+| 7 | **Option C** — the `null` vs `0` question | separate thread; now a blast-radius question (Approval/Plurality/IRV/STV), not a data-model one | needs 6 |
+
+### R5 — guard STAR-PR's empty tally *(independent of everything else)*
+
+`AllocatedScore.ts:289` throws `TypeError` on an empty `cand_df_sorted`, and because the controller tabulates every race in one loop, **one STAR-PR race with no valid votes 500s the results endpoint for the whole election**. Live today for zero-ballot and all-flat STAR-PR elections. Both edits shrink the trigger set; neither removes it. Fix it regardless.
 
 Steps 1–3 are uncontroversial and can start today. Step 4 is the one worth arguing *for*, because it is what lets step 5 happen without anyone having to lose the #884 argument.
 
