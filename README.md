@@ -48,6 +48,18 @@ Tabulation test cases do **not** belong here — they go in `star-voting-library
 
 ## Current work
 
+### Flat scores → abstention — why the fix is contested (ANALYSIS, no ticket of its own)
+
+Why Equal Vote hesitate to fix [#1407](https://github.com/Equal-Vote/bettervoting/issues/1407) / [#1053](https://github.com/Equal-Vote/bettervoting/issues/1053), and whether they're right to. Answer: partly. Two of the three stated objections are real, one is false, and the biggest risk is one nobody is discussing (retroactive change to every past election's published numbers).
+
+Key findings, all verified by running BetterVoting's own tabulator:
+
+- **Single-winner and Bloc STAR outcomes do not change** — the winner is invariant under the fix, including in the all-flat random-tiebreak case. Only STAR-PR can change a result, via the quota.
+- **It is two changes, not one**, and they affect disjoint ballot sets. The half that produces the ugly reporting is the half that's blocked on the data model anyway.
+- **[#1035](https://github.com/Equal-Vote/bettervoting/issues/1035) is a hard prerequisite**, not a low-priority sibling: today's abstention rule is what hides a division-by-zero in the runoff pie.
+
+→ [`analysis/flat-scores-abstention/`](analysis/flat-scores-abstention/) · upstream reference cases: [Flat scores, ties & tie-breaking](https://masiarek.github.io/star-voting-library/01_STAR/Flat_scores_ties/index.html)
+
 ### #1350 — Add a disclaimer related to preliminary results (OPEN, assigned to Adam)
 
 The active piece. Four independently landable deliverables:
