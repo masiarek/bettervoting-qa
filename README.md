@@ -52,11 +52,11 @@ Tabulation test cases do **not** belong here — they go in `star-voting-library
 
 Why Equal Vote hesitate to fix [#1407](https://github.com/Equal-Vote/bettervoting/issues/1407) / [#1053](https://github.com/Equal-Vote/bettervoting/issues/1053), and whether they're right to. Answer: partly. Two of the three stated objections are real, one is false, and the biggest risk is one nobody is discussing (retroactive change to every past election's published numbers).
 
-Key findings, all verified by running BetterVoting's own tabulator:
+Key findings, verified by running BetterVoting's own tabulator and captured against production in [BV2263–BV2267](test_cases/BV2263-2267-index.md):
 
 - **Single-winner and Bloc STAR outcomes do not change** — the winner is invariant under the fix, including in the all-flat random-tiebreak case. Only STAR-PR can change a result, via the quota.
-- **It is two changes, not one**, and they affect disjoint ballot sets. The half that produces the ugly reporting is the half that's blocked on the data model anyway.
-- **[#1035](https://github.com/Equal-Vote/bettervoting/issues/1035) is a hard prerequisite**, not a low-priority sibling: today's abstention rule is what hides a division-by-zero in the runoff pie.
+- **It is two changes, not one**, and they affect disjoint ballot sets. The half that produces the ugly reporting is the larger, higher-blast-radius half (it also moves Approval, Plurality, IRV and STV).
+- **[#1035](https://github.com/Equal-Vote/bettervoting/issues/1035) is a prerequisite**, not a low-priority sibling: it is a live zero-denominator bug whose trigger set today's abstention rule merely *narrows*, and which any fix would widen. It surfaces as `NaN%` in the runoff **table**; the pie chart renders blank instead — both confirmed in a browser by [BV2264](test_cases/BV2264-nan-in-runoff-table.md).
 
 → [`analysis/flat-scores-abstention/`](analysis/flat-scores-abstention/) · baselines: [`test_cases/BV2263-2267-index.md`](test_cases/BV2263-2267-index.md) · upstream reference cases: [Flat scores, ties & tie-breaking](https://masiarek.github.io/star-voting-library/01_STAR/03_Criteria/Flat_scores_ties/index.html)
 
