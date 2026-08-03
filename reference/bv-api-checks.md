@@ -75,3 +75,38 @@ Frontend surfaces these verbatim in the snackbar as `Error making request: {stat
 | 400 | `expected_update_date is required` | Missing optimistic-concurrency token |
 | 409 | `Concurrent write detected, please try again` | Stale `expected_update_date`. Deterministic for scheduled elections whose state auto-transitioned since the last GET |
 | 401 | permission denied | Role lacks `canEditElectionState`, which excludes the plain `admin` role — only `system_admin` and `owner` have it |
+
+## Administering a guest-created election (and claiming it)
+
+Setting the `temp_id` cookie is **not sufficient** — that's an incomplete recipe. `elections.controllers.ts:86-97` grants the `owner` role to a guest only when **all** of these hold:
+
+1. `election.owner_id` starts with `v-` (the temp-id convention) — a bare UUID **never** works, no matter what cookie you send;
+2. `owner_id == cookies.temp_id`;
+3. fewer than `TEMPORARY_ACCESS_HOURS` (10) hours since `create_date`;
+4. `sha256(cookies['<election_id>_claim_key']) == election.claim_key_hash`.
+
+So an election created via the API must be created *with* a `claim_key_hash` you can produce the preimage for, and `owner_id` must follow the `v-` convention:
+
+```python
+TEMP_ID   = "v-" + <8 lowercase alnum>
+CLAIM_KEY = <random string>
+election["owner_id"]       = TEMP_ID
+election["claim_key_hash"] = hashlib.sha256(CLAIM_KEY.encode()).hexdigest()
+```
+
+Then send both cookies on every admin call: `temp_id=<TEMP_ID>; <election_id>_claim_key=<CLAIM_KEY>`.
+
+**Claiming to a real account** (`POST /API/Election/:id/claim`) additionally requires `canClaimElection`, which comes from that same guest owner role — so the browser must carry **both** the guest cookies **and** a logged-in session. The app's own path is: `sessionStorage.setItem('election_to_claim', '<id>')`, then load `/manage`, whose `useEffect` fires the claim.
+
+**Claiming is one-way.** Afterwards `owner_id` is an account id, so it no longer starts with `v-`, condition 1 fails forever, and `canClaimElection` can never be granted again. Only a `system_admin` could move ownership after that.
+
+**State changes need an OCC token.** `setOpenState` (and friends) return `400 expected_update_date is required` without it:
+
+```js
+const cur = await (await fetch('/API/Election/<id>', {credentials:'include'})).json();
+await fetch('/API/Election/<id>/setOpenState', {method:'POST', credentials:'include',
+  headers:{'Content-Type':'application/json'},
+  body: JSON.stringify({open:false, expected_update_date: cur.election.update_date})});
+```
+
+**Known orphans** (bare-UUID `owner_id`, so unadministrable): `vgwvjr`, and `mj26yj` from the earlier Ranked Robin retest.

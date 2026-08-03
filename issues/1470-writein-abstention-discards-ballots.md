@@ -8,8 +8,8 @@ Filed as a bug **independent of [#884](https://github.com/Equal-Vote/bettervotin
 
 ## Housekeeping
 
-- **The claim key is deliberately not in this repo** — it grants ownership of the election and this repo is public. It is in the session notes.
-- **Temporary guest access expires 10 hours after creation** (`TEMPORARY_ACCESS_HOURS = 10`). Now that the election is cited upstream, it should be claimed to Adam's account via `POST /API/Election/43jp39/claim`, or nobody will be able to administer or delete it.
+- **Claimed and closed, 2026-08-02.** Ownership transferred to the signed-in `Admin1` account, and the election was then set to `closed`. Closing matters: it was `state: open` with `voter_access: open`, so anyone reading #1470 could have cast a ballot and altered the tallies the issue cites. Results remain publicly readable (`public_results: true`) and verified unchanged after closing — race 1 `tally=3, winner=Cedar`; race 2 `tally=7, winner=Ben`.
+- **The claim key is deliberately not in this repo** — it grants ownership and this repo is public. It is in the session notes, and it is now spent: `owner_id` is an account id rather than a `v-` temp id, so `tempUserAuth` can never be satisfied again and `canClaimElection` can never be re-granted. **The claim is one-way** — only a `system_admin` could move ownership now.
 - **`vgwvjr` is an orphan.** A first attempt set `owner_id` to a bare UUID. The guest-ownership gate (`elections.controllers.ts:86-97`) requires `owner_id` to follow the `v-` temp-id convention **and** a `{election_id}_claim_key` cookie hashing to the stored `claim_key_hash`; a bare UUID can never obtain the owner role. It holds the same ballots but its write-in could not be approved, and it can't be administered or deleted. Harmless, but it's there.
 - **Correction worth carrying forward:** administering a guest-created election needs the claim-key cookie as well as `temp_id`. The earlier `mj26yj` retest election has a bare-UUID owner too, so it is in the same position.
 
