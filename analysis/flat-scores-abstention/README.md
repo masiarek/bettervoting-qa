@@ -28,7 +28,7 @@ Upstream reference cases: [Flat scores, ties & tie-breaking](https://masiarek.gi
 | [`02-blast-radius.md`](02-blast-radius.md) | Every surface that changes, cited to file:line, split into cosmetic vs outcome-changing |
 | [`03-reporting-anomalies.md`](03-reporting-anomalies.md) | The "reporting looks strange" claim, with worked before/after numbers. This is the heart of it |
 | [`04-options.md`](04-options.md) | Six options from "do nothing" to "full data-model fix", with cost, blast radius, and a recommended sequence |
-| [`05-issue-map.md`](05-issue-map.md) | The eleven tickets this touches and how they relate |
+| [`05-issue-map.md`](05-issue-map.md) | Which half of the rule causes each ticket — the join onto the roster in `star-voting-library`. **Also: every evidence link on #1407 is a dead 404** |
 
 ## The one-line recommendation
 
