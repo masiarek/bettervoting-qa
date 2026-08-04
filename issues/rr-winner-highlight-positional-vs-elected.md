@@ -1,6 +1,6 @@
 # Winner highlighting is positional, but `elected` is identity
 
-**Status: analysed, live repro under construction, not yet filed upstream.**
+**Status: CONFIRMED on production with a purpose-built election — [`8h4bvh`](https://bettervoting.com/8h4bvh/results) (BV2270), 2026-08-04.**
 
 Split out of [#1166](1166-ranked-robin-multiwinner-highlighting.md) deliberately. #1166 is a `good first issue` about a hard-coded `1`; this is a different defect that the #1166 fix ([PR #1479](https://github.com/Equal-Vote/bettervoting/pull/1479)) does not touch and was never meant to.
 
@@ -69,7 +69,31 @@ So `winners` = {Alder, Birch}, exactly two, and Alder beats Birch head-to-head �
 
 The shuffle re-rolls on every ballot cast (`"This ensures the tiebreak priority is reset after every vote"`), so a pair of mirror-image ballots — which cancel exactly, leaving every pairwise winner and every Copeland score untouched — re-rolls the display order without changing the election.
 
-*(Live election id and screenshot to be filled in once minted.)*
+### The live election
+
+**[`8h4bvh`](https://bettervoting.com/8h4bvh/results)** — BV2270, minted 2026-08-04, Ranked Robin, 1 winner.
+
+Minted with the three ballots above; the first draw put Alder first, so the page looked correct. Three mirror pairs were then cast (`Alder>Birch>Cedar>Dogwood` and its exact reverse, twice cancelling to nothing each time), and the third re-roll landed on a disagreeing order. Nine ballots now, with the tally identical to the three-ballot version — Copeland still 2/2/1/1, log still `Alder preferred over Birch in runoff.`
+
+<img alt="Results heading reads 'Alder wins!' while the star in the bar chart sits on Birch" src="img/8h4bvh_result.png" width="640">
+
+<img alt="Detailed results table with the gold-highlighted row on Birch, not the winner Alder" src="img/8h4bvh_race_details.png" width="640">
+
+The heading names **Alder**. The star and the gold row are on **Birch**. Both candidates show `2` wins / `67%`, so the page gives a reader no way to tell which of the two actually won — the two signals contradict each other and the wrong one is more prominent.
+
+From `GET /API/ElectionResult/8h4bvh`:
+
+```
+elected  : ['Alder']
+tieBreakType : none
+  row 0: Birch    copeland=2  tieBreakOrder=1
+  row 1: Alder    copeland=2  tieBreakOrder=3
+  row 2: Cedar    copeland=1  tieBreakOrder=0
+  row 3: Dogwood  copeland=1  tieBreakOrder=2
+logs: ['Alder preferred over Birch in runoff.']
+```
+
+Note `tieBreakType: none` — this is not a random-tiebreak election. The winner is fully determined by the ballots. Only the *row order* came from the shuffle.
 
 ## Scope
 
