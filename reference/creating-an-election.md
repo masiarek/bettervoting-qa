@@ -65,7 +65,19 @@ Three of these are decisions the creator was never shown:
 
 No owner role. Well inside the 10-hour `TEMPORARY_ACCESS_HOURS` window. The reason is visible on the election object: **`owner_id` is `null`.**
 
-The guest-owner grant at `elections.controllers.ts:86-97` requires `owner_id` to start with `v-`. `null` fails that test, so the grant can never fire — and `canClaimElection` comes from the same role, so signing in can't rescue it either. The wizard *did* write a `claim_key_hash`; it's the `owner_id` half that's missing.
+The guest-owner grant fails — but **not** on the `v-` convention, which is worth stating precisely, because [`bv-api-checks.md`](bv-api-checks.md#administering-a-guest-created-election-and-claiming-it) condition 1 is easy to misread here:
+
+```js
+// elections.controllers.ts:85-92
+const ownerIsTempUser = !req.election.owner_id || req.election.owner_id.startsWith('v-');
+const tempUserAuth =
+    ownerIsTempUser &&
+    req.election.owner_id == req.cookies.temp_id &&
+    hoursSinceCreate < sharedConfig.TEMPORARY_ACCESS_HOURS &&
+    hashString(req.cookies[`${req.election.election_id}_claim_key`]) === req.election.claim_key_hash;
+```
+
+`null` **passes** `ownerIsTempUser` — the `!req.election.owner_id` disjunct admits it. It fails on the *next* line: `owner_id == cookies.temp_id` compares `null` against the browser's `v-…` temp id. So the grant never fires, and since `canClaimElection` comes from the same role, signing in can't rescue it. The wizard *did* write a `claim_key_hash`; it's the `owner_id` half that's missing.
 
 `owner_id` is not stripped from the anonymous view in general — it comes back populated on other elections read the same way. So `null` here reads as genuinely unset rather than filtered.
 

@@ -1,0 +1,572 @@
+{
+  "election_id": "jd78xd",
+  "captured_utc": "2026-08-04T02:09:49Z",
+  "election": {
+    "election": {
+      "election_id": "jd78xd",
+      "title": "Best Beverage for a Coding Session",
+      "description": null,
+      "frontend_url": "",
+      "start_time": null,
+      "end_time": null,
+      "owner_id": null,
+      "audit_ids": null,
+      "admin_ids": null,
+      "credential_ids": null,
+      "state": "open",
+      "races": [
+        {
+          "title": "Best Beverage for a Coding Session",
+          "race_id": "0",
+          "num_winners": 1,
+          "voting_method": "STAR",
+          "candidates": [
+            {
+              "candidate_id": "c-7fq",
+              "candidate_name": "Coffee"
+            },
+            {
+              "candidate_id": "c-hpb",
+              "candidate_name": "Tea"
+            },
+            {
+              "candidate_id": "c-m4p",
+              "candidate_name": "Water"
+            },
+            {
+              "candidate_id": "c-wjx",
+              "candidate_name": "Hot Chocolate"
+            },
+            {
+              "candidate_id": "c-pqp",
+              "candidate_name": "Sparkling Water"
+            }
+          ]
+        }
+      ],
+      "settings": {
+        "voter_access": "open",
+        "voter_authentication": {
+          "voter_id": true
+        },
+        "ballot_updates": false,
+        "public_results": true,
+        "random_candidate_order": true,
+        "require_instruction_confirmation": false,
+        "draggable_ballot": false,
+        "term_type": "election"
+      },
+      "claim_key_hash": "bd8f86537a47247fa1767c1be6985be681a55c3fefdc69cba21376c865f5d04b",
+      "is_public": false,
+      "create_date": "2026-08-04T01:44:37.602Z",
+      "update_date": "1785807877812",
+      "head": true,
+      "ballot_source": "live_election",
+      "public_archive_id": null
+    },
+    "precinctFilteredElection": {
+      "election_id": "jd78xd",
+      "title": "Best Beverage for a Coding Session",
+      "description": null,
+      "frontend_url": "",
+      "start_time": null,
+      "end_time": null,
+      "owner_id": null,
+      "audit_ids": null,
+      "admin_ids": null,
+      "credential_ids": null,
+      "state": "open",
+      "races": [
+        {
+          "title": "Best Beverage for a Coding Session",
+          "race_id": "0",
+          "num_winners": 1,
+          "voting_method": "STAR",
+          "candidates": [
+            {
+              "candidate_id": "c-7fq",
+              "candidate_name": "Coffee"
+            },
+            {
+              "candidate_id": "c-hpb",
+              "candidate_name": "Tea"
+            },
+            {
+              "candidate_id": "c-m4p",
+              "candidate_name": "Water"
+            },
+            {
+              "candidate_id": "c-wjx",
+              "candidate_name": "Hot Chocolate"
+            },
+            {
+              "candidate_id": "c-pqp",
+              "candidate_name": "Sparkling Water"
+            }
+          ]
+        }
+      ],
+      "settings": {
+        "voter_access": "open",
+        "voter_authentication": {
+          "voter_id": true
+        },
+        "ballot_updates": false,
+        "public_results": true,
+        "random_candidate_order": true,
+        "require_instruction_confirmation": false,
+        "draggable_ballot": false,
+        "term_type": "election"
+      },
+      "claim_key_hash": "bd8f86537a47247fa1767c1be6985be681a55c3fefdc69cba21376c865f5d04b",
+      "is_public": false,
+      "create_date": "2026-08-04T01:44:37.602Z",
+      "update_date": "1785807877812",
+      "head": true,
+      "ballot_source": "live_election",
+      "public_archive_id": null
+    },
+    "voterAuth": {
+      "authorized_voter": false,
+      "has_voted": false,
+      "required": "Temp ID is required for open elections with 'one vote per device' authentication",
+      "roles": [],
+      "permissions": []
+    }
+  },
+  "anonymized_ballots": {
+    "ballots": []
+  },
+  "results": {
+    "election": {
+      "election_id": "jd78xd",
+      "title": "Best Beverage for a Coding Session",
+      "description": null,
+      "frontend_url": "",
+      "start_time": null,
+      "end_time": null,
+      "owner_id": null,
+      "audit_ids": null,
+      "admin_ids": null,
+      "credential_ids": null,
+      "state": "open",
+      "races": [
+        {
+          "title": "Best Beverage for a Coding Session",
+          "race_id": "0",
+          "num_winners": 1,
+          "voting_method": "STAR",
+          "candidates": [
+            {
+              "candidate_id": "c-7fq",
+              "candidate_name": "Coffee"
+            },
+            {
+              "candidate_id": "c-hpb",
+              "candidate_name": "Tea"
+            },
+            {
+              "candidate_id": "c-m4p",
+              "candidate_name": "Water"
+            },
+            {
+              "candidate_id": "c-wjx",
+              "candidate_name": "Hot Chocolate"
+            },
+            {
+              "candidate_id": "c-pqp",
+              "candidate_name": "Sparkling Water"
+            }
+          ]
+        }
+      ],
+      "settings": {
+        "voter_access": "open",
+        "voter_authentication": {
+          "voter_id": true
+        },
+        "ballot_updates": false,
+        "public_results": true,
+        "random_candidate_order": true,
+        "require_instruction_confirmation": false,
+        "draggable_ballot": false,
+        "term_type": "election"
+      },
+      "auth_key": null,
+      "claim_key_hash": "bd8f86537a47247fa1767c1be6985be681a55c3fefdc69cba21376c865f5d04b",
+      "is_public": false,
+      "create_date": "2026-08-04T01:44:37.602Z",
+      "update_date": "1785807877812",
+      "head": true,
+      "ballot_source": "live_election",
+      "public_archive_id": null
+    },
+    "results": [
+      {
+        "votingMethod": "STAR",
+        "elected": [
+          {
+            "id": "c-wjx",
+            "name": "Hot Chocolate",
+            "tieBreakOrder": 0,
+            "votesPreferredOver": {
+              "c-wjx": 0,
+              "c-7fq": 0,
+              "c-hpb": 0,
+              "c-pqp": 0,
+              "c-m4p": 0
+            },
+            "winsAgainst": {
+              "c-wjx": false,
+              "c-7fq": false,
+              "c-hpb": false,
+              "c-pqp": false,
+              "c-m4p": false
+            },
+            "score": 0,
+            "fiveStarCount": 0
+          }
+        ],
+        "tied": [],
+        "other": [
+          {
+            "id": "c-7fq",
+            "name": "Coffee",
+            "tieBreakOrder": 1,
+            "votesPreferredOver": {
+              "c-wjx": 0,
+              "c-7fq": 0,
+              "c-hpb": 0,
+              "c-pqp": 0,
+              "c-m4p": 0
+            },
+            "winsAgainst": {
+              "c-wjx": false,
+              "c-7fq": false,
+              "c-hpb": false,
+              "c-pqp": false,
+              "c-m4p": false
+            },
+            "score": 0,
+            "fiveStarCount": 0
+          },
+          {
+            "id": "c-hpb",
+            "name": "Tea",
+            "tieBreakOrder": 2,
+            "votesPreferredOver": {
+              "c-wjx": 0,
+              "c-7fq": 0,
+              "c-hpb": 0,
+              "c-pqp": 0,
+              "c-m4p": 0
+            },
+            "winsAgainst": {
+              "c-wjx": false,
+              "c-7fq": false,
+              "c-hpb": false,
+              "c-pqp": false,
+              "c-m4p": false
+            },
+            "score": 0,
+            "fiveStarCount": 0
+          },
+          {
+            "id": "c-pqp",
+            "name": "Sparkling Water",
+            "tieBreakOrder": 3,
+            "votesPreferredOver": {
+              "c-wjx": 0,
+              "c-7fq": 0,
+              "c-hpb": 0,
+              "c-pqp": 0,
+              "c-m4p": 0
+            },
+            "winsAgainst": {
+              "c-wjx": false,
+              "c-7fq": false,
+              "c-hpb": false,
+              "c-pqp": false,
+              "c-m4p": false
+            },
+            "score": 0,
+            "fiveStarCount": 0
+          },
+          {
+            "id": "c-m4p",
+            "name": "Water",
+            "tieBreakOrder": 4,
+            "votesPreferredOver": {
+              "c-wjx": 0,
+              "c-7fq": 0,
+              "c-hpb": 0,
+              "c-pqp": 0,
+              "c-m4p": 0
+            },
+            "winsAgainst": {
+              "c-wjx": false,
+              "c-7fq": false,
+              "c-hpb": false,
+              "c-pqp": false,
+              "c-m4p": false
+            },
+            "score": 0,
+            "fiveStarCount": 0
+          }
+        ],
+        "roundResults": [
+          {
+            "winners": [
+              {
+                "id": "c-wjx",
+                "name": "Hot Chocolate",
+                "tieBreakOrder": 0,
+                "votesPreferredOver": {
+                  "c-wjx": 0,
+                  "c-7fq": 0,
+                  "c-hpb": 0,
+                  "c-pqp": 0,
+                  "c-m4p": 0
+                },
+                "winsAgainst": {
+                  "c-wjx": false,
+                  "c-7fq": false,
+                  "c-hpb": false,
+                  "c-pqp": false,
+                  "c-m4p": false
+                },
+                "score": 0,
+                "fiveStarCount": 0
+              }
+            ],
+            "runner_up": [
+              {
+                "id": "c-7fq",
+                "name": "Coffee",
+                "tieBreakOrder": 1,
+                "votesPreferredOver": {
+                  "c-wjx": 0,
+                  "c-7fq": 0,
+                  "c-hpb": 0,
+                  "c-pqp": 0,
+                  "c-m4p": 0
+                },
+                "winsAgainst": {
+                  "c-wjx": false,
+                  "c-7fq": false,
+                  "c-hpb": false,
+                  "c-pqp": false,
+                  "c-m4p": false
+                },
+                "score": 0,
+                "fiveStarCount": 0
+              }
+            ],
+            "tied": [],
+            "tieBreakType": "random",
+            "logs": [
+              {
+                "key": "tabulation_logs.star.score_tied",
+                "names": [
+                  "Hot Chocolate",
+                  "Coffee",
+                  "Tea",
+                  "Sparkling Water",
+                  "Water"
+                ],
+                "score": 0
+              },
+              {
+                "key": "tabulation_logs.star.pairwise_too_many_candidates"
+              },
+              {
+                "key": "tabulation_logs.star.five_star_tied",
+                "names": [
+                  "Hot Chocolate",
+                  "Coffee",
+                  "Tea",
+                  "Sparkling Water",
+                  "Water"
+                ],
+                "votes": 0
+              },
+              {
+                "key": "tabulation_logs.star.random_first",
+                "name": "Hot Chocolate",
+                "tiebreak_candidate_names": "Hot Chocolate, Coffee, Tea, Sparkling Water, Water"
+              },
+              {
+                "key": "tabulation_logs.star.random_second",
+                "name": "Coffee",
+                "tiebreak_candidate_names": "Hot Chocolate, Coffee, Tea, Sparkling Water, Water"
+              },
+              {
+                "key": "tabulation_logs.star.advance_to_runoff_tiebreak",
+                "names": [
+                  "Hot Chocolate",
+                  "Coffee"
+                ]
+              },
+              {
+                "key": "tabulation_logs.star.runoff_tied",
+                "names": [
+                  "Hot Chocolate",
+                  "Coffee"
+                ],
+                "votes": 0,
+                "equal_votes": 0
+              },
+              {
+                "key": "tabulation_logs.star.runoff_score_tie",
+                "names": [
+                  "Hot Chocolate",
+                  "Coffee"
+                ],
+                "stars": 0
+              },
+              {
+                "key": "tabulation_logs.star.runoff_five_star_tie",
+                "names": [
+                  "Hot Chocolate",
+                  "Coffee"
+                ],
+                "votes": 0
+              },
+              {
+                "key": "tabulation_logs.star.runoff_random",
+                "winner": "Hot Chocolate",
+                "runner_up": "Coffee",
+                "tiebreak_candidate_names": "Hot Chocolate, Coffee, Tea, Sparkling Water, Water"
+              },
+              {
+                "key": "tabulation_logs.star.runoff_tiebreak",
+                "winner": "Hot Chocolate",
+                "runner_up": "Coffee"
+              }
+            ]
+          }
+        ],
+        "summaryData": {
+          "candidates": [
+            {
+              "id": "c-wjx",
+              "name": "Hot Chocolate",
+              "tieBreakOrder": 0,
+              "votesPreferredOver": {
+                "c-wjx": 0,
+                "c-7fq": 0,
+                "c-hpb": 0,
+                "c-pqp": 0,
+                "c-m4p": 0
+              },
+              "winsAgainst": {
+                "c-wjx": false,
+                "c-7fq": false,
+                "c-hpb": false,
+                "c-pqp": false,
+                "c-m4p": false
+              },
+              "score": 0,
+              "fiveStarCount": 0
+            },
+            {
+              "id": "c-7fq",
+              "name": "Coffee",
+              "tieBreakOrder": 1,
+              "votesPreferredOver": {
+                "c-wjx": 0,
+                "c-7fq": 0,
+                "c-hpb": 0,
+                "c-pqp": 0,
+                "c-m4p": 0
+              },
+              "winsAgainst": {
+                "c-wjx": false,
+                "c-7fq": false,
+                "c-hpb": false,
+                "c-pqp": false,
+                "c-m4p": false
+              },
+              "score": 0,
+              "fiveStarCount": 0
+            },
+            {
+              "id": "c-hpb",
+              "name": "Tea",
+              "tieBreakOrder": 2,
+              "votesPreferredOver": {
+                "c-wjx": 0,
+                "c-7fq": 0,
+                "c-hpb": 0,
+                "c-pqp": 0,
+                "c-m4p": 0
+              },
+              "winsAgainst": {
+                "c-wjx": false,
+                "c-7fq": false,
+                "c-hpb": false,
+                "c-pqp": false,
+                "c-m4p": false
+              },
+              "score": 0,
+              "fiveStarCount": 0
+            },
+            {
+              "id": "c-pqp",
+              "name": "Sparkling Water",
+              "tieBreakOrder": 3,
+              "votesPreferredOver": {
+                "c-wjx": 0,
+                "c-7fq": 0,
+                "c-hpb": 0,
+                "c-pqp": 0,
+                "c-m4p": 0
+              },
+              "winsAgainst": {
+                "c-wjx": false,
+                "c-7fq": false,
+                "c-hpb": false,
+                "c-pqp": false,
+                "c-m4p": false
+              },
+              "score": 0,
+              "fiveStarCount": 0
+            },
+            {
+              "id": "c-m4p",
+              "name": "Water",
+              "tieBreakOrder": 4,
+              "votesPreferredOver": {
+                "c-wjx": 0,
+                "c-7fq": 0,
+                "c-hpb": 0,
+                "c-pqp": 0,
+                "c-m4p": 0
+              },
+              "winsAgainst": {
+                "c-wjx": false,
+                "c-7fq": false,
+                "c-hpb": false,
+                "c-pqp": false,
+                "c-m4p": false
+              },
+              "score": 0,
+              "fiveStarCount": 0
+            }
+          ],
+          "nOutOfBoundsVotes": 0,
+          "nAbstentions": 0,
+          "nTallyVotes": 0
+        },
+        "tieBreakType": "random",
+        "perm": [
+          "c-wjx",
+          "c-7fq",
+          "c-hpb",
+          "c-pqp",
+          "c-m4p"
+        ]
+      }
+    ]
+  }
+}

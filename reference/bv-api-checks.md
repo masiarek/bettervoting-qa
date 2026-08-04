@@ -80,8 +80,8 @@ Frontend surfaces these verbatim in the snackbar as `Error making request: {stat
 
 Setting the `temp_id` cookie is **not sufficient** — that's an incomplete recipe. `elections.controllers.ts:86-97` grants the `owner` role to a guest only when **all** of these hold:
 
-1. `election.owner_id` starts with `v-` (the temp-id convention) — a bare UUID **never** works, no matter what cookie you send;
-2. `owner_id == cookies.temp_id`;
+1. `election.owner_id` is falsy **or** starts with `v-` — the source is `!owner_id || owner_id.startsWith('v-')`, so a bare UUID **never** works, no matter what cookie you send, but `null` does clear this one;
+2. `owner_id == cookies.temp_id` — this is where a `null` owner dies, since it can't equal a `v-…` cookie. See [`creating-an-election.md`](creating-an-election.md#root-cause);
 3. fewer than `TEMPORARY_ACCESS_HOURS` (10) hours since `create_date`;
 4. `sha256(cookies['<election_id>_claim_key']) == election.claim_key_hash`.
 
@@ -115,9 +115,12 @@ await fetch('/API/Election/<id>/setOpenState', {method:'POST', credentials:'incl
 |---|---|---|---|---|
 | `mj26yj` (Ranked Robin retest, cited in closed [#886](https://github.com/Equal-Vote/bettervoting/issues/886)) | bare UUID | **absent** | 40 h | unrecoverable |
 | `vgwvjr` (created in error 2026-08-02) | bare UUID | absent | — | unrecoverable |
+| `jd78xd` (2026-08-03, **created by the web wizard's PUBLISH NOW**) | `null` | present | 5 min | unrecoverable — fails condition 2 |
 
 `mj26yj` fails **three** of the four conditions independently: `owner_id` isn't on the `v-` convention, there is no `claim_key_hash` to produce a preimage for, and it is long past the 10-hour window. The missing `claim_key_hash` is the structural one — adding it would need `canEditElection`, which needs the owner role, which needs the `claim_key_hash`. Circular, so **no cookie or API call can recover it**. Only a `system_admin` can reassign ownership.
 
 Practical consequence: both remain `state: open` forever, so anyone can still cast ballots in them and move the numbers. Where such an election is cited as evidence, **freeze a snapshot** — see `reference/frozen/`, captured via the three anonymous GETs (`/Election/{id}`, `/ElectionResult/{id}`, `/Election/{id}/anonymizedBallots`).
 
-**Avoid creating more:** always create API elections with `owner_id` on the `v-` convention *and* a `claim_key_hash`, even for throwaway tests. The web wizard always does both; hand-rolled API calls are the only way to produce an orphan.
+**Avoid creating more:** always create API elections with `owner_id` on the `v-` convention *and* a `claim_key_hash`, even for throwaway tests.
+
+⚠️ **Hand-rolled API calls are no longer the only way to produce an orphan.** The web wizard's **PUBLISH NOW** button produces one every time: it writes a `claim_key_hash` but leaves `owner_id` null. The *See more options* path is unaffected. Root cause and repro: [`creating-an-election.md`](creating-an-election.md#-publish-now-produces-an-election-nobody-can-administer). Frozen snapshot: [`frozen/jd78xd-snapshot.json`](frozen/jd78xd-snapshot.json).
