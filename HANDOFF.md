@@ -1,3 +1,62 @@
+# Handoff
+
+Newest session first. Older sections stay as written.
+
+---
+
+# Session — 2026-08-03: election creation, and a wizard orphan
+
+Started as "document how to create an election on BetterVoting" and turned up a functional bug in the create wizard.
+
+## The finding
+
+**The wizard's PUBLISH NOW button creates an election that nobody can ever own.** It writes a `claim_key_hash` but leaves `owner_id` null, so the guest-owner grant can't fire, the election can't be claimed by signing in later, and it can never be closed, edited, or deleted. It stays `open` and accepting ballots forever. Only a `system_admin` can intervene.
+
+Root cause is two lines that disagree, both in `Wizard.tsx`: `:119` passes `owner_id: null` explicitly, and `:83` assigns the temp id only `if (election.owner_id != null)`. The guard reads inverted. `claim_key_hash` is set just below it, outside the guard — which is why the elections come out half-configured.
+
+Executed, not inferred, on production:
+
+| | PUBLISH NOW (`jd78xd`) | SEE MORE OPTIONS (`rqq2pw`) |
+|---|---|---|
+| `owner_id` | `null` | `v-dbg9w2gt` = the `temp_id` cookie |
+| `state` on creation | `open` | `draft` |
+| `voterAuth.roles` | `[]` | `["owner"]`, 23 permissions |
+| Owner-only call | `setOpenState` → `401` | `DELETE` → `200 Election Deleted` |
+
+`rqq2pw` was deleted by its creator immediately after — the capability the quick path never grants. `jd78xd` cannot be cleaned up; it is the repro, and it is frozen at [`reference/frozen/jd78xd-snapshot.json`](reference/frozen/jd78xd-snapshot.json).
+
+This **falsifies a claim that was in `bv-api-checks.md`** — that hand-rolled API calls were the only way to orphan an election. Corrected there, along with condition 1 of the guest-owner list: `null` clears the `v-` test (the source is `!owner_id || startsWith('v-')`) and dies on the `owner_id == cookies.temp_id` line instead.
+
+## What's next on it
+
+| # | What | Blocked on |
+|---|---|---|
+| 1 | **Raise it on Slack**, framed as "is this deliberate?" — `owner_id: null` was typed on purpose, so there may be a reason. Draft is in the issue note. | you |
+| 2 | **One signed-in PUBLISH NOW run.** The only gap in the provenance table. Source says `:119` makes the `isLoggedIn()` branch unreachable, so logged-in creators should be orphaned too — unrun. | you |
+| 3 | **File upstream** once (1) says it isn't intended. Body is written and ready to paste. | Arend |
+| 4 | **Second item on the same expression** — comparison semantics in `tempUserAuth`. Deliberately not in this repo; raise it in the same conversation, since a correct patch covers both. | you |
+
+→ [`issues/wizard-publish-now-orphans-election.md`](issues/wizard-publish-now-orphans-election.md) · [`reference/creating-an-election.md`](reference/creating-an-election.md)
+
+## What I got wrong, and how it got caught
+
+**One finding was retracted before it reached anyone.** The wizard's Description field came back `null` and looked like a second defect. It wasn't: `Wizard.tsx:110-116` maps description through on the same object as the title, and the title persisted. The null was the automation — programmatic value-setting fills the DOM without reaching React state. Confirmed the next run, when the *title* written the same way triggered `Title required` on a visibly populated field.
+
+Two lessons, both now written up in [`reference/automation-gotchas.md`](reference/automation-gotchas.md):
+
+1. **The screen is not evidence.** A field can look filled, read back filled, and still arrive `null`. Verify against the API, and run a control field written the same way before blaming the product.
+2. **Read the source before filing.** It resolved both candidate findings, in opposite directions — one confirmed with a one-line fix, one retracted. Neither was reachable from the browser alone.
+
+Also corrected mid-session: I first wrote that `null` fails the `v-` convention. It doesn't — it fails the equality on the next line. Same conclusion, wrong mechanism, and the wrong version would have been embarrassing in an upstream issue.
+
+## Housekeeping
+
+- `jd78xd` is a live orphan cited as evidence. It will accept ballots from anyone who reads the issue. Snapshot frozen at 0 ballots, `2026-08-04T02:09:49Z` — re-freeze if the issue ends up citing tallies.
+- **`README.md` had the repo's visibility wrong** — the Related-repos table said `bettervoting-qa` was private; `gh` reports public, as does the top of the same README. Since the no-credentials rule hangs on knowing it's public, that mattered. **Left unfixed pending your call** — it's a one-word edit to that table.
+- Unrelated: `star-voting-library` `readme.md:21` now points "run your own free election" at `/new_election` instead of the bare homepage (`e0bc8947`).
+
+---
+
 # Handoff — 2026-07-30
 
 Everything from the 29–30 July session, and how to pick it up on another machine.

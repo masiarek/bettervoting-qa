@@ -48,6 +48,24 @@ Tabulation test cases do **not** belong here — they go in `star-voting-library
 
 ## Current work
 
+### Wizard "Publish Now" orphans the election (UNFILED — Slack first)
+
+Creating an election through the wizard's **PUBLISH NOW** button while signed out produces one that can never be owned: `claim_key_hash` is written, `owner_id` is left null, so the guest-owner grant can't fire and signing in later can't claim it. It stays `open` and accepting ballots forever; only a `system_admin` can intervene.
+
+Root cause is two lines that disagree in `Wizard.tsx` — `:119` passes `owner_id: null`, `:83` assigns the temp id only when `owner_id` is already non-null. One-line fix.
+
+Verified on production against a same-session control that took the other button:
+
+| | PUBLISH NOW (`jd78xd`) | SEE MORE OPTIONS (`rqq2pw`) |
+|---|---|---|
+| `owner_id` | `null` | `v-dbg9w2gt` = the `temp_id` cookie |
+| `voterAuth.roles` | `[]` | `["owner"]` |
+| Owner-only call | `setOpenState` → `401` | `DELETE` → `200` |
+
+Not posted anywhere yet — `owner_id: null` is written deliberately, so it goes to Slack as "is this deliberate?" before it becomes an issue. One gap left in the provenance: the signed-in case is read from source, not run.
+
+→ [`issues/wizard-publish-now-orphans-election.md`](issues/wizard-publish-now-orphans-election.md) · how-to: [`reference/creating-an-election.md`](reference/creating-an-election.md) · lessons: [`reference/automation-gotchas.md`](reference/automation-gotchas.md)
+
 ### Flat scores → abstention — why the fix is contested (ANALYSIS, no ticket of its own)
 
 Why Equal Vote hesitate to fix [#1407](https://github.com/Equal-Vote/bettervoting/issues/1407) / [#1053](https://github.com/Equal-Vote/bettervoting/issues/1053), and whether they're right to. Answer: partly. Two of the three stated objections are real, one is false, and the biggest risk is one nobody is discussing (retroactive change to every past election's published numbers).
