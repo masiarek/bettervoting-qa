@@ -97,6 +97,16 @@ Key finding: the article is **already written** (`docs/help/preliminary_results.
 - Test cases: [`test_cases/BV240-index.md`](test_cases/BV240-index.md) — BV240a–p, 2 of 16 written up in full
 - Posted upstream: [`issues/1350-disclaimer-comment-posted.md`](issues/1350-disclaimer-comment-posted.md) → [comment](https://github.com/Equal-Vote/bettervoting/issues/1350#issuecomment-5125205974)
 
+### #1166 — Ranked Robin multiwinner highlights one winner (OPEN, `good first issue` — ANALYSED, patch written)
+
+Reproduces on production 2026-08-04 and on upstream `main` @ `15289d30`; open since Dec 2025 with no PR. Root cause is two hard-coded literals in `RankedRobinResultsViewer` — `stars={1}` and a `ResultsTable` that never gets `winningRows`, so both default to one winner regardless of `num_winners`.
+
+- **The reporter's guess is half right.** STAR does take a different path, but **Approval** is a bloc method using these same two components and already passes `race.num_winners`. This is an omission with its corrected sibling 140 lines below it in the same file — not a design mismatch to work around.
+- **Plurality has the identical bug**, unreported. Multi-winner Choose One is offered by the race form and tabulates through `runBlocTabulator`.
+- **The positional/identity mismatch the patch won't fix:** highlighting picks the first *N* rows, but `elected` is built round by round, and Ranked Robin's head-to-head tiebreak rung ignores the sort's `tieBreakOrder`. Demonstrated rather than asserted — round 1 of the reporter's own poll was decided on exactly that rung. Recommended as a separate issue, since it affects Approval too.
+
+→ [`issues/1166-ranked-robin-multiwinner-highlighting.md`](issues/1166-ranked-robin-multiwinner-highlighting.md)
+
 ### #1043 / BV230 — Show Preliminary Results after finalize (RESOLVED, awaiting close)
 
 Not reproducible on current production. Retested 2026-07-29 as BV230-r1 (`yyvwrj`). All three fixes proposed in the 2025 thread shipped independently — see [`issues/1043-show-preliminary-results.md`](issues/1043-show-preliminary-results.md).
