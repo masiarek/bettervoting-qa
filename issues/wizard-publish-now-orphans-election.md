@@ -156,4 +156,6 @@ The runs were browser-automated. That matters for input-binding claims — hence
 
 ## One more item, verbally
 
-There is a second observation about the same `tempUserAuth` expression that belongs in the Slack conversation and **not** in this repo — it concerns the comparison semantics, and a correct patch should address it alongside `:119`. It is in the session notes, not here, for the same reason claim keys aren't here: this repo is public and the item hasn't been raised yet.
+There is a second observation about the same `tempUserAuth` expression that belongs in the Slack conversation and **not** in this repo — it concerns the comparison semantics, and a correct patch should address it alongside `:119`. It is deliberately unwritten here, for the same reason claim keys aren't here: this repo is public and the item hasn't been raised yet.
+
+**It is not stored in any file.** `/Volumes/T7/Voting/BetterVoting/bv-security-findings-unreported.md` — the location the 2026-07-30 handoff uses for unreported items — was not mounted when this was written, so nothing was appended to it. The item was handed to Adam directly in the session it came from. If it hasn't reached Slack or that file, it exists nowhere; re-derive it by reading the four conditions of `tempUserAuth` in `elections.controllers.ts` and asking what each one does when `owner_id` is null.

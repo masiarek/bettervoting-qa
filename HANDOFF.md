@@ -49,6 +49,19 @@ Two lessons, both now written up in [`reference/automation-gotchas.md`](referenc
 
 Also corrected mid-session: I first wrote that `null` fails the `v-` convention. It doesn't — it fails the equality on the next line. Same conclusion, wrong mechanism, and the wrong version would have been embarrassing in an upstream issue.
 
+## Switching machines — what's where
+
+Everything from this session is pushed. `git clone https://github.com/masiarek/bettervoting-qa.git` gets all of it; nothing from 2026-08-03 lives only on the old machine.
+
+**Two exceptions, both deliberate:**
+
+| Not in the repo | Where it actually is |
+|---|---|
+| The second `tempUserAuth` item (see the end of the issue note) | **Nowhere on disk.** `/Volumes/T7` was not mounted, so it was never appended to `bv-security-findings-unreported.md`. Handed to Adam in chat only. Carry it or re-derive it |
+| Claude's memory files, `~/.claude/projects/-Users-adam/memory/` | Local. But the durable content is duplicated into this repo on purpose — the corrected guest-ownership mechanics are in `reference/bv-api-checks.md`, the automation lessons in `reference/automation-gotchas.md`. Losing the memory files loses convenience, not knowledge |
+
+**Also worth knowing:** `star-voting-library` was being committed to by another session while this one ran — its `master` moved three times in as many minutes. The `/new_election` link fix landed there and is on `origin/master`, but under a different SHA than the one this session created (`e0bc8947` was absorbed by the concurrent work). Let that session finish before switching; it had an uncommitted `_notes/handoff-2026-08-04-bloc-star-criteria.md` in flight.
+
 ## Housekeeping
 
 - `jd78xd` is a live orphan cited as evidence. It will accept ballots from anyone who reads the issue. Snapshot frozen at 0 ballots, `2026-08-04T02:09:49Z` — re-freeze if the issue ends up citing tallies.
