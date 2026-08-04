@@ -58,6 +58,20 @@ curl -s https://bettervoting.com/API/Election/jd78xd \
 
 Live example: `jd78xd`, created 2026-08-03 by exactly these steps.
 
+### Control: the same wizard, the other button
+
+`rqq2pw` was created minutes later in the same browser and the same session, identical up to the **Publish?** dialog, then taking **SEE MORE OPTIONS** instead — Restricted: *No*, template *one person, one vote*.
+
+| | PUBLISH NOW (`jd78xd`) | SEE MORE OPTIONS (`rqq2pw`) |
+|---|---|---|
+| `owner_id` | `null` | `v-dbg9w2gt` — equal to the `temp_id` cookie |
+| `claim_key_hash` | present | present |
+| `state` on creation | `open` | `draft` |
+| `voterAuth.roles` | `[]` | `["owner"]`, with 23 permissions |
+| Owner-only call | `setOpenState` → **401 `Does not have permission`** | `DELETE` → **200 `Election Deleted`** |
+
+Both rows are executed results, not readings. The control was deleted by its creator immediately afterwards — which is the point: that is the capability the quick path never grants. The orphan cannot be closed, deleted, or claimed, by anyone.
+
 ### Root cause
 
 `packages/frontend/src/components/ElectionForm/Wizard/Wizard.tsx`.
@@ -99,7 +113,8 @@ const tempUserAuth =
 
 ### Scope
 
-- Affects every election created by **PUBLISH NOW while signed out**. Signed-in users are unaffected in practice, since the same `:119` null means they'd be orphaned too — but the app routes logged-in creators through the manage page, so this should be confirmed rather than assumed.
+- Affects every election created by **PUBLISH NOW while signed out** — confirmed on production.
+- **Signed-in creators are predicted to hit it too, and this has not been run.** `:119` passes `owner_id: null` unconditionally, which makes the `authSession.isLoggedIn()` branch at `:84` unreachable on this path whatever the session. If that reading is right, a logged-in user clicking PUBLISH NOW also gets an unownable election — it would not even appear under *Elections you manage*. Flagging rather than asserting.
 - Unaffected: the *See more options* path, and anything created through the API with an `owner_id` set.
 - Severity is durability, not data loss. Ballots tally correctly; the election simply cannot be administered, and cannot be stopped from accepting more.
 
@@ -130,11 +145,12 @@ Existing orphans can't be repaired by this fix — `owner_id` is immutable witho
 | `Wizard.tsx:83-87` guard, `claim_key_hash` set outside it | read from source |
 | `makeDefaultElection()` sets `owner_id: '0'` (`:34`) | read from source |
 | `tempUserAuth` fails on the equality, not the `v-` prefix | read from source, `elections.controllers.ts` |
-| **The *See more options* path is unaffected** | **inferred from source only — NOT executed.** No election was created through the long path. Verify before the issue is filed |
-| Signed-in creators are spared | **not established.** Reasoned only; flagged as an open question in the issue body |
-| Description field discarded by the wizard | **retracted.** `Wizard.tsx:110-116` maps it through on the same object as the title, which persisted. Most likely an artifact of the automated fill. Do not include |
+| **The *See more options* path is unaffected** | **executed** — `rqq2pw`, same browser and session, 2026-08-03. `owner_id: v-dbg9w2gt` equal to the `temp_id` cookie, `state: draft`, `roles: ["owner"]`, and an owner-only `DELETE` returned `200 Election Deleted` |
+| The orphan genuinely cannot be administered | **executed** — owner-only `setOpenState` on `jd78xd`, with both guest cookies, returned `401 Does not have permission (7f7f3603)` |
+| Signed-in creators are **not** spared either | **read from source, not executed.** `:119` passes `owner_id: null` unconditionally, so the `authSession.isLoggedIn()` branch at `:84` is unreachable on this path regardless of session. Stated as a prediction in the issue body; needs one signed-in run |
+| Description field discarded by the wizard | **retracted.** `Wizard.tsx:110-116` maps it through on the same object as the title. Corroborated during the control run: the same synthetic fill left the title unset in React state ("Title required" fired on a visibly populated field) and real keystrokes fixed it. Harness artifact. Do not include |
 
-The run was browser-automated. That matters for input-binding claims (hence the retraction above) but not for the ownership finding, which is a property of the request the wizard constructs and is corroborated by source on both ends.
+The runs were browser-automated. That matters for input-binding claims — hence the retraction, which the control run independently confirmed — but not for the ownership finding, which is a property of the request the wizard constructs, corroborated by source on both ends and by a same-session control that behaved correctly.
 
 ---
 

@@ -110,6 +110,19 @@ The guard reads inverted: as written it only sets an owner when one already exis
 
 The same line explains two of the unchosen settings above: `state: 'finalized'` auto-promotes to `open` on the next request, and `open_unique_cookie` is what surfaces as `voter_authentication.voter_id`.
 
+### The control run
+
+`rqq2pw`, same browser and session, identical up to the dialog, then **SEE MORE OPTIONS** → Restricted *No* → template *one person, one vote*:
+
+| | PUBLISH NOW (`jd78xd`) | SEE MORE OPTIONS (`rqq2pw`) |
+|---|---|---|
+| `owner_id` | `null` | `v-dbg9w2gt` — equal to the `temp_id` cookie |
+| `state` on creation | `open` | `draft` |
+| `voterAuth.roles` | `[]` | `["owner"]`, 23 permissions |
+| Owner-only call | `setOpenState` → `401 Does not have permission` | `DELETE` → `200 Election Deleted` |
+
+The control was deleted by its creator right after, which is the capability the quick path never grants. `rqq2pw` no longer exists; the row is the record.
+
 **Don't create throwaway elections with Publish Now.** Use **See more options**, or the API with an `owner_id` you control.
 
 ## Description came back null — probably our harness, not a defect
