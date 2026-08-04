@@ -69,22 +69,54 @@ The guest-owner grant at `elections.controllers.ts:86-97` requires `owner_id` to
 
 `owner_id` is not stripped from the anonymous view in general — it comes back populated on other elections read the same way. So `null` here reads as genuinely unset rather than filtered.
 
-This contradicts [`bv-api-checks.md`](bv-api-checks.md#known-orphans--and-why-they-cant-be-rescued), which currently states that the web wizard always sets both and that "hand-rolled API calls are the only way to produce an orphan." On this run the normal UI produced one, and the practical consequence is the same as the `mj26yj` / `vgwvjr` rows in that table: **`state: open` forever, ballots accepted forever, no way to close it.**
+This contradicts [`bv-api-checks.md`](bv-api-checks.md#known-orphans--and-why-they-cant-be-rescued), which currently states that the web wizard always sets both and that "hand-rolled API calls are the only way to produce an orphan." The normal UI produced one, and the practical consequence is the same as the `mj26yj` / `vgwvjr` rows in that table: **`state: open` forever, ballots accepted forever, no way to close it.**
 
-> **Confirm by hand before filing upstream.** This run was browser-automated. The same input mechanism persisted the title and all five candidate names, so it reached React state for those fields — but a hand-typed wizard run should be recorded before this goes to a maintainer. If it reproduces, `bv-api-checks.md` line 123 needs correcting and the "avoid creating more" advice needs to cover the UI path too.
+### Root cause
 
-**Until it's confirmed: don't create throwaway elections with Publish Now.** Use **See more options**, or the API with an `owner_id` you control.
+`packages/frontend/src/components/ElectionForm/Wizard/Wizard.tsx`, on `main`. The quick path passes `owner_id: null` explicitly:
 
-## ⚠️ The wizard's Description field is discarded
-
-Roughly 350 characters were typed into the **+ Description** textarea at step 3 and accepted without complaint. After publish:
-
-```
-.election.description   → null
-.election.races[0].description → null
+```js
+// Wizard.tsx:119 — the PUBLISH NOW branch of onNext()
+onAddElection({...updatedElection, owner_id: null, state: 'finalized',
+               settings: setVoterAuthenticationMode(updatedElection.settings, 'open_unique_cookie')}, '/')
 ```
 
-The text is on neither object, and appears on neither the landing page nor the ballot. Same caveat as above — same input mechanism, and the title written through it *did* persist — but hand-confirm before filing.
+and `onAddElection` assigns the temp id only when `owner_id` is **already** non-null:
+
+```js
+// Wizard.tsx:83-87
+if (election.owner_id != null){
+election.owner_id = authSession.isLoggedIn() ? authSession.getIdField('sub') : submitTempID;
+}
+const claimKey = crypto.randomUUID();
+election.claim_key_hash = hashString(claimKey);
+```
+
+So the guard is false, the temp id is never assigned — while `claim_key_hash` is set unconditionally two lines below, outside the guard. That is exactly the shape production shows: hash present, owner absent.
+
+The guard reads inverted: as written it only sets an owner when one already exists. **This also explains why only the quick path orphans.** `makeDefaultElection()` sets `owner_id: '0'` (`Wizard.tsx:34`), which is non-null, so the *See more options* branch — which calls `setPage(1)` without the `owner_id: null` override — passes the guard and gets a real temp id.
+
+The same line explains two of the unchosen settings above: `state: 'finalized'` auto-promotes to `open` on the next request, and `open_unique_cookie` is what surfaces as `voter_authentication.voter_id`.
+
+**Don't create throwaway elections with Publish Now.** Use **See more options**, or the API with an `owner_id` you control.
+
+## Description came back null — probably our harness, not a defect
+
+Recorded so nobody re-derives it. Roughly 350 characters were typed into the **+ Description** textarea at step 3 and accepted without complaint; after publish, `.election.description` and `.election.races[0].description` were both `null`.
+
+**The source does not support this being a product bug.** `Wizard.tsx:110-116` maps it through on the same object as the title:
+
+```js
+const updatedElection = {
+    ...election, races: [editedRace],
+    title: editedRace.title,
+    description: editedRace.description,
+}
+```
+
+Both the election-level copy and the race inside `races: [editedRace]` should carry it. Since the title written through the identical input path *did* persist, the likeliest explanation is that the browser-automated fill never reached React state for that one textarea — it binds differently from the title and candidate name fields.
+
+**Do not file this** without a hand-typed run reproducing it.
 
 ## Verifying a new election
 
