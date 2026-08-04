@@ -109,16 +109,17 @@ The change history is already in the database (`electionDB` has been append-only
 
 v2 export format. In flight on the local `feature/clean-json-export` branch. Note: once v2 ships, `fetch_bv_export.py`'s "byte-equivalent to the UI export" property in the `bettervoting` skill becomes false — the script reads the API, the button emits v2.
 
-### #904 — "STAR Bloc Voting" for Basic Multi-Winner (OPEN since Apr 2025, Adam's — SIZED)
+### #904 — "Bloc STAR Voting" for Basic Multi-Winner (OPEN since Apr 2025, Adam's — SIZED, part in flight)
 
-Sized on request, not started. **Half a day, low risk, if scoped to display text** — and the reason it has sat for over a year is probably that the ticket doesn't read that way.
+Sized on request. **2–3 hours for what's left, low risk, scoped to display text** — and the reason it sat for over a year is probably that the ticket doesn't read that way.
 
-- The name resolves through **one** chokepoint (`methodValueToTextKey` → `methods.<key>.full_name`) and only **three** render sites, and `num_winners` is already in scope at all three. The `Bloc` adjective already exists and is already wired — it's just attached to the winners ("STAR Voting with 3 **Bloc** winners") rather than to the method.
-- **The trap:** editing `methods.star.full_name` is the obvious one-liner and it's wrong — that key is shared with the landing page and the STAR tooltip, where "STAR Voting" is correct. Needs a sibling key plus a resolver.
-- **The blocker is scoping, not code.** The issue says "simple wording change… no other changes required" but also asks that the JSON show the new name, and its last comment is just `"voting_method": "STAR"`. That value is a DB column and a dispatch key, not a label — reading the ticket literally prices it as a migration over every historic race. Settle this before anyone writes code.
-- Generalises to all five bloc-capable methods; [#912](https://github.com/Equal-Vote/star-server/issues/912) is the Plurality twin. Write the resolver as a lookup, not an `if`.
+- **One of the three render sites is already done** in draft PR [#1475](https://github.com/Equal-Vote/bettervoting/pull/1475) (results page), filed against #1086 rather than #904. It is a draft on purpose and **must not merge before [#1474](https://github.com/Equal-Vote/bettervoting/pull/1474)** — its `learn_link` targets the page #1474 adds. What's left of #904 is the ballot header and the edit-race summary/radio.
+- The name resolves through **one** chokepoint (`methodValueToTextKey` → `methods.<key>.full_name`), and `num_winners` is already in scope at every site. The `Bloc` adjective already exists and is already wired — it's just attached to the winners ("STAR Voting with 3 **Bloc** winners") rather than to the method.
+- **The trap:** editing `methods.star.full_name` is the obvious one-liner and it's wrong — that key is shared with the landing page and the STAR tooltip, where "STAR Voting" is correct. Needs a sibling key plus a resolver, which is what #1475 does.
+- **The blocker is scoping, not code.** The issue says "simple wording change… no other changes required" but also asks that the JSON show the new name, over a comment reading `"voting_method": "STAR"`. That value is a DB column and a dispatch key, not a label — reading the ticket literally prices it as a migration over every historic race. Settle this before anyone writes more code.
+- The string is **"Bloc STAR Voting"**, adjective first — [retracted upstream](https://github.com/Equal-Vote/bettervoting/issues/904#issuecomment-5178824529) after the issue's own Should-Be said otherwise. Generalises to all five bloc-capable methods; [#912](https://github.com/Equal-Vote/star-server/issues/912) is the Plurality twin. Widen the resolver to a lookup, not an `if`.
 
-→ [`issues/904-star-bloc-naming.md`](issues/904-star-bloc-naming.md). Read from source at upstream `15289d3`; nothing run in a browser.
+→ [`issues/904-star-bloc-naming.md`](issues/904-star-bloc-naming.md). Read from source at upstream `15289d3`; nothing run in a browser. The page's filename says `star-bloc` and stays that way — the issue thread links it by URL.
 
 ## Open questions waiting on upstream
 
