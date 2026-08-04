@@ -105,7 +105,17 @@ Reproduces on production 2026-08-04 and on upstream `main` @ `15289d30`; open si
 - **Plurality has the identical bug**, unreported. Multi-winner Choose One is offered by the race form and tabulates through `runBlocTabulator`.
 - **The positional/identity mismatch the patch won't fix:** highlighting picks the first *N* rows, but `elected` is built round by round, and Ranked Robin's head-to-head tiebreak rung ignores the sort's `tieBreakOrder`. Demonstrated rather than asserted — round 1 of the reporter's own poll was decided on exactly that rung. Recommended as a separate issue, since it affects Approval too.
 
-→ [`issues/1166-ranked-robin-multiwinner-highlighting.md`](issues/1166-ranked-robin-multiwinner-highlighting.md)
+→ [`issues/1166-ranked-robin-multiwinner-highlighting.md`](issues/1166-ranked-robin-multiwinner-highlighting.md) · fix: [PR #1479](https://github.com/Equal-Vote/bettervoting/pull/1479)
+
+### #1480 — the star can land on a candidate that didn't win (FILED, ours)
+
+Split out of #1166 because it is a different defect and #1479 does not touch it. Highlighting keys on **row position** in `summaryData.candidates`; the winners are `results.elected`. Ranked Robin's head-to-head tiebreak rung ignores the `tieBreakOrder` the summary array is sorted by, so the two orderings disagree about half the time whenever a Copeland tie straddles the winner cutoff.
+
+Confirmed on production with **BV2270** (`8h4bvh`), minted for it: the heading reads *"Alder wins!"* while the star and the gold row sit on **Birch**, and both show 2 wins / 67% so the page offers no way to tell which is right. `tieBreakType: none` — the winner is fully determined by the ballots; only the row order came from the shuffle.
+
+Technique worth remembering: the shuffle re-seeds on every ballot cast, so **mirror-pair ballots** (a ranking plus its exact reverse) re-roll the display order while leaving every pairwise result and every Copeland score untouched. That turns a 50/50 draw into something you can just keep re-rolling until it shows what you need.
+
+→ [`issues/rr-winner-highlight-positional-vs-elected.md`](issues/rr-winner-highlight-positional-vs-elected.md)
 
 ### #1043 / BV230 — Show Preliminary Results after finalize (RESOLVED, awaiting close)
 

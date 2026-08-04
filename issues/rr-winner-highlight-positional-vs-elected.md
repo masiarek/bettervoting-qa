@@ -1,6 +1,6 @@
 # Winner highlighting is positional, but `elected` is identity
 
-**Status: CONFIRMED on production with a purpose-built election — [`8h4bvh`](https://bettervoting.com/8h4bvh/results) (BV2270), 2026-08-04.**
+**Status: FILED upstream as [#1480](https://github.com/Equal-Vote/bettervoting/issues/1480), 2026-08-04. Confirmed on production with a purpose-built election, [`8h4bvh`](https://bettervoting.com/8h4bvh/results) (BV2270).**
 
 Split out of [#1166](1166-ranked-robin-multiwinner-highlighting.md) deliberately. #1166 is a `good first issue` about a hard-coded `1`; this is a different defect that the #1166 fix ([PR #1479](https://github.com/Equal-Vote/bettervoting/pull/1479)) does not touch and was never meant to.
 
@@ -73,7 +73,7 @@ The shuffle re-rolls on every ballot cast (`"This ensures the tiebreak priority 
 
 **[`8h4bvh`](https://bettervoting.com/8h4bvh/results)** — BV2270, minted 2026-08-04, Ranked Robin, 1 winner.
 
-Minted with the three ballots above; the first draw put Alder first, so the page looked correct. Three mirror pairs were then cast (`Alder>Birch>Cedar>Dogwood` and its exact reverse, twice cancelling to nothing each time), and the third re-roll landed on a disagreeing order. Nine ballots now, with the tally identical to the three-ballot version — Copeland still 2/2/1/1, log still `Alder preferred over Birch in runoff.`
+Minted with the three ballots above; that draw put Alder first, so the page looked correct. Three mirror pairs were then cast — `Alder>Birch>Cedar>Dogwood` plus its exact reverse, which cancel on every one of the six matchups — and the third re-roll landed on a disagreeing order. Nine ballots now, tally identical to the three-ballot version: Copeland still 2/2/1/1, log still `Alder preferred over Birch in runoff.`
 
 <img alt="Results heading reads 'Alder wins!' while the star in the bar chart sits on Birch" src="img/8h4bvh_result.png" width="640">
 
