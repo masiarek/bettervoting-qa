@@ -101,9 +101,12 @@ So the real question isn't "what should the test credentials be allowed to do" b
 
 This is the same complaint as #827 itself, one notch weaker: the link goes from login-gated to menu-gated. It is a real improvement and it should ship. But if it ships and someone then closes #827 as done, the discoverability question the issue is actually about will have been answered by nobody.
 
-Cheap ways to close the gap, none blocking:
+Sharper than the parent label alone: in the new dropdown Documentation is the **sixth of six** items (About BetterVoting, About The Equal Vote Coalition, Why We Need Better Voting, Stories, Feature List, Documentation). So it is the last entry of a menu named for something else.
 
-1. **Rename the parent** to "About & Help" (or add Documentation as a second top-level item). #1450 rejected top-level growth at 6 → 8; one addition is 6 → 7, and Support Us was added at no net cost by folding Stories away.
+[Raised on #1451](https://github.com/Equal-Vote/bettervoting/pull/1451#issuecomment-5225775841) on 2026-08-08, explicitly non-blocking — copy at [`1451-about-us-placement-comment-posted.md`](1451-about-us-placement-comment-posted.md). Cheap ways to close the gap, none blocking:
+
+0. **Reorder within the dropdown** — move Documentation to the top of About Us. No new top-level item, no extra width at 320px, no hierarchy decision; one line moved in `navItems`. The cheapest option, and the one offered first on the PR.
+1. **Rename the parent** to "About & Help" (or add Documentation as a second top-level item). #1450 rejected top-level growth at 6 → 8; one addition is 6 → 7, since Support Us was added at no net cost by folding Stories away.
 2. **Add it to the footer**, which nobody in the thread has proposed and which is the conventional home for it. The footer today links starvoting.org, equal.vote, four social accounts and the GitHub org — and **no documentation at all** (`Footer.tsx`). A footer link is independent of the nav hierarchy that @ArendPeter and Sara are still working through, so it can land without waiting on that.
 3. Do neither, and accept that About Us is good enough — a defensible answer, but it should be an answer, not a default.
 
@@ -118,7 +121,7 @@ Both of the above were [raised on #1451](https://github.com/Equal-Vote/bettervot
 ## Recommendation
 
 1. **Review and merge #1451.** It is the fix, it has been sitting since 2026-07-23, and its only review is the author's own. ← *the only thing #827 is still waiting on*
-2. **Before merging, settle the About Us placement** — one comment on the PR, per the section above. Raised on the thread; unanswered.
+2. ~~Before merging, settle the About Us placement~~ — **raised** on [#1451](https://github.com/Equal-Vote/bettervoting/pull/1451#issuecomment-5225775841) with four options, cheapest being a one-line reorder. Awaiting @ArendPeter.
 3. ~~Split the test-user-IDs ask into its own issue~~ — **done**, [#1495](https://github.com/Equal-Vote/bettervoting/issues/1495).
 4. ~~File the demo-videos ask as a docs task~~ — **done**, [#1494](https://github.com/Equal-Vote/bettervoting/issues/1494).
 5. Then #827 closes on a nav change plus two spun-out tickets, rather than staying open as a general nav-hierarchy discussion. As of 2026-08-08 only step 1 remains.
