@@ -84,12 +84,16 @@ The issue body has three asks. Only the first is addressed:
 | # | Ask | Status |
 |---|---|---|
 | 1 | Discoverable help without login | **fixed** by #1451 |
-| 2 | Help files link to demo videos, to build trust | **untouched** — nothing in #1450, #1451, or `docs/` |
-| 3 | Test user IDs so a visitor can see full functionality before registering | **untouched**, and never spec'd |
+| 2 | Help files link to demo videos, to build trust | **split out** as [#1494](https://github.com/Equal-Vote/bettervoting/issues/1494) on 2026-08-08 |
+| 3 | Test user IDs so a visitor can see full functionality before registering | **split out** as [#1495](https://github.com/Equal-Vote/bettervoting/issues/1495) on 2026-08-08 |
 
-(2) is a docs-content task, not a frontend one: it lands in `docs/help/`, needs no code, and is unblocked today.
+Both were filed from this analysis, which leaves #827 resting entirely on #1451.
 
-(3) is the one @waugh flagged in March 2025 — *"maybe you should move that aspect to a separate issue. It might need a lot of behavioral specification"* — and he was right; it never happened, and it is now the reason #827 cannot be cleanly closed on #1451. Shared demo credentials on a live voting platform is a security and abuse question, not a nav question. **Recommend splitting it out before #1451 merges**, so #827 doesn't have to stay open to hold a ticket that has nothing to do with link placement.
+**#1494** is a docs-content task, not a frontend one. Two things found while filing it that make it cheap: the videos already wired into the product (`en.yaml:187/191/195`, for Approval / RCV / STV) are **method explainers, not product footage**, so the gap is specifically a walkthrough of BetterVoting itself; and `docs/other_tools/google_forms.md:20` already embeds a YouTube `<iframe>` in a docs page, so the embed mechanism exists and needs no tooling. If Equal Vote already has a walkthrough recorded, #1494 is a linking task.
+
+**#1495** is the one @waugh flagged in March 2025 — *"maybe you should move that aspect to a separate issue. It might need a lot of behavioral specification."* He was right, and the reason it needed splitting is sharper than the thread realised: **`/sandbox` already answers most of the ask.** `App.tsx:71` registers the route; on production, signed out, it renders a worked STAR election end to end — method picker, ballots textarea, scoring round, automatic runoff, majority threshold, Equal Support, the explainer — with no account and nothing stored. And the route appears **nowhere else in the codebase**: not the nav, not the docs, not the landing page.
+
+So the real question isn't "what should the test credentials be allowed to do" but "why are we proposing shared logins for a live voting platform when an unauthenticated demo already exists and is invisible". One caveat carried into #1495: on `/sandbox` the **Race Details panel expands to a permanent `Loading...`** (no election record behind a sandbox tally) — verified on production 2026-08-08, and it would need fixing or hiding before the page is shown to first-time visitors.
 
 ## The one thing worth raising before #1451 merges
 
@@ -113,13 +117,13 @@ Both of the above were [raised on #1451](https://github.com/Equal-Vote/bettervot
 
 ## Recommendation
 
-1. **Review and merge #1451.** It is the fix, it has been sitting since 2026-07-23, and its only review is the author's own.
-2. **Before merging, settle the About Us placement** — one comment on the PR, per the section above.
-3. **Split the test-user-IDs ask into its own issue**, as @waugh asked for in March 2025.
-4. **File the demo-videos ask as a docs task** against `docs/help/`, where it can proceed independently.
-5. Then #827 closes on a nav change plus two spun-out tickets, rather than staying open as a general nav-hierarchy discussion.
+1. **Review and merge #1451.** It is the fix, it has been sitting since 2026-07-23, and its only review is the author's own. ← *the only thing #827 is still waiting on*
+2. **Before merging, settle the About Us placement** — one comment on the PR, per the section above. Raised on the thread; unanswered.
+3. ~~Split the test-user-IDs ask into its own issue~~ — **done**, [#1495](https://github.com/Equal-Vote/bettervoting/issues/1495).
+4. ~~File the demo-videos ask as a docs task~~ — **done**, [#1494](https://github.com/Equal-Vote/bettervoting/issues/1494).
+5. Then #827 closes on a nav change plus two spun-out tickets, rather than staying open as a general nav-hierarchy discussion. As of 2026-08-08 only step 1 remains.
 
-All five points were [posted to the thread](https://github.com/Equal-Vote/bettervoting/issues/827#issuecomment-5225702899) on 2026-08-08 — copy at [`827-comment-posted.md`](827-comment-posted.md). The two loose ends were kept off #827 and [raised on #1451](https://github.com/Equal-Vote/bettervoting/pull/1451#issuecomment-5225709418) instead, since that is the PR they concern.
+All five points were [posted to the thread](https://github.com/Equal-Vote/bettervoting/issues/827#issuecomment-5225702899) on 2026-08-08 — copy at [`827-comment-posted.md`](827-comment-posted.md) — followed by a [second comment](https://github.com/Equal-Vote/bettervoting/issues/827#issuecomment-5225764496) linking the two spin-outs once they were filed. The two loose ends were kept off #827 and [raised on #1451](https://github.com/Equal-Vote/bettervoting/pull/1451#issuecomment-5225709418) instead, since that is the PR they concern.
 
 ## Provenance
 
@@ -130,6 +134,10 @@ All five points were [posted to the thread](https://github.com/Equal-Vote/better
 | Paper Ballots ▾ → `docs.bettervoting.com/help/paper_ballots.html` renders logged out | **run** — menu opened, href read from the live DOM |
 | That deep page carries the full docs sidebar | **run** — fetched, `nav-list-link` anchors enumerated (all `/help/*`, `/other_tools/`, `/contributions/*`, and `/`) |
 | `docs.bettervoting.com/` is live and says "Welcome to our documentation!" | **run** — HTTP 200, title and body checked |
+| `/sandbox` renders a full STAR count signed out, with no account and nothing stored | **run** — production 2026-08-08, page text read after load |
+| `/sandbox`'s Race Details expands to a permanent `Loading...` | **run** — panel expanded, text re-read after 1.5s |
+| `/sandbox` is linked from nowhere | read from source — grep of `packages/` and `docs/`; only `App.tsx:71` matches |
+| Both Merch URLs resolve, and to different shops | **run** — followed both, `starvoting.org/store` redirects to the STAR Voting Etsy shop |
 | Help is login-gated at `Header.tsx:219`; `navItems` drives both renderers | read from source at `7bc75a82` |
 | `nav.better_voting` unused, incl. template-literal check | read from source — grep of `t(` call sites and backtick keys |
 | Footer has no docs link | read from source — `Footer.tsx` hrefs enumerated |
@@ -142,6 +150,8 @@ All five points were [posted to the thread](https://github.com/Equal-Vote/better
 
 - [#1450](https://github.com/Equal-Vote/bettervoting/issues/1450) — the spec; explicitly declines to close #827
 - [#1451](https://github.com/Equal-Vote/bettervoting/pull/1451) — the implementation, open
+- [#1494](https://github.com/Equal-Vote/bettervoting/issues/1494) — demo videos in the help docs, split out of #827 (ours)
+- [#1495](https://github.com/Equal-Vote/bettervoting/issues/1495) — try-before-registering / `/sandbox`, split out of #827 (ours)
 - [#845](https://github.com/Equal-Vote/bettervoting/issues/845) — Landing Page improvements, cross-referenced from #827 since 2025-03
 - [star-server#920](https://github.com/Equal-Vote/star-server/issues/920) — Jay's "treat the docs link as internal" feedback; closed, request unmet until #1451
 - Discussion docs on the thread: [Options — PROS and CONS](https://docs.google.com/document/d/1s6wCkcmKXQHnqzy_HsNZKPRzUZKNlHlDKVwsbGoFXBM/edit), [What links to use](https://docs.google.com/document/d/1rbHi_gtTI3ooU02rQb9EG_-eh-lwYVD4j7UqPQ-a1Uw/edit) — not read for this page
