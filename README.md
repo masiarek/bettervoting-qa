@@ -117,6 +117,18 @@ Technique worth remembering: the shuffle re-seeds on every ballot cast, so **mir
 
 → [`issues/rr-winner-highlight-positional-vs-elected.md`](issues/rr-winner-highlight-positional-vs-elected.md)
 
+### #1497 — description fields no longer say they support links (FILED, ours — docs PR open)
+
+Election and race descriptions render markdown, so `[text](url)` becomes a real link — but `formatMarkdown()` has no bare-URL autolinker, and almost nothing in the UI says so. Confirmed on production with **BV2261** (`y2fbpc`): its description ends in a pasted address, and the page carries **zero** anchors to that host among 38 links.
+
+- **One of the two missing hints looks like a rebase artifact.** `a8efc073` shipped the feature with a `Supports **bold** and [link text](url) formatting` helper in three files; `main` has it in two. `RaceForm.tsx` lost it to `89f6e1a6`, **authored 2025-09-05 and committed 2025-12-14** — written before the markdown feature existed, landed on top of it, so it deleted a hint its author had never seen. A `git log` date that predates the thing it removes is the tell.
+- **The new wizard's Description field never had one**, and it's now the default path into election creation.
+- **Neither description appears on the results page** — election description is on the election home page, the Browse Polls card and email invites; race description is on the ballot. So a link in a description never reaches anyone who lands on `/results`.
+- **Titles are plain text** on every surface; markdown in a title displays literally.
+- **Cost to us:** 65 of the star-voting-library's 217 frozen exports carry their lesson backlink as a bare URL, permanently unclickable. House form changed to the bracketed one and `--dry-run` now warns ([`6460834`](https://github.com/masiarek/star-voting-library/commit/6460834)).
+
+→ [`issues/1497-description-link-affordance.md`](issues/1497-description-link-affordance.md) · filed: [#1497](https://github.com/Equal-Vote/bettervoting/issues/1497) · docs: [PR #1498](https://github.com/Equal-Vote/bettervoting/pull/1498) adds a **Tips and Tricks** page
+
 ### #827 — Where to position a link to "Help" (OPEN since Feb 2025, Adam's — FIX WRITTEN, unreviewed)
 
 Reads like an unresolved product debate; isn't one. It was spec'd as [#1450](https://github.com/Equal-Vote/bettervoting/issues/1450) and implemented in [PR #1451](https://github.com/Equal-Vote/bettervoting/pull/1451), open since 2026-07-23 with no review but the author's own. Documentation moves out of the login-gated account dropdown into **About Us ▾**, renamed from "Help", visible logged out on desktop and at 320px.
