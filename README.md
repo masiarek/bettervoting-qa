@@ -117,6 +117,17 @@ Technique worth remembering: the shuffle re-seeds on every ballot cast, so **mir
 
 → [`issues/rr-winner-highlight-positional-vs-elected.md`](issues/rr-winner-highlight-positional-vs-elected.md)
 
+### #827 — Where to position a link to "Help" (OPEN since Feb 2025, Adam's — FIX WRITTEN, unreviewed)
+
+Reads like an unresolved product debate; isn't one. It was spec'd as [#1450](https://github.com/Equal-Vote/bettervoting/issues/1450) and implemented in [PR #1451](https://github.com/Equal-Vote/bettervoting/pull/1451), open since 2026-07-23 with no review but the author's own. Documentation moves out of the login-gated account dropdown into **About Us ▾**, renamed from "Help", visible logged out on desktop and at 320px.
+
+- **The issue's premise is out of date.** Help *is* reachable before login today — **Paper Ballots ▾ → "Paper Ballots"** points at `docs.bettervoting.com/help/paper_ballots.html`, and that page ships the full docs sidebar. So this is signage, not a walled garden. Verified live 2026-08-08.
+- **The entry point Adam asked for in Oct 2025 already exists** — `docs.bettervoting.com/` returns 200 and says "Welcome to our documentation!". The remaining ask was only the link's position.
+- **One thing to settle before #1451 merges:** it nests Documentation under **About Us**, which is where a reader looks for *who we are*, not *how do I use this*. The link goes from login-gated to menu-gated. The footer — which links four social accounts and no documentation at all — is the uncontested placement nobody has proposed.
+- **Only 1 of the issue's 3 asks is addressed.** Demo videos (a `docs/help/` task, unblocked) and guest/test user IDs (never spec'd; @waugh asked for it to be split out in March 2025) are why #827 can't be cleanly closed on #1451.
+
+→ [`issues/827-help-link-placement.md`](issues/827-help-link-placement.md) · nothing posted upstream
+
 ### #1043 / BV230 — Show Preliminary Results after finalize (RESOLVED, awaiting close)
 
 Not reproducible on current production. Retested 2026-07-29 as BV230-r1 (`yyvwrj`). All three fixes proposed in the 2025 thread shipped independently — see [`issues/1043-show-preliminary-results.md`](issues/1043-show-preliminary-results.md).
