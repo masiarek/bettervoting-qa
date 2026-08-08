@@ -4,6 +4,55 @@ Newest session first. Older sections stay as written.
 
 ---
 
+# Session — 2026-08-08: reporting, mapped end to end
+
+Started as *"what reports should we ask BV for?"*. Reading the source turned the question around twice, and the answer is a four-page cluster in `analysis/` rather than any new issue.
+
+## The three findings that changed the plan
+
+**1. The bounce data is already collected.** `emailEventsDB` (2026-03-19 migration) is written by a signature-verified SendGrid webhook, and `getRollsByElectionID` attaches **every voter's events to the roll list response** (`getElectionRollController.ts:125-152`). It is rendered per voter only, inside `EditElectionRoll` — so "how many bounced?" costs one click per voter. **#789 is not a greenfield 18-column report; a third of it is a table and a download button over data the client already holds.** That reframing is plausibly why it has been `Complexity: Missing` since March.
+
+Two spec corrections for #789 fell out of the same function: `voter_id` is deliberately deleted when `invitation === 'email'` (so the report keys on `email`), and **IP Address cannot be delivered at all** — BV stores only `sha256(req.ip)` and strips even that at `:149`.
+
+**2. The tie seed has a trap that manufactures integrity accusations.** BV's random tiebreak is deterministic and we already replay it independently (`bv_replay_tiebreak.py`, verified at 3 and 9 candidates). Seed is `(rawVoteCount + hash(raceId)) >>> 0` — but `rawVoteCount` is the **raw** ballot count and the results page shows **tally** votes, a filtered subset, with no `nVotes` field anywhere. An auditor who uses the displayed number computes a plausible-but-wrong order and concludes the tiebreak doesn't reproduce. Also: the shuffle takes `electionCreateDate` and never uses it, with a comment saying it is for versioning — and nothing records which version produced a result.
+
+**3. Reporting is over-filed, not under-filed.** 88 open issues match `report|export|csv|download|statistics|quorum`, most `Complexity: Missing`, many ours, mutually overlapping. Every idea raised in planning was already filed. The missing artefact was never another issue — it was the tree that makes the leaves navigable.
+
+## The governing decision
+
+Reports split on **whether the data can leave BV**, and that cut decides every case:
+
+- **Tabulation** (ballots → winner, matrix, ties) — data leaves fully. Stays in the library.
+- **Electorate** (voter status, turnout, bounces, quorum) — data does **not** leave and must not; the roll endpoint strips `ballot_id`/`voter_id` precisely to stop voters being linked to ballots. Necessarily BV's, and we should stop imagining we could take it on.
+
+With the trap named: **a conclusion cannot cross-check a conclusion.** The cross-check is worth something because LH / `pref_voting` / `abcvoting` / RCTab are systems nobody at BV wrote. So every conclusion BV computes is one we can no longer verify independently — **ask for raw data and schema stability, not reports.** That puts `#1420` (export leaks the tabulator's internal object shape) above every new report, and argues for politely declining `#1071`/`#1154` (BV emitting an LH-format report), since the pipeline already exists on our side.
+
+## Where it landed
+
+| Page | What |
+|---|---|
+| [`analysis/report-catalogue.md`](analysis/report-catalogue.md) | **the complete view** — 5 families, ~40 artefacts, 5 consumers, status per item, a 17-row scenario matrix, and a slicing order |
+| [`analysis/where-reports-should-live.md`](analysis/where-reports-should-live.md) | the governing decision above |
+| [`analysis/reporting-and-voter-status-map.md`](analysis/reporting-and-voter-status-map.md) | Family 3 — roll, email events, quorum |
+| [`analysis/tiebreak-audit-report.md`](analysis/tiebreak-audit-report.md) | Family 5 — the tie report spec and the seed trap |
+
+## What's next
+
+Nothing has been filed or posted upstream. Four comments are drafted inside those pages:
+
+| # | Where | Content |
+|---|---|---|
+| 1 | comment on **#789** | finding 1 + the two spec corrections. No longer waits on a test election |
+| 2 | comment on **#1432** | `rawVoteCount` + the algorithm-version field |
+| 3 | **new issue** — voter roll CSV export | unfiled, self-contained, smallest viable slice of #789 |
+| 4 | **the epic** | `report-catalogue.md` as the body, framed as an *index of the existing 88*, not new asks |
+
+**On a first PR:** the roll CSV export (3) is the right candidate when the time comes — frontend-only, no backend or schema change, and `BallotDataExport.tsx` already contains the `triggerDownload` + RFC-4180 `csvField` helpers to copy. Deliberately *not* done yet: requirements first, so the PR arrives as the first slice of a mapped plan rather than as a drive-by.
+
+**Still unrun, and the only thing source cannot answer:** a manual election with a voter roll. It must be manual — `POST rolls` is gated on `canAddToElectionRoll` and our synthetic script identity never gets that binding (`admin_ids` was tried and ignored on `xb8r6v`), and the election must be **restricted** (`:108` 401s on open ones). Six-voter plan is in the Family 3 page. What it is *for* is the one empirical question left: whether a human-readable bounce cause survives into `details.reason`.
+
+---
+
 # Session — 2026-08-03: election creation, and a wizard orphan
 
 Started as "document how to create an election on BetterVoting" and turned up a functional bug in the create wizard.
