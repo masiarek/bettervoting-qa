@@ -48,6 +48,25 @@ The four `open_*` modes have no roll at all — `getRollsByElectionID` throws `U
 
 That is not a gap to be closed; it follows from there being no electorate to report on. But it means every Family 3 entry needs an availability precondition attached, and **#789 should say which mode it targets** — as written it reads as universal.
 
+### There is no "demo election" flag — it is derived
+
+Checked against the domain model and a real frozen export: **no `is_demo`, `is_test`, or `demo` field exists anywhere.** `Election` carries `is_public`, `state`, `ballot_source: 'live_election' | 'prior_election'`, and `settings` — and nothing that marks an election as a demo.
+
+"Demo / unlimited voting" is **derived from the auth mode**, and the canonical derivation already exists as a shared function: `getVoterAuthenticationMode(settings)`. From a real export (`t4by6x`):
+
+```
+voter_access          : open
+voter_authentication  : {ip_address: false, voter_id: false, email: false}   ← all false
+ballot_source         : live_election
+state                 : open
+```
+
+All three auth flags false + `voter_access: open` is the **`open_open`** mode: no authentication of any kind, so **one person can cast unlimited ballots**. That — not any flag — is what "demo election" means on BV. The other three `open_*` modes are *weakly* limited (one per cookie, per Keycloak account, or per IP), which is a different thing again and should not be reported as if it were the same.
+
+So "is this a demo?" is answerable from any export, but only by deriving it. Worth recording the resolved mode in the YAML at conversion time rather than re-deriving it per consumer.
+
+**And it matters for the tie report.** In `open_open`, `rawVoteCount` is unbounded and inflatable by a single actor — so the tiebreak seed is too. This is not a vulnerability (anyone who can cast unlimited ballots can simply win outright, making the tiebreak the least of it), but it does constrain the wording: **a tie report must not present seed reproducibility as an integrity guarantee in an unauthenticated election.** Reproducible ≠ trustworthy when the input is unbounded. Same report, same numbers, different claim — which is Family 0's whole point.
+
 ### Settings that change what a report means
 
 | Setting | Effect on reporting |
