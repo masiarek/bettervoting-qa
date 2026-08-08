@@ -26,6 +26,7 @@ This repo is **public**, so that its pages can be cross-referenced from upstream
 | `issues/` | Per-issue notes: findings, resolution, and a copy of whatever was posted upstream |
 | `analysis/` | Deep reads of a subsystem — the integration maps that back the test cases |
 | `reference/` | Reusable how-to: API checks, commands, gotchas |
+| `adam_bv_process/` | Adam's local runbook: starting and stopping the dev stack and the docs preview, and which checkout to be in |
 
 ## Conventions
 
