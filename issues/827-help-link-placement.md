@@ -107,7 +107,9 @@ Cheap ways to close the gap, none blocking:
 
 - **`nav.better_voting: Learn More` is a dead key.** `en.yaml:410` defines it; nothing consumes it. It is the remnant of the "Learn More" item visible in the issue's own 2025 screenshot, which the nav no longer has. Checked for template-literal construction too — the trap from the [#904](904-star-bloc-naming.md) analysis, where a plain grep wrongly reported `bloc_multi_winner_adj` as dead. This one is genuinely dead. #1451 removes `nav.help` and leaves `better_voting`.
 - **`nav.help`'s value is `"Help "`, with a trailing space** (`en.yaml:400`). Harmless, and #1451 deletes the key, so this is only a note in case the key is revived.
-- **#1451's Merch URL disagrees with its own QA steps** — the diff sets `https://bettervoting.myspreadshop.com`, while both the PR's QA checklist and #1450's spec say `https://www.starvoting.org/store` (explicitly flagged there as a placeholder to be swapped). Nothing to do with #827, but it is in the PR that fixes #827, and the PR's checkboxes are all ticked against a URL the code does not contain.
+- **#1451's Merch URL disagrees with its own QA steps** — the diff sets `https://bettervoting.myspreadshop.com`, while both the PR's ticked QA checklist and #1450's spec say `https://www.starvoting.org/store` (flagged there as a placeholder to be swapped). Not a breakage: **both resolve**, but they are two different shops — a BetterVoting Spreadshop in the code, versus `starvoting.org/store`, which redirects to the STAR Voting Etsy shop. The defect is that a ticked checkbox was verified against a URL the diff does not contain, and that the "placeholder to swap later" follow-up may already be resolved without anyone noticing.
+
+Both of the above were [raised on #1451](https://github.com/Equal-Vote/bettervoting/pull/1451#issuecomment-5225709418) on 2026-08-08, where they belong — copy at [`1451-loose-ends-comment-posted.md`](1451-loose-ends-comment-posted.md). Neither went on #827.
 
 ## Recommendation
 
@@ -117,7 +119,7 @@ Cheap ways to close the gap, none blocking:
 4. **File the demo-videos ask as a docs task** against `docs/help/`, where it can proceed independently.
 5. Then #827 closes on a nav change plus two spun-out tickets, rather than staying open as a general nav-hierarchy discussion.
 
-Nothing from this page has been posted upstream.
+All five points were [posted to the thread](https://github.com/Equal-Vote/bettervoting/issues/827#issuecomment-5225702899) on 2026-08-08 — copy at [`827-comment-posted.md`](827-comment-posted.md). The two loose ends were kept off #827 and [raised on #1451](https://github.com/Equal-Vote/bettervoting/pull/1451#issuecomment-5225709418) instead, since that is the PR they concern.
 
 ## Provenance
 

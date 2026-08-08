@@ -126,7 +126,7 @@ Reads like an unresolved product debate; isn't one. It was spec'd as [#1450](htt
 - **One thing to settle before #1451 merges:** it nests Documentation under **About Us**, which is where a reader looks for *who we are*, not *how do I use this*. The link goes from login-gated to menu-gated. The footer — which links four social accounts and no documentation at all — is the uncontested placement nobody has proposed.
 - **Only 1 of the issue's 3 asks is addressed.** Demo videos (a `docs/help/` task, unblocked) and guest/test user IDs (never spec'd; @waugh asked for it to be split out in March 2025) are why #827 can't be cleanly closed on #1451.
 
-→ [`issues/827-help-link-placement.md`](issues/827-help-link-placement.md) · nothing posted upstream
+→ [`issues/827-help-link-placement.md`](issues/827-help-link-placement.md) · posted upstream: [`issues/827-comment-posted.md`](issues/827-comment-posted.md) → [#827 comment](https://github.com/Equal-Vote/bettervoting/issues/827#issuecomment-5225702899); two PR-level loose ends (Merch URL vs. its own ticked QA step, dead `nav.better_voting` key) in [`issues/1451-loose-ends-comment-posted.md`](issues/1451-loose-ends-comment-posted.md) → [#1451 comment](https://github.com/Equal-Vote/bettervoting/pull/1451#issuecomment-5225709418)
 
 ### #1043 / BV230 — Show Preliminary Results after finalize (RESOLVED, awaiting close)
 
