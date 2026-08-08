@@ -66,13 +66,24 @@ docker compose down           # stop and remove
 | Symptom | Cause |
 |:---|:---|
 | `EADDRINUSE :5001` | stray backend — kill it **by port**, `kill $(lsof -ti tcp:5001)`. Not `pkill -f "tsx watch"`: that matches the two supervisor processes but **not** the child actually bound to the port (whose command line reads `node --require …/tsx/dist/preflight.cjs`), so it looks like it worked and the port stays held. |
-| port 5000 in use | Two causes. Either macOS AirPlay Receiver (turn it off in System Settings), **or** — far more likely here — a backend started with no `.env`: see below. |
-| UI loads but every API call fails, no error anywhere | The backend is on **5000** while the frontend proxies to **5001**. `.env` is gitignored, so a fresh clone has none, and `packages/backend/src/index.ts:10` reads `process.env.BACKEND_PORT \|\| 5000` — it starts *successfully* on the wrong port. `bv prep <clone>` copies a good `.env` in. |
+| port 5000 in use | macOS AirPlay Receiver (turn it off in System Settings) — **or** a BetterVoting backend, since 5000 is the stock port. Check before blaming AirPlay: `lsof -nP -iTCP:5000 -sTCP:LISTEN`. |
+| UI loads but every API call fails, no error anywhere | A **mismatched `.env` pair** — see below. |
 | `Bind for 0.0.0.0:8080 failed: port is already allocated` | You ran `docker compose up keycloak` from a **second clone**. Compose names the project after the clone directory, so it tried to build an independent keycloak fighting for the same host port. One keycloak serves every clone — always start it from `BV/bettervoting`, and clear the orphan with `docker rm <clone>-keycloak-1 && docker network rm <clone>_star-net`. |
 | `Module not found: @equal-vote/star-vote-shared/...` | rebuild shared: `npm run build -w @equal-vote/star-vote-shared` |
 | `Could not read package.json` | you're in your home dir — `cd` to the repo root |
 | `node: command not found` | `fish_add_path /usr/local/opt/node@20/bin` |
 | `__META_TITLE__` in the browser tab | **normal** under the dev flow — meta injection only runs in the backend-served build |
+
+## The backend port is per-clone
+
+There is no single right backend port, and assuming one will cost you an afternoon.
+
+- Upstream's `sample.env` ships a **5000 pair** — `BACKEND_PORT=5000` in the backend, `REACT_APP_BACKEND_URL=http://localhost:5000` in the frontend.
+- `BV/bettervoting` has been hand-edited to a **5001 pair**.
+
+Both work. What breaks is a **mismatched** pair, and it breaks silently: the backend starts fine on whichever port it read, the UI loads, and every API call goes to a dead port with no error anywhere. Two ways to get there — `.env` is gitignored, so a fresh clone has none and `packages/backend/src/index.ts:10` falls back to `BACKEND_PORT || 5000`; or you copy one half of a good `.env` in and leave the other.
+
+`bv status` prints each clone's backend port and flags a mismatch; `bv prep` copies both halves and refuses to leave a clone mismatched; `bv up` reads the port from the clone rather than assuming.
 
 ## Sandbox — no local stack needed
 

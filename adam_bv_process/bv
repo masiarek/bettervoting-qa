@@ -18,7 +18,27 @@ BV_ROOT="/Volumes/T7/Voting/BetterVoting"
 DEV_CLONE="$BV_ROOT/BV/bettervoting"      # the reference clone: has a good .env
 LOG_DIR="${TMPDIR:-/tmp}/bv-logs"
 FE_PORT=3000
-BE_PORT=5001
+
+# The backend port is per-clone, NOT a constant. Upstream's sample.env ships a
+# 5000 pair (backend BACKEND_PORT, frontend REACT_APP_BACKEND_URL); the
+# reference clone has been hand-edited to a 5001 pair. Both work. What does not
+# work is a MISMATCHED pair, which is what a missing or half-copied .env leaves
+# behind -- and it fails silently, because the backend starts fine on whichever
+# port it read and only the frontend's calls go nowhere.
+backend_port_of() {
+  local v; v="$(sed -n 's/^BACKEND_PORT=\([0-9]*\).*/\1/p' "$1/packages/backend/.env" 2>/dev/null | head -1)"
+  printf '%s' "${v:-5000}"   # index.ts: process.env.BACKEND_PORT || 5000
+}
+frontend_target_of() {
+  local v; v="$(sed -n 's|^REACT_APP_BACKEND_URL=http://localhost:\([0-9]*\).*|\1|p' "$1/packages/frontend/.env" 2>/dev/null | head -1)"
+  printf '%s' "$v"
+}
+# "" when the pair agrees, else a description of the disagreement.
+env_mismatch_of() {
+  local be fe; be="$(backend_port_of "$1")"; fe="$(frontend_target_of "$1")"
+  [ -z "$fe" ] && return
+  [ "$be" = "$fe" ] || printf 'backend :%s but frontend calls :%s' "$be" "$fe"
+}
 
 c_ok=$'\033[32m'; c_bad=$'\033[31m'; c_dim=$'\033[2m'; c_off=$'\033[0m'
 say() { printf '%s\n' "$*"; }
@@ -105,16 +125,12 @@ cmd_status() {
 
   say ""
   say "ports"
-  for p in $FE_PORT $BE_PORT 8080 5432 5000; do
+  # Both backend ports are listed because both conventions are live across the
+  # clones; on macOS, :5000 is also AirPlay Receiver's.
+  for p in $FE_PORT 5000 5001 8080 5432; do
     local who; who="$(owner_of_port "$p")"
     if [ -n "$who" ]; then
-      local note=""
-      # 5000 is not in the documented port set. Two causes, and the second is
-      # the one that wastes an afternoon: (a) macOS AirPlay Receiver, (b) a
-      # backend started with no .env, since index.ts defaults to 5000 when
-      # BACKEND_PORT is unset — it logs success and the frontend can't reach it.
-      [ "$p" = 5000 ] && note="  ${c_bad}<- not a dev-flow port: AirPlay, or a backend started with no .env${c_off}"
-      printf '  :%-5s %s%s\n' "$p" "$who" "$note"
+      printf '  :%-5s %s\n' "$p" "$who"
     else
       printf '  :%-5s %s-%s\n' "$p" "$c_dim" "$c_off"
     fi
@@ -123,13 +139,20 @@ cmd_status() {
   say ""
   say "clones"
   for c in $(clones); do
-    local name br dirty nm env ready
+    local name br dirty nm env ready mism
     name="$(basename "$c")"
     br="$(git -C "$c" branch --show-current 2>/dev/null)"
     dirty="$(git -C "$c" status --porcelain 2>/dev/null | wc -l | tr -d ' ')"
     [ -e "$c/node_modules" ] && nm="" || nm="node_modules "
     [ -f "$c/packages/backend/.env" ] && env="" || env=".env "
-    if [ -z "$nm$env" ]; then ready="${c_ok}ready${c_off}"; else ready="${c_bad}needs: $nm$env${c_off}  ${c_dim}bv prep $name${c_off}"; fi
+    mism="$(env_mismatch_of "$c")"
+    if [ -n "$nm$env" ]; then
+      ready="${c_bad}needs: $nm$env${c_off}  ${c_dim}bv prep $name${c_off}"
+    elif [ -n "$mism" ]; then
+      ready="${c_bad}env mismatch: $mism${c_off}"
+    else
+      ready="${c_ok}ready${c_off} ${c_dim}:$(backend_port_of "$c")${c_off}"
+    fi
     printf '  %-18s %-40s %s dirty  %b\n' "$name" "$br" "$dirty" "$ready"
   done
 }
@@ -163,7 +186,18 @@ cmd_prep() {
       (cd "$clone" && npm install) || die "npm install failed"
     }
   fi
-  say "  ${c_ok}ready${c_off}"
+  # Copying only the MISSING half is how you manufacture a mismatch: a clone
+  # holding the stock 5000 frontend .env, given the reference clone's 5001
+  # backend .env, starts cleanly and serves a UI whose every API call goes to a
+  # dead port. Check the pair, and never silently rewrite a file that was there.
+  local mism; mism="$(env_mismatch_of "$clone")"
+  if [ -n "$mism" ]; then
+    say "  ${c_bad}env mismatch: $mism${c_off}"
+    say "  ${c_dim}point the frontend at the backend:${c_off}"
+    say "    sed -i '' 's|^REACT_APP_BACKEND_URL=.*|REACT_APP_BACKEND_URL=http://localhost:$(backend_port_of "$clone")|' $clone/packages/frontend/.env"
+    return 1
+  fi
+  say "  ${c_ok}ready${c_off} ${c_dim}backend :$(backend_port_of "$clone")${c_off}"
 }
 
 cmd_up() {
@@ -173,7 +207,11 @@ cmd_up() {
 
   [ -e "$clone/node_modules" ] && [ -f "$clone/packages/backend/.env" ] || die "clone not prepared — run: bv prep $name"
 
-  free_port "$FE_PORT"; free_port "$BE_PORT"; free_port 5000
+  local mism; mism="$(env_mismatch_of "$clone")"
+  [ -n "$mism" ] && die "env mismatch in $name: $mism — fix packages/*/.env before starting, or the UI will load and every API call will fail silently"
+
+  local be_port; be_port="$(backend_port_of "$clone")"
+  free_port "$FE_PORT"; free_port 5000; free_port 5001
 
   brew services list 2>/dev/null | grep -q "^postgresql@16 started" || {
     say "  starting postgresql@16"; brew services start postgresql@16 >/dev/null; }
@@ -194,7 +232,7 @@ cmd_up() {
   mkdir -p "$LOG_DIR"
   say "  starting backend  ${c_dim}$LOG_DIR/backend.log${c_off}"
   (cd "$clone" && nohup npm run dev -w @equal-vote/star-vote-backend >"$LOG_DIR/backend.log" 2>&1 &)
-  wait_for_port "$BE_PORT" backend 120 || say "  ${c_bad}check $LOG_DIR/backend.log${c_off}"
+  wait_for_port "$be_port" backend 120 || say "  ${c_bad}check $LOG_DIR/backend.log${c_off}"
 
   say "  starting frontend ${c_dim}$LOG_DIR/frontend.log${c_off}"
   (cd "$clone" && nohup npm run dev -w @equal-vote/star-vote-frontend >"$LOG_DIR/frontend.log" 2>&1 &)
@@ -206,7 +244,7 @@ cmd_up() {
 
 cmd_down() {
   say "stopping dev servers"
-  free_port "$FE_PORT"; free_port "$BE_PORT"; free_port 5000
+  free_port "$FE_PORT"; free_port 5000; free_port 5001
   if [ "${1:-}" = "--all" ]; then
     say "stopping containers"
     local ids; ids="$(docker ps -q)"
