@@ -1,6 +1,6 @@
 # Report catalogue — what reports, for whom, and the scenarios they must survive
 
-The working index for reporting. Intended as the body of the "extended / detailed reports & stats" epic.
+The working index for reporting. **Filed upstream as [#1500](https://github.com/Equal-Vote/bettervoting/issues/1500)** — that issue is the condensed version; this page is the full one it points back to, so keep this current and let the issue lag.
 
 **Reporting is not one feature.** It is roughly forty distinct artefacts across five families, with different consumers, different homes, and different failure modes — which is why 88 open issues have accumulated without the topic ever feeling *addressed*. Each issue is a leaf. Nobody has drawn the tree.
 

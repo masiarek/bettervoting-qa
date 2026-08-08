@@ -38,16 +38,20 @@ With the trap named: **a conclusion cannot cross-check a conclusion.** The cross
 
 ## What's next
 
-Two of four upstream items are **posted**; two remain.
+All four upstream items are **live**.
 
 | # | Where | Status |
 |---|---|---|
-| 1 | comment on **#789** | ✅ **posted** — [5226638146](https://github.com/Equal-Vote/bettervoting/issues/789#issuecomment-5226638146) · [record](issues/789-comment-posted.md) |
-| 2 | comment on **#1432** | ✅ **posted** — [5226640606](https://github.com/Equal-Vote/bettervoting/issues/1432#issuecomment-5226640606) · [record](issues/1432-comment-posted.md) |
-| 3 | **new issue** — voter roll CSV export | not filed. Offered in the #789 comment, so it is now expected — worth filing rather than leaving dangling |
-| 4 | **the epic** | not filed. [`report-catalogue.md`](analysis/report-catalogue.md) as the body, framed as an *index of the existing 88*, not new asks |
+| 1 | comment on **#789** | ✅ [5226638146](https://github.com/Equal-Vote/bettervoting/issues/789#issuecomment-5226638146) · [record](issues/789-comment-posted.md) |
+| 2 | comment on **#1432** | ✅ [5226640606](https://github.com/Equal-Vote/bettervoting/issues/1432#issuecomment-5226640606) · [record](issues/1432-comment-posted.md) |
+| 3 | **#1499** — voter roll CSV export | ✅ filed · [record](issues/1499-1500-filed.md) |
+| 4 | **#1500** — the reporting epic | ✅ filed · [record](issues/1499-1500-filed.md) |
 
-Item 3 is also the natural **first PR**: frontend-only, and `BallotDataExport.tsx` already has the `triggerDownload` + RFC-4180 `csvField` helpers to copy.
+**What's open now:**
+
+- **A PR for #1499** — offered in the issue, so it is expected rather than optional. Frontend-only; `BallotDataExport.tsx` has the `triggerDownload` + RFC-4180 `csvField` helpers to copy. The natural first contribution.
+- **The manual roll election** (below) — still the only thing source cannot answer.
+- **Watch #1500 for a "this is issue #89" reaction.** The disclaimer is the first line and it offers to withdraw, but if maintainers would rather not carry a tracking issue, the mapping lives fine in `analysis/report-catalogue.md` and the issue should just be closed.
 
 **On a first PR:** the roll CSV export (3) is the right candidate when the time comes — frontend-only, no backend or schema change, and `BallotDataExport.tsx` already contains the `triggerDownload` + RFC-4180 `csvField` helpers to copy. Deliberately *not* done yet: requirements first, so the PR arrives as the first slice of a mapped plan rather than as a drive-by.
 
