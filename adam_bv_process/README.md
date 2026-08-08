@@ -11,6 +11,12 @@ There are **two separate jobs** and they share almost nothing. Pick one before y
 
 The docs site is **not** part of the app's `docker-compose.yml`. Running the app does nothing for the docs, and previewing the docs needs none of the app. Confusing the two is the main way to waste half an hour.
 
+For the app, **start with the script rather than this page** — `./bv status` answers "what's already running" and "can this clone even run" in one call:
+
+```bash
+./bv status
+```
+
 ## The checkouts
 
 Adam runs **one clone per in-flight PR**, so the branch you want is usually already checked out somewhere rather than something to create.

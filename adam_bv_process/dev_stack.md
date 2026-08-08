@@ -4,6 +4,16 @@ For changing BetterVoting itself — a UI fix, a results page, an API change. No
 
 The full write-up, including the two setups and seven hard-won gotchas, lives in the library repo: **[running_bettervoting_locally.md](https://github.com/masiarek/star-voting-library/blob/master/07_Concepts/tabulation_engines/BV/tabulation_engine/running_bettervoting_locally.md)**. This page is the short start/stop card; go there when something breaks.
 
+## Use the script
+
+The commands below are what `./bv` runs; prefer the script, which also gets the three things this page used to get wrong (see [Quick diagnosis](#quick-diagnosis)).
+
+```bash
+./bv status
+```
+
+`status` says what's up and whether the clone you're in can even run. Then `bv prep <clone>` for a cold one, `bv up` to start, `bv down` to stop. `bv up` with no argument uses the clone you're standing in.
+
 ## Which setup
 
 | I want to… | Use |
@@ -55,8 +65,10 @@ docker compose down           # stop and remove
 
 | Symptom | Cause |
 |:---|:---|
-| `EADDRINUSE :5001` | stray backend — `pkill -f "tsx watch"` |
-| port 5000 in use | macOS AirPlay Receiver — turn it off in System Settings |
+| `EADDRINUSE :5001` | stray backend — kill it **by port**, `kill $(lsof -ti tcp:5001)`. Not `pkill -f "tsx watch"`: that matches the two supervisor processes but **not** the child actually bound to the port (whose command line reads `node --require …/tsx/dist/preflight.cjs`), so it looks like it worked and the port stays held. |
+| port 5000 in use | Two causes. Either macOS AirPlay Receiver (turn it off in System Settings), **or** — far more likely here — a backend started with no `.env`: see below. |
+| UI loads but every API call fails, no error anywhere | The backend is on **5000** while the frontend proxies to **5001**. `.env` is gitignored, so a fresh clone has none, and `packages/backend/src/index.ts:10` reads `process.env.BACKEND_PORT \|\| 5000` — it starts *successfully* on the wrong port. `bv prep <clone>` copies a good `.env` in. |
+| `Bind for 0.0.0.0:8080 failed: port is already allocated` | You ran `docker compose up keycloak` from a **second clone**. Compose names the project after the clone directory, so it tried to build an independent keycloak fighting for the same host port. One keycloak serves every clone — always start it from `BV/bettervoting`, and clear the orphan with `docker rm <clone>-keycloak-1 && docker network rm <clone>_star-net`. |
 | `Module not found: @equal-vote/star-vote-shared/...` | rebuild shared: `npm run build -w @equal-vote/star-vote-shared` |
 | `Could not read package.json` | you're in your home dir — `cd` to the repo root |
 | `node: command not found` | `fish_add_path /usr/local/opt/node@20/bin` |

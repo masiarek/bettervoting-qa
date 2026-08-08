@@ -1,0 +1,233 @@
+#!/usr/bin/env bash
+# bv — start/stop/inspect a local BetterVoting dev stack.
+#
+# Written 2026-08-08. Replaces the hand-typed command set in dev_stack.md.
+# Everything here is derived from what actually broke: see the comments on
+# free_port() and prep() before "simplifying" either.
+#
+#   bv status            what's running, and which clones are runnable
+#   bv prep [clone]      make a cold clone runnable (npm install + .env)
+#   bv up [clone]        prewarm + both dev servers, waits for ready
+#   bv down              stop the dev servers (leaves keycloak + postgres)
+#   bv down --all        ... and keycloak
+#   bv logs [be|fe]      tail a dev server log
+
+set -uo pipefail
+
+BV_ROOT="/Volumes/T7/Voting/BetterVoting"
+DEV_CLONE="$BV_ROOT/BV/bettervoting"      # the reference clone: has a good .env
+LOG_DIR="${TMPDIR:-/tmp}/bv-logs"
+FE_PORT=3000
+BE_PORT=5001
+
+c_ok=$'\033[32m'; c_bad=$'\033[31m'; c_dim=$'\033[2m'; c_off=$'\033[0m'
+say() { printf '%s\n' "$*"; }
+die() { printf '%sx %s%s\n' "$c_bad" "$*" "$c_off" >&2; exit 1; }
+
+# Every dir under BV_ROOT that looks like a bettervoting checkout, so a clone
+# created for tomorrow's PR is picked up with no edit here.
+clones() {
+  for d in "$DEV_CLONE" "$BV_ROOT"/*; do
+    [ -f "$d/packages/backend/package.json" ] && printf '%s\n' "$d"
+  done | awk '!seen[$0]++'
+}
+
+# Resolve a clone from an argument, else $PWD if we're inside one, else the
+# reference clone.
+resolve_clone() {
+  if [ $# -gt 0 ] && [ -n "${1:-}" ]; then
+    for c in $(clones); do
+      [ "$(basename "$c")" = "$1" ] || [ "$c" = "$1" ] && { printf '%s\n' "$c"; return; }
+    done
+    die "no clone named '$1' under $BV_ROOT"
+  fi
+  local d="$PWD"
+  while [ "$d" != "/" ]; do
+    [ -f "$d/packages/backend/package.json" ] && { printf '%s\n' "$d"; return; }
+    d="$(dirname "$d")"
+  done
+  printf '%s\n' "$DEV_CLONE"
+}
+
+pids_on_port() { lsof -ti "tcp:$1" -sTCP:LISTEN 2>/dev/null; }
+
+# Which clone owns the process holding a port. The answer is not always the one
+# you started: node_modules is cross-symlinked between clones, so a process's
+# command line can name a DIFFERENT clone than its cwd. cwd is the honest one.
+owner_of_port() {
+  local pid; pid="$(pids_on_port "$1" | head -1)"
+  [ -z "$pid" ] && return
+  # A published container port resolves to the Docker daemon's own cwd, which
+  # tells you nothing. Ask docker who publishes it first.
+  local ctr; ctr="$(docker ps --format '{{.Names}} {{.Ports}}' 2>/dev/null | awk -v p=":$1->" '$0 ~ p {print $1; exit}')"
+  [ -n "$ctr" ] && { printf 'container %s' "$ctr"; return; }
+  local cwd; cwd="$(lsof -a -p "$pid" -d cwd -Fn 2>/dev/null | grep '^n' | cut -c2-)"
+  case "$cwd" in
+    "$BV_ROOT"/*) printf '%s' "${cwd#$BV_ROOT/}" ;;
+    *postgres*)   printf 'homebrew postgresql@16' ;;
+    *)            printf '%s' "${cwd:-pid $pid}" ;;
+  esac
+}
+
+# Kill by PORT, never by command-line pattern. `pkill -f "tsx watch"` — the
+# remedy dev_stack.md used to give — matches the two supervisor processes but
+# NOT the node process actually bound to the port, which is a child whose
+# command line says `node --require .../tsx/dist/preflight.cjs`. It appears to
+# work and leaves the port held.
+free_port() {
+  local port="$1" pids; pids="$(pids_on_port "$port")"
+  [ -z "$pids" ] && return 0
+  say "  freeing :$port ($(owner_of_port "$port"))"
+  # shellcheck disable=SC2086
+  kill $pids 2>/dev/null
+  for _ in 1 2 3 4 5 6 7 8 9 10; do
+    [ -z "$(pids_on_port "$port")" ] && return 0
+    sleep 0.3
+  done
+  # shellcheck disable=SC2086
+  kill -9 $(pids_on_port "$port") 2>/dev/null
+}
+
+wait_for_port() {
+  local port="$1" label="$2" tries="${3:-90}"
+  printf '  waiting for %s on :%s' "$label" "$port"
+  for _ in $(seq "$tries"); do
+    if [ -n "$(pids_on_port "$port")" ]; then printf ' %sok%s\n' "$c_ok" "$c_off"; return 0; fi
+    printf '.'; sleep 1
+  done
+  printf ' %stimed out%s\n' "$c_bad" "$c_off"; return 1
+}
+
+cmd_status() {
+  say "containers"
+  local ps_out; ps_out="$(docker ps --format '  {{.Names}}  {{.Status}}' 2>/dev/null)"
+  [ -n "$ps_out" ] && say "$ps_out" || say "  ${c_dim}(none — keycloak is down; app login will fail)${c_off}"
+
+  say ""
+  say "ports"
+  for p in $FE_PORT $BE_PORT 8080 5432 5000; do
+    local who; who="$(owner_of_port "$p")"
+    if [ -n "$who" ]; then
+      local note=""
+      # 5000 is not in the documented port set. Two causes, and the second is
+      # the one that wastes an afternoon: (a) macOS AirPlay Receiver, (b) a
+      # backend started with no .env, since index.ts defaults to 5000 when
+      # BACKEND_PORT is unset — it logs success and the frontend can't reach it.
+      [ "$p" = 5000 ] && note="  ${c_bad}<- not a dev-flow port: AirPlay, or a backend started with no .env${c_off}"
+      printf '  :%-5s %s%s\n' "$p" "$who" "$note"
+    else
+      printf '  :%-5s %s-%s\n' "$p" "$c_dim" "$c_off"
+    fi
+  done
+
+  say ""
+  say "clones"
+  for c in $(clones); do
+    local name br dirty nm env ready
+    name="$(basename "$c")"
+    br="$(git -C "$c" branch --show-current 2>/dev/null)"
+    dirty="$(git -C "$c" status --porcelain 2>/dev/null | wc -l | tr -d ' ')"
+    [ -e "$c/node_modules" ] && nm="" || nm="node_modules "
+    [ -f "$c/packages/backend/.env" ] && env="" || env=".env "
+    if [ -z "$nm$env" ]; then ready="${c_ok}ready${c_off}"; else ready="${c_bad}needs: $nm$env${c_off}  ${c_dim}bv prep $name${c_off}"; fi
+    printf '  %-18s %-40s %s dirty  %b\n' "$name" "$br" "$dirty" "$ready"
+  done
+}
+
+# Make a cold clone runnable. The .env copy is the point: it is gitignored, so
+# every fresh clone starts without one, and the failure is silent (see the
+# note on port 5000 above) rather than an error you can search for.
+cmd_prep() {
+  local clone; clone="$(resolve_clone "${1:-}")"
+  say "prep $(basename "$clone")"
+  for pkg in backend frontend; do
+    if [ ! -f "$clone/packages/$pkg/.env" ]; then
+      if [ -f "$DEV_CLONE/packages/$pkg/.env" ]; then
+        cp "$DEV_CLONE/packages/$pkg/.env" "$clone/packages/$pkg/.env"
+        say "  ${c_ok}+${c_off} packages/$pkg/.env  ${c_dim}(copied from BV/bettervoting)${c_off}"
+      else
+        say "  ${c_bad}!${c_off} no packages/$pkg/.env to copy from — backend will bind :5000"
+      fi
+    fi
+  done
+  if [ ! -e "$clone/node_modules" ]; then
+    # `npm ci` first, because it installs from the lockfile WITHOUT rewriting
+    # it. Plain `npm install` can modify package-lock.json, which on a PR
+    # branch shows up as an unrelated tracked-file change in your diff — the
+    # reference clone is carrying exactly that. Fall back when the lock and
+    # package.json have drifted, which is the one thing `ci` refuses.
+    say "  installing (several minutes on a cold clone)"
+    (cd "$clone" && npm ci) || {
+      say "  ${c_dim}npm ci refused (lock out of sync) — falling back to npm install${c_off}"
+      say "  ${c_bad}note: this may modify package-lock.json on $(git -C "$clone" branch --show-current)${c_off}"
+      (cd "$clone" && npm install) || die "npm install failed"
+    }
+  fi
+  say "  ${c_ok}ready${c_off}"
+}
+
+cmd_up() {
+  local clone; clone="$(resolve_clone "${1:-}")"
+  local name; name="$(basename "$clone")"
+  say "up: $name  ${c_dim}($(git -C "$clone" branch --show-current 2>/dev/null))${c_off}"
+
+  [ -e "$clone/node_modules" ] && [ -f "$clone/packages/backend/.env" ] || die "clone not prepared — run: bv prep $name"
+
+  free_port "$FE_PORT"; free_port "$BE_PORT"; free_port 5000
+
+  brew services list 2>/dev/null | grep -q "^postgresql@16 started" || {
+    say "  starting postgresql@16"; brew services start postgresql@16 >/dev/null; }
+
+  # Keycloak is shared infrastructure, and is ALWAYS brought up from the
+  # reference clone — never from $clone. Compose derives its project name from
+  # the directory, so `docker compose up keycloak` in a second clone tries to
+  # start a second, independent keycloak bound to the same host :8080 and dies
+  # with "port is already allocated", leaving an orphan container and network.
+  if ! docker ps --format '{{.Names}}' 2>/dev/null | grep -q keycloak; then
+    say "  starting keycloak ${c_dim}(from BV/bettervoting)${c_off}"
+    (cd "$DEV_CLONE" && docker compose up -d --build keycloak >/dev/null 2>&1) || say "  ${c_bad}keycloak failed — see: docker compose logs keycloak${c_off}"
+    wait_for_port 8080 keycloak 120
+  else
+    say "  keycloak ${c_ok}already up${c_off} ${c_dim}($(docker ps --format '{{.Names}}' | grep keycloak | head -1))${c_off}"
+  fi
+
+  mkdir -p "$LOG_DIR"
+  say "  starting backend  ${c_dim}$LOG_DIR/backend.log${c_off}"
+  (cd "$clone" && nohup npm run dev -w @equal-vote/star-vote-backend >"$LOG_DIR/backend.log" 2>&1 &)
+  wait_for_port "$BE_PORT" backend 120 || say "  ${c_bad}check $LOG_DIR/backend.log${c_off}"
+
+  say "  starting frontend ${c_dim}$LOG_DIR/frontend.log${c_off}"
+  (cd "$clone" && nohup npm run dev -w @equal-vote/star-vote-frontend >"$LOG_DIR/frontend.log" 2>&1 &)
+  wait_for_port "$FE_PORT" frontend 120 || say "  ${c_bad}check $LOG_DIR/frontend.log${c_off}"
+
+  say ""
+  say "  ${c_ok}http://localhost:$FE_PORT${c_off}   ${c_dim}login: register a Dev-realm user at :8080 — admin/admin is the master console and always fails${c_off}"
+}
+
+cmd_down() {
+  say "stopping dev servers"
+  free_port "$FE_PORT"; free_port "$BE_PORT"; free_port 5000
+  if [ "${1:-}" = "--all" ]; then
+    say "stopping containers"
+    local ids; ids="$(docker ps -q)"
+    [ -n "$ids" ] && docker stop $ids >/dev/null
+  else
+    say "${c_dim}keycloak + postgres left up (both are slow to boot and shared across clones)${c_off}"
+  fi
+}
+
+cmd_logs() {
+  case "${1:-be}" in
+    fe|frontend) tail -f "$LOG_DIR/frontend.log" ;;
+    *)           tail -f "$LOG_DIR/backend.log" ;;
+  esac
+}
+
+case "${1:-status}" in
+  status|st) cmd_status ;;
+  prep)      cmd_prep "${2:-}" ;;
+  up)        cmd_up "${2:-}" ;;
+  down)      cmd_down "${2:-}" ;;
+  logs)      cmd_logs "${2:-}" ;;
+  *)         sed -n '3,14p' "$0" | sed 's/^# \{0,1\}//' ;;
+esac
