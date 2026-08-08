@@ -16,7 +16,7 @@ BetterVoting **already captures per-voter email delivery events, including bounc
 |---|---|
 | Table `emailEventsDB` — `message_id`, `election_id`, `voter_id`, `event_type`, `event_timestamp`, `details` | `Migrations/2026_03_19_email_events.ts` |
 | Writer: SendGrid event webhook, **signature-verified** (`x-twilio-email-event-webhook-signature`, SHA256, 403 on bad sig) | `Controllers/sendGridWebhookController.ts:54` |
-| Events attached to the roll API response as `email_events[]` | `shared/domain_model/ElectionRoll.ts:34` (`ElectionRollResponse`) |
+| Events attached to **every** roll row on the **list** endpoint as `email_events[]` | `Controllers/Roll/getElectionRollController.ts:125-152` |
 | Rendered per voter | `Admin/EmailEventsList.tsx` |
 
 The event vocabulary is already the one a status report needs — `EmailEventsList.tsx:11-23` colours:
@@ -96,14 +96,34 @@ Small roll, one election, chosen so every reportable state is represented at onc
 
 **Sending is real outbound email.** Use plus-addressing on your own address and a domain you control; `example.com` is IANA-reserved and safe. Do not put a stranger's address on a test roll.
 
+**Prerequisite:** the election must be **restricted**. `getRollsByElectionID` throws `Unauthorized("Can't view voter roll for open elections")` when `voter_access === 'open'` (`getElectionRollController.ts:108`).
+
 **What to capture** — this is the point of the exercise:
 
 1. Screenshot of `ViewElectionRolls` with all six voters — *what the admin actually sees today*.
 2. Screenshot of `EmailEventsList` for voter 4 — *proof the bounce is already captured*.
 3. The count of clicks to answer **"how many bounced?"** — this is the number that reframes #789.
-4. `GET /Election/:id/rolls` response — confirms `email_events[]` is on the wire, i.e. **a CSV export is a frontend-only change**.
+4. Confirmation that voter 4's bounce carries a usable `details.reason`, and that voter 5's differs. This is the one thing source can't tell us: the `details` column is free-form SendGrid JSON, and `EmailEventsList.tsx:69-71` renders only `reason`, `response`, `status`. Whether a *human-readable* bounce cause survives is an empirical question.
 
-(4) is the highest-value artefact. If the events are already on the response, then "export the roll with delivery status" is a download button over data the client already holds — and #789's first slice costs almost nothing.
+### Already settled from source — (4) does not need testing
+
+The original version of this plan listed "confirm `email_events[]` is on the wire" as the key artefact. **It is, and no election is needed to know it.**
+
+`getRollsByElectionID` (`getElectionRollController.ts:106-163`) fetches *all* events for the election in one query (`EmailEventsModel.getByElectionId`, :125), buckets them by `voter_id` (:126-135), and attaches each voter's array to their roll row as `email_events` (:152). The fetch is best-effort — wrapped in try/catch (:124-138) so a missing table degrades to empty rather than 500-ing.
+
+So **every voter's delivery events arrive in the single call the admin roll page already makes.** A roll export with delivery status is a **frontend-only change** over data the client is already holding. That is the sentence to put in front of #789.
+
+### Two constraints that change #789's spec
+
+Reading the same function turned up two things that the issue as written does not account for:
+
+**1. `voter_id` is deleted from the response in exactly the case that matters.** When `invitation === 'email'`, `redactVoterIds` is true and `delete base.voter_id` fires (:141, :154-156) — a deliberate scrub so voters can't be linked to ballots. `ballot_id` and `ip_hash` are nulled for everyone (:148-149).
+
+That is correct behaviour and should not change. But it means a voter-status report **keys on `email`, not `voter_id`** — `email` is not scrubbed, so the report is still buildable. Anyone speccing it needs to know the obvious join key isn't there.
+
+**2. #789 asks for a field that cannot be delivered.** The spec lists **IP Address**. It is unavailable twice over: BV never stores a raw IP (the domain model holds `ip_hash?: string; // sha256(req.ip)` — `ElectionRoll.ts:12`), and the hash itself is stripped from this response at :149.
+
+Worth conceding in the issue rather than leaving for an implementer to discover. A hash can confirm *two ballots shared an origin*; it can never populate an "IP Address" column. If the underlying want is duplicate-origin detection, that is a different and much narrower feature.
 
 ---
 
@@ -121,9 +141,9 @@ If anything is worth asking of BV here it is that the **JSON export stay stable*
 
 ## 6. Recommendation
 
-1. **Run the §4 manual election.** It is the only unblocked item, and it is prerequisite to everything else.
-2. **Comment on #789** with the §1 finding + the artefacts from §4. Do not open a new issue — reframe the existing one from *build a report* to *aggregate and export what you already capture*.
-3. **File the roll-export gap (§3)** separately, as a small, self-contained `good first issue`.
+1. **Comment on #789 now.** It no longer waits on the election. The load-bearing claim — every voter's delivery events already arrive on the roll list call, so aggregation and export are frontend-only — is settled from source (§4), and the two spec corrections (no `voter_id` under email invitation; **IP Address is undeliverable**) are worth more to an implementer than any screenshot. Reframe from *build a report* to *aggregate and export what you already capture*, and concede the IP field.
+2. **File the roll-export gap (§3)** separately: small, self-contained, plausible `good first issue`, and the natural first slice of #789.
+3. **Run the §4 manual election** for what source cannot answer — whether a human-readable bounce cause actually survives into `details.reason`, and the click-count that shows why drill-down doesn't scale. Screenshots strengthen (1); they no longer gate it.
 4. **Do not** file a general "reporting features" issue. It becomes #89 of 88.
 
 Per the repo's ground rules, anything here that looks sharper than a UI gap goes to Slack first. Nothing in this page qualifies — the webhook is signature-verified and the events endpoint is permission-gated, both correct.
