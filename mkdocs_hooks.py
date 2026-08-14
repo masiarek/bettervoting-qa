@@ -23,11 +23,12 @@ NAV_ORDER = [
     "adam_bv_process",
 ]
 
-# Sidebar labels MkDocs derives from folder names, where title-casing the
-# underscored name is not what the folder is called.
+# Sidebar labels MkDocs derives from folder names by replacing underscores and
+# capitalising the first word only — which turns adam_bv_process into "Adam bv
+# process". Rename the label, never the folder: folder names are in every
+# published URL, and those URLs get quoted from upstream issue comments.
 SECTION_TITLES = {
-    "Test Cases": "Test cases",
-    "Adam Bv Process": "Adam's process",
+    "Adam bv process": "Local runbook",
 }
 
 
