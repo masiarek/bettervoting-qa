@@ -42,12 +42,39 @@ This repo is **public**, so that its pages can be cross-referenced from upstream
 |---|---|---|
 | [star-voting-library](https://github.com/masiarek/star-voting-library) | STAR Voting education — teaching pages, YAML elections, tabulation engines | public |
 | [star-voting-research-topics](https://github.com/masiarek/star-voting-research-topics) | Research-paper prospectuses using the library as reproducibility artifact | private |
-| **bettervoting-qa** | QA of the BetterVoting product itself | private |
+| **bettervoting-qa** | QA of the BetterVoting product itself | public |
 | [Equal-Vote/bettervoting](https://github.com/Equal-Vote/bettervoting) | upstream | public |
 
 Tabulation test cases do **not** belong here — they go in `star-voting-library` with a YAML and a frozen BV export, indexed by the auto-generated `BV_registry.md`. This repo is for the QA that has no YAML home: UI, settings, roles, archive, casting, copy.
 
 ## Current work
+
+### #1512 — Manage Voters / Add Voters (REVIEWED; one unfiled finding is bigger than the ticket)
+
+[#1512](https://github.com/Equal-Vote/bettervoting/issues/1512) reports a scroll/save annoyance on
+mobile. It is valid. But its screen recording documents a second, unreported defect that costs
+voters, and the two are on different screens — **the issue's written steps and its video do not
+match**: the steps describe the race editor, the video is entirely Manage Voters / Adding Voters.
+
+- **The duplicate check keys on `email` only** (`AddElectionRoll.tsx:158`, `:173`). In
+  admin-managed-voter-ID mode `roll.email` is `undefined` on every row, so all rows key to `""`:
+  any submission of 2+ rows is reported as *"duplicate emails"*, and answering YES keeps **one row**
+  and discards the rest with no message. The reporter's roll goes **2 → 3 → 4 → 5** across
+  submissions of 3, 2 and 1 rows. Silent data loss on a voter roll. **Unfiled** — reproduce live,
+  then file.
+- **#1512's own root cause** is `scrollToElement()` (`util.tsx:324`), a page-level scroller
+  (`window.scrollTo`) called from inside `<Dialog scroll='paper'>`, whose scroll container is
+  `.MuiDialogContent-root` in a fixed overlay. It can only move the page behind the modal. The same
+  helper is correct in the Wizard styling, which is why the behaviour looks inconsistent.
+- Two smaller ones: the shared confirm dialog **blanks its own text and button labels** while
+  closing (`ConfirmationDialogProvider.tsx:46`), and the voter table overflows the viewport
+  horizontally (check #704 / #1170 before filing that one).
+
+→ finding: [`issues/add-voters-duplicate-check-keys-on-email.md`](issues/add-voters-duplicate-check-keys-on-email.md) ·
+review: [`issues/1512-scroll-save-review.md`](issues/1512-scroll-save-review.md) ·
+map: [`analysis/manage-voters-map.md`](analysis/manage-voters-map.md) ·
+cases: [`test_cases/BV250-index.md`](test_cases/BV250-index.md) (11, none blocked; BV250a/b are the
+baseline captures)
 
 ### Wizard "Publish Now" orphans the election (UNFILED — Slack first)
 
