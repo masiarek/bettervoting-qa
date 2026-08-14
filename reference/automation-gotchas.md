@@ -67,3 +67,64 @@ gh api "repos/Equal-Vote/bettervoting/contents/<path>" -H "Accept: application/v
 ```
 
 Cheaper than a second repro run, and it is what turns "observed once" into something worth a maintainer's time.
+
+## 6. When the browser will not take input at all
+
+Added 2026-08-14, reproducing [#1513](https://github.com/Equal-Vote/bettervoting/issues/1513).
+
+A different failure from §1 and §2: not "the click went to the wrong element", but **no input events
+at all**. Every `computer` click timed out after 30 s with *"The Browser pane is currently hidden"*,
+while `screenshot`, `read_page` and `javascript_exec` all kept working. A pane that renders but
+cannot be clicked is not a stuck app and no amount of retrying fixes it.
+
+**The escalation ladder, cheapest first.**
+
+1. **Screenshot to confirm it is input, not the page.** If the screenshot returns a live frame, the
+   renderer is fine and the problem is the input channel.
+2. **Drive it from `javascript_exec` instead.** `el.click()` on a real element works, and for text
+   you need the native setter plus an `input` event — but see §1 for why that is a trap on React
+   fields, and why anything you fill this way is suspect until the server agrees. This gets you a few
+   steps further; it does not get you a *user-path* proof, because a synthetic `.click()` is not what
+   a user does.
+3. **Stop, and take the logic out of the browser.** See below. Usually the right call sooner than
+   feels comfortable — a multi-step wizard driven through injected clicks costs a dozen round trips
+   and still proves less than the harness does.
+
+**The harness: transcribe the functions and execute them.**
+
+The bug in #1513 was three pure functions — the row-building loop out of `onSubmit`, plus
+`duplicatesExist` and `removeDuplicates`. None of them touch the DOM, the network, or React state.
+So copy them **verbatim** into a `.mjs` file, stub only the framework edges (`setSnack`, `confirm`,
+`postRoll`), and run every input you care about in one go:
+
+```
+2 distinct IDs, answer YES     typed 2 -> posted 1  | prompted: YES | alpha
+3 distinct IDs, answer NO      typed 3 -> posted 0  | prompted: YES | (nothing)
+3 distinct emails, answer YES  typed 3 -> posted 3  | prompted: no  | a@x.com, b@x.com, c@x.com
+```
+
+Working example: [`../analysis/add-voters-probe/`](../analysis/add-voters-probe/README.md).
+
+Four rules that keep this honest:
+
+- **Transcribe, never paraphrase.** Copy the function bodies character for character and say which
+  commit they came from. The moment you "clean up" a condition you are testing your own code.
+- **Stub only the edges** — the things that talk to React or the network. Anything you reimplement is
+  no longer evidence.
+- **Run the mode that works as a control.** Here, the same three inputs in email mode behave
+  correctly. That contrast is the diagnosis, and it is also the regression the fix has to keep
+  passing.
+- **Say what it cannot prove.** A harness proves the functions. It does not prove the component calls
+  them the way the file reads — that wiring is still source-read until someone clicks through. State
+  that in the issue rather than letting the executed output imply more than it covers.
+
+**Where the UI evidence came from instead.** The reporter's own screen recording, read frame by
+frame — which turned out to be *better* than a local repro, being production, a real user, and
+timestamped. See [`reading-a-bug-report-video.md`](reading-a-bug-report-video.md). The harness
+reproduced its voter-count arithmetic exactly, which is a stronger pairing than either alone: an
+executed explanation that predicts an observed production outcome.
+
+**Do not leave debris.** The abandoned attempt got four steps into the election wizard on production.
+Check whether it created anything before walking away — here it had not (the URL never became
+`/<id>/admin`, so no election was written), but a half-finished wizard run that *did* publish is
+exactly how an orphaned election gets made.

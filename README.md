@@ -49,7 +49,7 @@ Tabulation test cases do **not** belong here — they go in `star-voting-library
 
 ## Current work
 
-### #1512 — Manage Voters / Add Voters (REVIEWED; one unfiled finding is bigger than the ticket)
+### #1512 / #1513 — Manage Voters / Add Voters (REVIEWED and FILED)
 
 [#1512](https://github.com/Equal-Vote/bettervoting/issues/1512) reports a scroll/save annoyance on
 mobile. It is valid. But its screen recording documents a second, unreported defect that costs
@@ -60,21 +60,31 @@ match**: the steps describe the race editor, the video is entirely Manage Voters
   admin-managed-voter-ID mode `roll.email` is `undefined` on every row, so all rows key to `""`:
   any submission of 2+ rows is reported as *"duplicate emails"*, and answering YES keeps **one row**
   and discards the rest with no message. The reporter's roll goes **2 → 3 → 4 → 5** across
-  submissions of 3, 2 and 1 rows. Silent data loss on a voter roll. **Unfiled** — reproduce live,
-  then file.
+  submissions of 3, 2 and 1 rows. Silent data loss on a voter roll. **Filed as
+  [#1513](https://github.com/Equal-Vote/bettervoting/issues/1513)**, with the three functions
+  transcribed verbatim and executed — they replay the reporter's roll counts number for number.
 - **#1512's own root cause** is `scrollToElement()` (`util.tsx:324`), a page-level scroller
   (`window.scrollTo`) called from inside `<Dialog scroll='paper'>`, whose scroll container is
   `.MuiDialogContent-root` in a fixed overlay. It can only move the page behind the modal. The same
   helper is correct in the Wizard styling, which is why the behaviour looks inconsistent.
-- Two smaller ones: the shared confirm dialog **blanks its own text and button labels** while
-  closing (`ConfirmationDialogProvider.tsx:46`), and the voter table overflows the viewport
-  horizontally (check #704 / #1170 before filing that one).
+- Two smaller ones, both raised in the #1512 comment rather than filed: the shared confirm dialog
+  **blanks its own text and button labels** while closing (`ConfirmationDialogProvider.tsx:46`), and
+  the voter table overflows the viewport horizontally (may be covered by #704 / #1170). The first is
+  offered to the maintainers as a separate ticket if they want it.
+
+**Method, for reuse.** The evidence came out of the reporter's screen recording read frame by frame,
+not out of a repro run — browser automation could not deliver input events at all that session. Both
+halves are written up: [`reference/reading-a-bug-report-video.md`](reference/reading-a-bug-report-video.md)
+(ffmpeg contact sheets, why 1 fps lies about transitions, reading counters instead of impressions)
+and [`reference/automation-gotchas.md`](reference/automation-gotchas.md) §6 (the escalation ladder
+when the browser will not take input, and the transcribe-and-execute harness).
 
 → finding: [`issues/add-voters-duplicate-check-keys-on-email.md`](issues/add-voters-duplicate-check-keys-on-email.md) ·
 review: [`issues/1512-scroll-save-review.md`](issues/1512-scroll-save-review.md) ·
 map: [`analysis/manage-voters-map.md`](analysis/manage-voters-map.md) ·
 cases: [`test_cases/BV250-index.md`](test_cases/BV250-index.md) (11, none blocked; BV250a/b are the
-baseline captures)
+baseline captures) · probe: [`analysis/add-voters-probe/`](analysis/add-voters-probe/README.md) ·
+posted: [#1512 comment](https://github.com/Equal-Vote/bettervoting/issues/1512#issuecomment-5294012191)
 
 ### Wizard "Publish Now" orphans the election (UNFILED — Slack first)
 
@@ -104,7 +114,7 @@ Key findings, verified by running BetterVoting's own tabulator and captured agai
 - **It is two changes, not one**, and they affect disjoint ballot sets. The half that produces the ugly reporting is the larger, higher-blast-radius half (it also moves Approval, Plurality, IRV and STV).
 - **[#1035](https://github.com/Equal-Vote/bettervoting/issues/1035) is a prerequisite**, not a low-priority sibling: it is a live zero-denominator bug whose trigger set today's abstention rule merely *narrows*, and which any fix would widen. It surfaces as `NaN%` in the runoff **table**; the pie chart renders blank instead — both confirmed in a browser by [BV2264](test_cases/BV2264-nan-in-runoff-table.md).
 
-→ [`analysis/flat-scores-abstention/`](analysis/flat-scores-abstention/) · baselines: [`test_cases/BV2263-2267-index.md`](test_cases/BV2263-2267-index.md) · upstream reference cases: [Flat scores, ties & tie-breaking](https://masiarek.github.io/star-voting-library/01_STAR/03_Criteria/Flat_scores_ties/index.html)
+→ [`analysis/flat-scores-abstention/`](analysis/flat-scores-abstention/README.md) · baselines: [`test_cases/BV2263-2267-index.md`](test_cases/BV2263-2267-index.md) · upstream reference cases: [Flat scores, ties & tie-breaking](https://masiarek.github.io/star-voting-library/01_STAR/03_Criteria/Flat_scores_ties/index.html)
 
 Filed upstream from this work: [#1470](https://github.com/Equal-Vote/bettervoting/issues/1470) (write-in discards ballots, live repro), [#1471](https://github.com/Equal-Vote/bettervoting/issues/1471) (chart split denominator), plus root-cause comments on [#1035](https://github.com/Equal-Vote/bettervoting/issues/1035#issuecomment-5166192037) and [#1053](https://github.com/Equal-Vote/bettervoting/issues/1053#issuecomment-5166296842).
 
