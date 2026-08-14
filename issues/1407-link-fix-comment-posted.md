@@ -54,4 +54,4 @@ Any other upstream comment linking `masiarek/YAML/blob/master/...` — or any `s
 
 ## Not posted
 
-The analysis in [`analysis/flat-scores-abstention/`](../analysis/flat-scores-abstention/) — the two-edits split, the verified winner-invariance result, #1035 as a prerequisite, and the `ResultsBarChart` split-denominator bug — was deliberately held back. Adam's call, 2026-08-02: fix the links first, decide on the argument separately.
+The analysis in [`analysis/flat-scores-abstention/`](../analysis/flat-scores-abstention/README.md) — the two-edits split, the verified winner-invariance result, #1035 as a prerequisite, and the `ResultsBarChart` split-denominator bug — was deliberately held back. Adam's call, 2026-08-02: fix the links first, decide on the argument separately.

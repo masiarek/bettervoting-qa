@@ -58,3 +58,16 @@ Things that do **not** stop with that command, because they aren't containers:
 ## Before you publish anything
 
 Read the [ground rules](../README.md#ground-rules) in this repo's README first — **no credentials on any page**, and anything sharper than a UI or copy defect goes to Arend *before* it goes on a public page or into a PR description. That rule catches more than obvious security findings: a docs page describing a guard that isn't enforced is in scope too.
+
+## This repo's own site
+
+Separate from BetterVoting's help site above: these QA pages also publish as
+<https://masiarek.github.io/bettervoting-qa/> (MkDocs Material, same setup as star-voting-library).
+Preview a change before pushing:
+
+```
+cd /Volumes/T7/Voting/BetterVoting/bettervoting-qa
+uv run --group docs mkdocs serve
+```
+
+CI runs `mkdocs build --strict`, so a link to a page that isn't committed fails the build.

@@ -1,0 +1,97 @@
+# MkDocs Material site for this repo — publishes every Markdown page as a
+# searchable website on GitHub Pages, from the same files GitHub renders.
+#
+#   Local preview:  uv run --group docs mkdocs serve
+#                   (toolchain pinned in pyproject.toml [dependency-groups].docs + uv.lock)
+#   Deploy:         .github/workflows/docs.yml builds on every push to master
+#                   (one-time setup: repo Settings → Pages → Source: GitHub Actions)
+#
+# Same shape as star-voting-library's site, deliberately: docs root IS the repo
+# root (mkdocs-same-dir), so there is no docs/ copy step and non-Markdown files
+# (.tsv sheet rows, frozen .json snapshots, probe scripts, screenshots) are
+# copied through so links to them keep working.
+#
+# Nothing here changes what is published — the repo is already public, which is
+# the point of it (upstream issues cross-reference these pages). The ground
+# rules in README.md still govern what may be written down at all.
+
+site_name: BetterVoting QA
+site_description: QA test cases, bug analysis, and issue notes for the Equal-Vote/bettervoting project.
+site_url: https://masiarek.github.io/bettervoting-qa/
+repo_url: https://github.com/masiarek/bettervoting-qa
+repo_name: masiarek/bettervoting-qa
+edit_uri: edit/master/
+
+docs_dir: .
+site_dir: site
+
+# The repo's cross-links were authored for GitHub's file-relative rendering.
+# Plain .html pages keep those exact semantics; pretty directory URLs would
+# shift every page one level deeper. Don't flip this.
+use_directory_urls: false
+
+# Build-time leftovers that live in the repo root alongside the pages.
+exclude_docs: |
+  __pycache__/
+  site/
+  .venv/
+
+# README.md already IS the homepage (MkDocs maps it to index.html), so it needs
+# no second entry in the sidebar.
+not_in_nav: |
+  /README.md
+
+# Top-level reading order (auto-nav is alphabetical, which would open on the
+# local runbook). See the module docstring.
+hooks:
+  - mkdocs_hooks.py
+
+theme:
+  name: material
+  icon:
+    logo: material/clipboard-check-outline
+  features:
+    - navigation.indexes    # a folder's README.md becomes its section landing page
+    - navigation.top
+    - navigation.footer
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - toc.follow
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: teal
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: teal
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+
+plugins:
+  - search
+  - same-dir
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - tables
+  # GitHub-compatible heading slugs. The default MkDocs slugifier collapses the
+  # two spaces around an em dash into ONE hyphen, while GitHub emits two
+  # ("BV250d — A genuinely…" -> #bv250d--a-genuinely…). Every in-repo anchor
+  # link here was written against GitHub's form, and upstream issue comments
+  # quote those anchors, so the site matches GitHub rather than the other way
+  # round. (star-voting-library made the opposite call, before it had a site.)
+  - toc:
+      permalink: true
+      slugify: !!python/object/apply:pymdownx.slugs.slugify {kwds: {case: lower}}
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight

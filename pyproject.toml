@@ -1,0 +1,28 @@
+# This repo holds no Python of its own — the only reason for a pyproject is to
+# pin the MkDocs toolchain that builds the site (mkdocs.yml at the repo root),
+# so CI (.github/workflows/docs.yml) and the local preview resolve the exact
+# same versions from uv.lock.
+#
+#   Local preview:  uv run --group docs mkdocs serve
+#   Change a pin:   edit below, then `uv lock`
+#
+# The two plugin pins match star-voting-library's, and for the same reason:
+# later releases of mkdocs-same-dir / mkdocs-redirects pull in the
+# MkDocs-impersonating "properdocs" package. Verify before raising them.
+
+[project]
+name = "bettervoting-qa"
+version = "0"
+description = "QA test cases, bug analysis, and issue notes for Equal-Vote/bettervoting"
+requires-python = ">=3.11"
+dependencies = []
+
+[dependency-groups]
+docs = [
+    "mkdocs-material>=9.5",
+    "mkdocs-same-dir==0.1.3",
+]
+
+# Not a package — nothing to build or install, just a dependency set.
+[tool.uv]
+package = false

@@ -4,7 +4,7 @@ This is the objection that has actually stalled the fix, and it deserves to be t
 
 **Methodology.** The tally counts, scores, pairwise counts, winners and tie-break types below were produced by **executing BetterVoting's actual `Star()` tabulator** (`packages/backend/src/Tabulators/Star.ts` at `8d2b3f9`) against each ballot set, once unmodified and once with the abstention flag flipped. The chart percentages and majority markers are then computed by applying `ResultsBarChart`'s own formulas to those outputs. So the backend numbers are **executed**, the chart numbers are **derived from executed inputs**. Neither is a screenshot — a browser check on a branch is still worth doing before any of this is quoted upstream.
 
-The probe script is in [`probe/`](probe/).
+The probe script is in [`probe/`](probe/README.md).
 
 ---
 

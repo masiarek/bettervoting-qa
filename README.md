@@ -4,6 +4,8 @@ QA test cases, bug analysis, and issue notes for [Equal-Vote/bettervoting](https
 
 **Start here if you are picking this up:** [HANDOFF.md](HANDOFF.md).
 
+**Read it as a website:** <https://masiarek.github.io/bettervoting-qa/> — the same pages, searchable, built from this repo by [`.github/workflows/docs.yml`](https://github.com/masiarek/bettervoting-qa/blob/master/.github/workflows/docs.yml) on every push. Handy when linking a specific paragraph from an upstream issue: heading anchors match GitHub's.
+
 Working notes between Adam and Claude. One test case = one Markdown page, versioned, so it can be updated in place instead of copy-pasted between chat and Google Docs.
 
 ## Ground rules

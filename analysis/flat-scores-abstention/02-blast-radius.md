@@ -17,7 +17,7 @@ A flat ballot adds the **same constant to every candidate's score**, the **same 
 
 **So for single-winner STAR and Bloc STAR, no election changes its winner, its finalists, or its tie-break path.** Even the degenerate all-flat case keeps the same winner: today every score is 0 (nothing tallied) and everyone ties; after the fix every score is 15 and everyone still ties, the shuffle is seeded identically, so the same candidate is drawn.
 
-**Verified by execution, and it survived a deliberate falsification attempt.** `Star()` was run unmodified and with the flag flipped over four hand-built ballot sets ([`probe/`](probe/)), then fuzzed across **55,127 randomised Bloc STAR elections** (3–6 candidates, 1–3 winners, ballots including nulls and 0–3 flat ballots), comparing a full signature: elected set, per-round winners and runners-up, per-round and overall `tieBreakType`, `tied`, and the final candidate ordering from the `evaluate` callback (`Star.ts:29-40`). **Zero differences.**
+**Verified by execution, and it survived a deliberate falsification attempt.** `Star()` was run unmodified and with the flag flipped over four hand-built ballot sets ([`probe/`](probe/README.md)), then fuzzed across **55,127 randomised Bloc STAR elections** (3–6 candidates, 1–3 winners, ballots including nulls and 0–3 flat ballots), comparing a full signature: elected set, per-round winners and runners-up, per-round and overall `tieBreakType`, `tied`, and the final candidate ordering from the `evaluate` callback (`Star.ts:29-40`). **Zero differences.**
 
 That reduces the entire argument to **reporting** — for single-winner. Which is exactly where the objection lives, and where it can be met with chart fixes rather than a policy standoff.
 
