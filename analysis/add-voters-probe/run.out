@@ -1,0 +1,17 @@
+
+=== admin-managed voter IDs (Email unticked) ===
+2 distinct IDs, answer YES                     typed 2 -> posted 1  | prompted: YES | alpha
+3 distinct IDs, answer YES                     typed 3 -> posted 1  | prompted: YES | alpha
+3 distinct IDs, answer NO                      typed 3 -> posted 0  | prompted: YES | (nothing)
+1 ID (no prompt possible)                      typed 1 -> posted 1  | prompted: no  | alpha
+3 IDs with a real duplicate                    typed 3 -> posted 1  | prompted: YES | alpha
+
+=== BetterVoting-managed IDs / email list (the mode it was written for) ===
+3 distinct emails, answer YES                  typed 3 -> posted 3  | prompted: no  | a@x.com, b@x.com, c@x.com
+3 emails with a real duplicate                 typed 3 -> posted 2  | prompted: YES | a@x.com, b@x.com
+
+=== the reporter's session, replayed (roll starts at 2) ===
+  submitted 3  row(s) -> roll 2 -> 3   (video shows 2 -> 3)
+  submitted 2  row(s) -> roll 3 -> 4   (video shows 3 -> 4)
+  submitted 1  row(s) -> roll 4 -> 5   (video shows 4 -> 5)
+

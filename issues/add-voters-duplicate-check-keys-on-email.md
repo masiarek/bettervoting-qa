@@ -70,10 +70,52 @@ is why the issue they eventually filed is about the scrollbar.
 
 ![After submitting three rows: 1 to 3 of 3](../test_cases/screenshots/BV250-roll-after-3-voters.png)
 
+## Reproduction — the real functions, executed
+
+`analysis/add-voters-probe/add_roll_repro.mjs` transcribes the row-building loop out of `onSubmit`
+(`:55`–`:89`), `duplicatesExist` (`:173`) and `removeDuplicates` (`:158`) **verbatim** from
+`AddElectionRoll.tsx` @ `7bc75a82`, stubs only the React edges (`setSnack`, `confirm`, `postRoll`),
+and runs the submit path with `confirm()` answered by the caller. Recorded output in
+`analysis/add-voters-probe/run.out`:
+
+```
+=== admin-managed voter IDs (Email unticked) ===
+2 distinct IDs, answer YES                     typed 2 -> posted 1  | prompted: YES | alpha
+3 distinct IDs, answer YES                     typed 3 -> posted 1  | prompted: YES | alpha
+3 distinct IDs, answer NO                      typed 3 -> posted 0  | prompted: YES | (nothing)
+1 ID (no prompt possible)                      typed 1 -> posted 1  | prompted: no  | alpha
+3 IDs with a real duplicate                    typed 3 -> posted 1  | prompted: YES | alpha
+
+=== BetterVoting-managed IDs / email list (the mode it was written for) ===
+3 distinct emails, answer YES                  typed 3 -> posted 3  | prompted: no  | a@x.com, b@x.com, c@x.com
+3 emails with a real duplicate                 typed 3 -> posted 2  | prompted: YES | a@x.com, b@x.com
+
+=== the reporter's session, replayed (roll starts at 2) ===
+  submitted 3  row(s) -> roll 2 -> 3   (video shows 2 -> 3)
+  submitted 2  row(s) -> roll 3 -> 4   (video shows 3 -> 4)
+  submitted 1  row(s) -> roll 4 -> 5   (video shows 4 -> 5)
+```
+
+Three things this settles that reading alone did not:
+
+1. **The survivor is the first row** — `alpha`, every time.
+2. **NO posts nothing.** The two answers on offer really are "add one voter" and "add none".
+3. **The email mode is fine**, which is both the contrast that diagnoses the bug and the regression
+   that any fix has to keep passing: 3 distinct emails go in untouched, and a genuine duplicate is
+   caught and one row removed — 3 in, 2 out.
+
+And the replay lands on the reporter's production numbers exactly: **2 → 3 → 4 → 5** for submissions
+of 3, 2 and 1 rows.
+
+**What has not been done:** a click-through of the live admin UI. The browser automation available in
+this session could not deliver input events to the page. The UI evidence is therefore the reporter's
+own production recording (above), which the harness reproduces number for number. Anyone re-running
+this should still do BV250a/b by hand — the harness proves the functions, the video proves the
+outcome, and only a click-through proves the wiring between them.
+
 **What is observed vs. derived.** The prompt, the row counts and the one-voter-per-submission arc are
-observed in the video. That `removeDuplicates` keeps *the first* row specifically, and that NO posts
-nothing, are read from source — consistent with the counts but not separately demonstrated. Confirm
-both when the case is run (BV250a / BV250b).
+observed in the video. The behaviour of the three functions is executed, not read (below). What
+remains derived is only that the dialog calls them the way the file says it does.
 
 ## Why it has survived
 
@@ -112,8 +154,7 @@ Two things worth fixing in the same pass, because they are what made this unread
 Per this repo's ground rules this is a plain functional defect, not a guard or access finding, so it
 goes straight to a GitHub issue rather than to Slack first. Two things to do before that:
 
-1. **Reproduce live** on a throwaway draft election (BV250a/b) — the repo's own convention is that a
-   source-read prediction stays a prediction until a screenshot says otherwise, and two predictions
-   in this repo have already been refuted that way.
+1. **Click-through still outstanding** (BV250a/b by hand). The functions are executed and the
+   production outcome is on video; the wiring between them is read, not run.
 2. **Cross-reference #1512** rather than commenting on it. It is a different defect on the same
    screen, and the reporter's video is the best evidence for both.
