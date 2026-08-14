@@ -28,6 +28,7 @@ This repo is **public**, so that its pages can be cross-referenced from upstream
 | `issues/` | Per-issue notes: findings, resolution, and a copy of whatever was posted upstream |
 | `analysis/` | Deep reads of a subsystem — the integration maps that back the test cases |
 | `reference/` | Reusable how-to: API checks, commands, gotchas |
+| `docs_proposals/` | Draft pages for <https://docs.bettervoting.com>, written as finished user documentation. The proposal README carries the QA cross-references; the drafts themselves carry none, so they lift straight into `docs/` |
 | `adam_bv_process/` | Adam's local runbook: starting and stopping the dev stack and the docs preview, and which checkout to be in |
 
 ## Conventions
@@ -73,6 +74,17 @@ match**: the steps describe the race editor, the video is entirely Manage Voters
   **blanks its own text and button labels** while closing (`ConfirmationDialogProvider.tsx:46`), and
   the voter table overflows the viewport horizontally (may be covered by #704 / #1170). The first is
   offered to the maintainers as a separate ticket if they want it.
+
+**After the fixes land:** [`test_cases/BV250-post-fix-verification.md`](test_cases/BV250-post-fix-verification.md) —
+the acceptance list for both issues, the nine user stories behind it, and the three ways a plausible
+#1513 fix goes wrong (deleting the check, repairing only the typed path, fixing detection but not the
+message). All eleven BV250 cases now have their own page.
+
+**Reusable as user documentation:** the same source reading produced a draft help page —
+[`docs_proposals/help/voter_list.md`](docs_proposals/help/voter_list.md). The site documents *whether*
+to restrict an election but never how to build the list; two of the test cases exist only because the
+product's own copy could not answer the question. See [`docs_proposals/README.md`](docs_proposals/README.md)
+for the one blocker — its Duplicates section describes post-#1513 behaviour and must not ship before the fix.
 
 **Method, for reuse.** The evidence came out of the reporter's screen recording read frame by frame,
 not out of a repro run — browser automation could not deliver input events at all that session. Both

@@ -9,8 +9,8 @@
 > Paste-ready: [`BV250-sheet-rows.tsv`](BV250-sheet-rows.tsv). Renumber here and in the tsv together
 > if it collides.
 
-- Index: [`BV250-index.md`](BV250-index.md) · map: [`analysis/manage-voters-map.md`](../analysis/manage-voters-map.md)
-- Finding: [`issues/add-voters-duplicate-check-keys-on-email.md`](../issues/add-voters-duplicate-check-keys-on-email.md) — **unfiled**
+- Index: [`BV250-index.md`](BV250-index.md) · post-fix suite: [`BV250-post-fix-verification.md`](BV250-post-fix-verification.md) · map: [`analysis/manage-voters-map.md`](../analysis/manage-voters-map.md)
+- Finding: [`issues/add-voters-duplicate-check-keys-on-email.md`](../issues/add-voters-duplicate-check-keys-on-email.md) — filed as [#1513](https://github.com/Equal-Vote/bettervoting/issues/1513)
 - BPML: [Use Case List](https://docs.google.com/spreadsheets/d/1liOfuP3iE4Y5saNRTwB-j5JF42yO7sp9-1owNN4CCtg/edit?gid=0#gid=0) has no "Add voters to the roll" use case yet
 - Evidence: the screen recording on [#1512](https://github.com/Equal-Vote/bettervoting/issues/1512), 12–15 s
 - status: **Ready to run — expected to FAIL**

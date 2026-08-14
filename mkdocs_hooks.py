@@ -20,6 +20,7 @@ NAV_ORDER = [
     "issues",
     "analysis",
     "reference",
+    "docs_proposals",
     "adam_bv_process",
 ]
 
@@ -29,6 +30,7 @@ NAV_ORDER = [
 # published URL, and those URLs get quoted from upstream issue comments.
 SECTION_TITLES = {
     "Adam bv process": "Local runbook",
+    "Docs proposals": "Docs proposals (docs.bettervoting.com)",
 }
 
 

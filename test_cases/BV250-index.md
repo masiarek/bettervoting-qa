@@ -3,7 +3,9 @@
 - [BetterVoting - test cases](https://docs.google.com/spreadsheets/d/1EXQsABY2qEu8kKQJGQdyQHn-C89hbCnNqZoGxKXZJNE/edit?gid=0#gid=0) — the canonical roster
 - [BetterVoting BPML - Use Case List](https://docs.google.com/spreadsheets/d/1liOfuP3iE4Y5saNRTwB-j5JF42yO7sp9-1owNN4CCtg/edit?gid=0#gid=0) — **needs a Manage Voters / Add Voters entry; see "BPML" below**
 - Subsystem map: [`analysis/manage-voters-map.md`](../analysis/manage-voters-map.md)
-- Upstream: [#1512](https://github.com/Equal-Vote/bettervoting/issues/1512) (scroll) · duplicate-key finding **unfiled** → [`issues/add-voters-duplicate-check-keys-on-email.md`](../issues/add-voters-duplicate-check-keys-on-email.md)
+- Upstream: [#1512](https://github.com/Equal-Vote/bettervoting/issues/1512) (scroll) · [#1513](https://github.com/Equal-Vote/bettervoting/issues/1513) (duplicate key) — analysis: [`issues/add-voters-duplicate-check-keys-on-email.md`](../issues/add-voters-duplicate-check-keys-on-email.md)
+- Draft user documentation out of the same source reading: [`docs_proposals/help/voter_list.md`](../docs_proposals/help/voter_list.md)
+- **After the fixes land, run [`BV250-post-fix-verification.md`](BV250-post-fix-verification.md)** — the acceptance list, the user stories behind it, and the traps a plausible fix falls into
 - video: the reporter's, on #1512 — <https://github.com/user-attachments/assets/effc8f69-9e02-4473-8e18-c547beb42136>
 
 > **Sheet rows still needed.** `BV250` was allocated as the next free family after `BV240`
@@ -92,6 +94,8 @@ Observed in the reporter's video as 2 → 3 → 4 → 5 across submissions of 3,
 ### BV250c — answering NO adds nothing and says nothing
 **Cfg:** V1 · **Automate:** y
 
+→ full page: [`BV250c-answering-no-adds-nothing.md`](BV250c-answering-no-adds-nothing.md)
+
 1. As BV250a. Answer **NO**.
 2. Look at the roll and at the dialog.
 
@@ -105,6 +109,8 @@ voter" and "add none". *Marked as a prediction — confirm in the browser.*
 ### BV250d — a genuinely duplicated voter ID is caught
 **Cfg:** V1 · **Automate:** y
 
+→ full page: [`BV250d-genuine-duplicate-is-caught.md`](BV250d-genuine-duplicate-is-caught.md)
+
 Submit `alpha / bravo / alpha`. **Expected:** the prompt fires (it should, here), and YES adds
 **two** voters. This is the case that has to keep passing after the key is fixed — it is the reason
 the check exists.
@@ -116,12 +122,16 @@ the check exists.
 ### BV250e — the roll table reflects exactly what was submitted
 **Cfg:** V1 then V3 · **Automate:** y
 
+→ full page: [`BV250e-roll-table-reflects-submission.md`](BV250e-roll-table-reflects-submission.md)
+
 Submit a known list, then read the Voters table back. **Expected:** same count, same IDs, all rows
 `Not Voted`. On V3 (finalized) additionally confirm the access radios are disabled and
 CLEAR VOTER LIST is **absent** — the lock is only undoable in draft.
 
 ### BV250f — two ticked columns require a comma per row
 **Cfg:** V2 · **Automate:** y
+
+→ full page: [`BV250f-two-columns-require-a-comma.md`](BV250f-two-columns-require-a-comma.md)
 
 Tick both Voter ID and Email, then submit a row with no comma.
 **Expected:** the error names the format. **Actual today:** the snackbar reads
@@ -131,6 +141,8 @@ Tick both Voter ID and Email, then submit a row with no comma.
 
 ### BV250g — CSV import takes the same path
 **Cfg:** V1 · **Automate:** n
+
+→ full page: [`BV250g-csv-import-takes-the-same-path.md`](BV250g-csv-import-takes-the-same-path.md)
 
 Load a CSV with header `voter_id` and three distinct rows. **Expected:** three voters.
 **Predicted actual:** the same duplicate prompt and the same one-row outcome — `handleLoadCsv`
@@ -144,6 +156,8 @@ documented guards: a bad header (`Invalid headers`) and a non-text file (`Invali
 
 ### BV250h — the Adding Voters dialog scrolls itself, not the page
 **Cfg:** V1, narrow viewport · **Automate:** n
+
+→ full page: [`BV250h-add-voters-dialog-scrolls-itself.md`](BV250h-add-voters-dialog-scrolls-itself.md)
 
 1. Open ADD VOTERS on a 360 px-wide viewport.
 2. Note where the page behind the modal is scrolled to.
@@ -160,6 +174,8 @@ does **not** fix this screen; check both.
 ### BV250i — the race dialog scrolls to its error, on a phone
 **Cfg:** any draft election, narrow viewport · **Automate:** n · **Expect: FAIL today**
 
+→ full page: [`BV250i-race-dialog-scrolls-to-its-error.md`](BV250i-race-dialog-scrolls-to-its-error.md)
+
 The case that matches #1512's *written steps*. Add a race, give it a title and one candidate only,
 press SAVE.
 
@@ -169,6 +185,8 @@ press SAVE.
 
 ### BV250j — the confirm dialog is never blank
 **Cfg:** V1, narrow viewport or a throttled CPU · **Automate:** n
+
+→ full page: [`BV250j-confirm-dialog-is-never-blank.md`](BV250j-confirm-dialog-is-never-blank.md)
 
 Trigger any confirm on this screen (CLEAR VOTER LIST is the easiest) and watch it **close**.
 
@@ -182,6 +200,8 @@ Cosmetic, but it is why a tester's screenshot can show a confirm dialog with not
 
 ### BV250k — the voter table fits the viewport
 **Cfg:** V1 with 3+ voters, narrow viewport · **Automate:** n
+
+→ full page: [`BV250k-voter-table-fits-the-viewport.md`](BV250k-voter-table-fits-the-viewport.md)
 
 **Expected:** Voter ID / Email / Has Voted and the `Rows per page … 1–N of N` footer are all
 reachable without horizontal page scrolling.
