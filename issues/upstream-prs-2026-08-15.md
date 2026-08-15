@@ -14,6 +14,10 @@ Ten issues taken off [Equal-Vote/bettervoting](https://github.com/Equal-Vote/bet
 | [#1521](https://github.com/Equal-Vote/bettervoting/pull/1521) | #1510 | `CLAUDE.md` guidance for writing issues and PRs | ask the user for a sentence in their own words |
 | [#1522](https://github.com/Equal-Vote/bettervoting/pull/1522) | [#1117](1117-sandbox-score-range.md) | Sandbox rejects a score outside the method's range | per-method, + the repo's first `/sandbox` Playwright spec |
 | [#1523](https://github.com/Equal-Vote/bettervoting/pull/1523) | [#1389](1389-freeze-first-column.md) | Frozen first column on the detailed results tables | background inherited from Paper, so the dark theme survives |
+| [#1526](https://github.com/Equal-Vote/bettervoting/pull/1526) | #1513 | Duplicate check keyed on identity, not email | **silent data loss**; its E2E test was passing vacuously |
+| [#1527](https://github.com/Equal-Vote/bettervoting/pull/1527) | [#1471](1471-chart-split-denominator.md) | Majority marker names its own denominator | option 2, plus the truncated dashed line and the no-overall-majority note |
+| [#1528](https://github.com/Equal-Vote/bettervoting/pull/1528) | #1159 | FAQ entry for the top-scorer question, linked from the panel | the "make it terser" half was already done |
+| [#1529](https://github.com/Equal-Vote/bettervoting/pull/1529) | #1059 | Table filter reads the whole text of a formatted cell | the `election_id` column's search box matched only its first character |
 
 ## What the batch taught, beyond the ten fixes
 
@@ -24,6 +28,8 @@ Ten issues taken off [Equal-Vote/bettervoting](https://github.com/Equal-Vote/bet
 - **#1487 / #1117** — both are the same shape as the flat-ballot family already tracked here: a number computed over a quietly reduced ballot set, with the reduction invisible on the page.
 
 **Adversarial review of my own patches paid for itself.** A second pass over the #1117 and #1389 diffs, briefed to refute rather than approve, found four things worth fixing before either PR opened: validation running *after* `parseInt` (so `2.5` silently became `2` — a *different* ballot, which is worse than the bug being fixed), a trailing newline masking the very error the patch adds, an unguarded `Array(NaN)` crash one line away, and a hard-coded `#FFFFFF` that would have broken the dark theme. None of these is exotic; all four survived my own first reading.
+
+**A test that asserts nothing is worse than no test.** Two of the fourteen were "covered" by a test that ran the buggy path and then stopped: the sandbox had none at all, and `election-with-rolls.spec.ts › add voters` fills five voter IDs, clicks Submit, and asserts nothing — so it stayed green while the roll silently received one voter. Both now assert an outcome, and both assertions fail against `main`. When a bug survives in a path that has a test, check what the test actually claims before assuming the path is exercised.
 
 **Two conversions of the same text is the bug behind the bug.** The #1117 fix went through three rounds — validate after `parseInt` (wrong ballot submitted), then validate with `Number` while still submitting with `parseInt` (still a wrong ballot, one remove further out, caught by CodeRabbit on the open PR). The seam only closed when a single conversion was used for both. Worth remembering the next time a check and its consumer parse the same string separately.
 
