@@ -16,7 +16,7 @@ Ten issues taken off [Equal-Vote/bettervoting](https://github.com/Equal-Vote/bet
 | [#1523](https://github.com/Equal-Vote/bettervoting/pull/1523) | [#1389](1389-freeze-first-column.md) | Frozen first column on the detailed results tables | background inherited from Paper, so the dark theme survives |
 | [#1526](https://github.com/Equal-Vote/bettervoting/pull/1526) | #1513 | Duplicate check keyed on identity, not email | **silent data loss**; its E2E test was passing vacuously |
 | [#1527](https://github.com/Equal-Vote/bettervoting/pull/1527) | [#1471](1471-chart-split-denominator.md) | Majority marker names its own denominator | option 2, plus the truncated dashed line and the no-overall-majority note |
-| [#1528](https://github.com/Equal-Vote/bettervoting/pull/1528) | #1159 | FAQ entry for the top-scorer question, linked from the panel | the "make it terser" half was already done |
+| [#1528](https://github.com/Equal-Vote/bettervoting/pull/1528) | #1159 | Help page: *Why the highest score doesn't always win*, linked from the panel | the "make it terser" half was already done; see the lesson below |
 | [#1529](https://github.com/Equal-Vote/bettervoting/pull/1529) | #1059 | Table filter reads the whole text of a formatted cell | the `election_id` column's search box matched only its first character |
 
 ## What the batch taught, beyond the ten fixes
@@ -28,6 +28,10 @@ Ten issues taken off [Equal-Vote/bettervoting](https://github.com/Equal-Vote/bet
 - **#1487 / #1117** — both are the same shape as the flat-ballot family already tracked here: a number computed over a quietly reduced ballot set, with the reduction invisible on the page.
 
 **Adversarial review of my own patches paid for itself.** A second pass over the #1117 and #1389 diffs, briefed to refute rather than approve, found four things worth fixing before either PR opened: validation running *after* `parseInt` (so `2.5` silently became `2` — a *different* ballot, which is worse than the bug being fixed), a trailing newline masking the very error the patch adds, an unguarded `Array(NaN)` crash one line away, and a hard-coded `#FFFFFF` that would have broken the dark theme. None of these is exotic; all four survived my own first reading.
+
+**An example is an argument, and it can be false while every number in it is correct.** The first draft of the #1159 help page worked through a nine-voter election, verified the arithmetic, and then explained underneath it that a stars-only count "rewards whoever inspires the strongest feelings". Every figure checked out. The sentence was still false *for that example*: the profile chosen had the broadly-liked candidate leading the scoring round and the polarizing one winning the runoff, so stars alone would have elected the mildest candidate on the page. A hostile reader could have turned the paragraph against the page in one move.
+
+The education library had already registered this distinction — it keeps a *convincing* reversal and a *jarring* one precisely so that the defence of the runoff has an example it fits. The fix was to change the election, not the prose: the leader now finishes one star ahead on four maximum scores while five of nine voters prefer the other finalist. Worth generalising: **when a page argues from a worked example, check the argument against that example, not just the arithmetic within it.**
 
 **A test that asserts nothing is worse than no test.** Two of the fourteen were "covered" by a test that ran the buggy path and then stopped: the sandbox had none at all, and `election-with-rolls.spec.ts › add voters` fills five voter IDs, clicks Submit, and asserts nothing — so it stayed green while the roll silently received one voter. Both now assert an outcome, and both assertions fail against `main`. When a bug survives in a path that has a test, check what the test actually claims before assuming the path is exercised.
 
