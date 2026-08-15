@@ -1,5 +1,10 @@
 # Docs proposal — Voter Lists
 
+> **Other proposals in this folder:** [`finding_your_elections.md`](finding_your_elections.md) — a
+> draft **Finding Your Elections** page (the `/manage` list, what an election ID is, and why an
+> archived election vanishes). Each proposal keeps its cross-references on its own note; the drafts
+> under `help/` carry none, so they lift straight into `docs/`.
+
 A draft page for <https://docs.bettervoting.com>, written out of the Manage Voters QA work.
 
 **The draft under [`help/voter_list.md`](help/voter_list.md) is written as finished user documentation and nothing else** — no ticket numbers, no test-case IDs, no QA framing. It is meant to be copied into `docs/help/` in the BetterVoting checkout as-is. Everything that ties it back to this repo lives on *this* page, and this page does not travel with it.

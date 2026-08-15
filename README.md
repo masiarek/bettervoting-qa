@@ -52,6 +52,17 @@ Tabulation test cases do **not** belong here — they go in `star-voting-library
 
 ## Current work
 
+### #1059 / #1524 / #1525 — finding an election by its ID (PR OPEN, defect FILED, docs drafted)
+
+An admin pasted an election ID into the only search box on `/manage` and was told *"You don't have any elections yet."* One screen, two independent defects, and the second was hiding the first.
+
+- **#1059** (Adam's, open since Oct 2025) — the Title box does not match the election ID. PR [#1524](https://github.com/Equal-Vote/bettervoting/pull/1524) teaches it to, and relabels the header **Election Title or ID**, rather than adding a column: in `EnhancedTable` a column *is* a search box, and the table already scrolls sideways at 5 columns on a phone. Verified locally, six queries, at 320px and 1280px.
+- **#1525** (filed 2026-08-15) — `emptyContent` renders on the *filtered* row set, so a query that matches nothing produces the new-user empty state. Reproduced on `/browse`: three elections loaded, `0–0 of 0`, *"No open elections at this time"*. On `/manage` it also offers a CREATE ELECTION button to someone who was searching for an existing one.
+- **Still undecided:** whether the ID should be *visible* as well as searchable. Three prototypes built and measured; recommendation is the ID on its own line under the title, the only one that costs zero horizontal space.
+- **User documentation drafted** from the same source reading — [`docs_proposals/help/finding_your_elections.md`](docs_proposals/help/finding_your_elections.md). Nothing on the help site currently describes `/manage`, what an election ID is, or that archived elections are hidden by default.
+
+→ [`test_cases/BV2285-index.md`](test_cases/BV2285-index.md) (four cases) · [`issues/1059-1524-search-elections-by-id.md`](issues/1059-1524-search-elections-by-id.md) · [`issues/1525-empty-state-conflates-no-data-with-no-matches.md`](issues/1525-empty-state-conflates-no-data-with-no-matches.md)
+
 ### #1512 / #1513 — Manage Voters / Add Voters (REVIEWED and FILED)
 
 [#1512](https://github.com/Equal-Vote/bettervoting/issues/1512) reports a scroll/save annoyance on
