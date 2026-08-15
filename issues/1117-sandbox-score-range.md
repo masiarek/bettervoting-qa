@@ -35,6 +35,21 @@ The fix therefore carries a per-method table and leaves ranked methods alone exc
 
 Run against `origin/main`'s `Sandbox.tsx`: **test 1 fails, test 2 passes.** That is the right shape — the first proves the fix does something, the second proves the fix doesn't over-reach and would have passed before too.
 
+## What review caught that the first draft got wrong
+
+Four defects, none exotic, all of which survived my own first reading of the patch:
+
+| Found by | Defect |
+|---|---|
+| adversarial pass | validation ran **after** `parseInt`, so `2.5` became `2` and the submitted ballot was not the ballot typed |
+| adversarial pass | a trailing newline's "wrong length" complaint **overwrote** the score error above it — the very message the patch adds |
+| adversarial pass | `x:5,4,3` reaches `Array(NaN)`, which throws out of an async effect with no handler and freezes the previous error on screen |
+| CodeRabbit, on the PR | the *submission* still used `parseInt` while the *check* used `Number`: `1e2` validated as 100 (a legal rank) and submitted as 1, and a `2.5:` repeat count was truncated to 2 before `Number.isInteger` saw it |
+
+The last one is the interesting one, because it is the same bug as the first at one remove — **two conversions of the same text, disagreeing**. Fixing the check without fixing the submission just moved the seam. One conversion, `Number`, everywhere now.
+
+(CodeRabbit's `0x1` example in that comment is wrong — `parseInt('0x1')` is 1, since the hex prefix is auto-detected without an explicit radix. The two real cases stand.)
+
 ## Provenance
 
 | Claim | How established |
