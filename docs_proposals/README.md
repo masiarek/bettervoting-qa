@@ -2,7 +2,9 @@
 
 > **Other proposals in this folder:** [`finding_your_elections.md`](finding_your_elections.md) — a
 > draft **Finding Your Elections** page (the `/manage` list, what an election ID is, and why an
-> archived election vanishes). Each proposal keeps its cross-references on its own note; the drafts
+> archived election vanishes) · [`creating_elections_with_the_api.md`](creating_elections_with_the_api.md)
+> — a draft **Creating Elections with the API** page (draft-first workflow, `owner_id` vs `admin_ids`,
+> and the `auth_key` trap). Each proposal keeps its cross-references on its own note; the drafts
 > under `help/` carry none, so they lift straight into `docs/`.
 
 A draft page for <https://docs.bettervoting.com>, written out of the Manage Voters QA work.
