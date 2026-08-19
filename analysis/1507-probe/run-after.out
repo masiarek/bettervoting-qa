@@ -1,0 +1,21 @@
+
+=== issue #1507 profile -- Ada/Ben/Cara, 2 seats ===
+elected      : Ada, Cara
+tieBreakType : none
+tied         : (empty)
+  round 1: max 15 held by 1 candidate(s)
+  round 2: max 9 held by 1 candidate(s)
+
+=== production bvhchj (BV2130) -- 51 candidates, 7 seats, 102 ballots ===
+elected      : Bernie Sanders (Democrat), Al Gore (Democrat), Barack Obama (Democrat), Cornel West (Independent), Chase Oliver (Libertarian), Kamala Harris (Democrat), Karina Garcia (Socialism and Liberation)
+tieBreakType : none
+tied         : (empty)
+  round 1: max 346 held by 1 candidate(s)
+  round 2: max 211.67857142857144 held by 1 candidate(s)
+  round 3: max 146.35119047619048 held by 1 candidate(s)
+  round 4: max 107.22738095238094 held by 1 candidate(s)
+  round 5: max 75.91547619047618 held by 1 candidate(s)
+  round 6: max 51.90892857142857 held by 1 candidate(s)
+  round 7: max 23.27916666666667 held by 1 candidate(s)
+replay matches published elected order : true
+published tieBreakType (frozen export) : random

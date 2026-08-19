@@ -1,0 +1,72 @@
+ts-jest[config] (WARN) 
+    The "ts-jest" config option "isolatedModules" is deprecated and will be removed in v30.0.0. Please use "isolatedModules: true" in /Volumes/T7/Voting/BetterVoting/bv-1507/packages/backend/tsconfig.json instead, see https://www.typescriptlang.org/tsconfig/#isolatedModules
+  
+FAIL src/Tabulators/AllocatedScore.test.ts
+  Allocated Score Tests
+    ✓ Basic Example (11 ms)
+    ✓ Single vote fractional surplus (2 ms)
+    ✓ Voters < Winners (1 ms)
+    ✓ Fractional surplus (2 ms)
+    ✓ Fractional surplus on lower split (3 ms)
+    ✕ no tie anywhere reports tieBreakType 'none' (#1507) (5 ms)
+    ✕ a genuine tie still reports tieBreakType 'random' (#1507) (2 ms)
+    ✓ Test valid/invalid/under/bullet vote counts (1 ms)
+
+  ● Allocated Score Tests › no tie anywhere reports tieBreakType 'none' (#1507)
+
+    expect(received).toStrictEqual(expected) // deep equality
+
+    - Expected  - 2
+    + Received  + 5
+
+      Object {
+    -   "tieBreakType": "none",
+    -   "tied": Array [],
+    +   "tieBreakType": "random",
+    +   "tied": Array [
+    +     "Ada",
+    +     "Cara",
+    +   ],
+      }
+
+      204 |             tieBreakType: results.tieBreakType,
+      205 |             tied: results.tied.map(c => c.name),
+    > 206 |         }).toStrictEqual({ tieBreakType: 'none', tied: [] });
+          |            ^
+      207 |     })
+      208 |
+      209 |     test("a genuine tie still reports tieBreakType 'random' (#1507)", () => {
+
+      at Object.<anonymous> (src/Tabulators/AllocatedScore.test.ts:206:12)
+
+  ● Allocated Score Tests › a genuine tie still reports tieBreakType 'random' (#1507)
+
+    expect(received).toStrictEqual(expected) // deep equality
+
+    - Expected  - 0
+    + Received  + 1
+
+      Object {
+        "tieBreakType": "random",
+        "tied": Array [
+          "Allison",
+          "Bill",
+    +     "Doug",
+        ],
+      }
+
+      235 |             tieBreakType: results.tieBreakType,
+      236 |             tied: results.tied.map(c => c.name).sort(),
+    > 237 |         }).toStrictEqual({ tieBreakType: 'random', tied: ['Allison', 'Bill'] });
+          |            ^
+      238 |     })
+      239 |
+      240 |     test("Test valid/invalid/under/bullet vote counts", () => {
+
+      at Object.<anonymous> (src/Tabulators/AllocatedScore.test.ts:237:12)
+
+Test Suites: 1 failed, 1 total
+Tests:       2 failed, 6 passed, 8 total
+Snapshots:   0 total
+Time:        1.067 s, estimated 5 s
+Ran all test suites matching /src\/Tabulators\/AllocatedScore/i.
