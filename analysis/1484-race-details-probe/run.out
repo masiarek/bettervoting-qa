@@ -1,0 +1,27 @@
+election      : qhjyr2 (BV2276), STAR, 1 winner
+tieBreakType  : head_to_head
+served order  : Ana 15, Ben 14, Cora 14, Dev 11
+roundResults  : winner Ana, runner_up Cora
+
+the charts read roundResults, so they show Ana vs Cora.
+
+=== backend sort: main ===
+  summaryData.candidates : Ana, Ben, Cora, Dev
+  frontend selection: positional
+    Scores Table (gold) : Ana 15 + Ben 14
+    Runoff Table        : Ana 3 | Ben 2 | Equal Support 0
+  frontend selection: roundResults
+    Scores Table (gold) : Ana 15 + Ben 14
+    Runoff Table        : Ana 2 | Cora 1 | Equal Support 2
+
+=== backend sort: fixed ===
+  summaryData.candidates : Ana, Cora, Ben, Dev
+  frontend selection: positional
+    Scores Table (gold) : Ana 15 + Cora 14
+    Runoff Table        : Ana 2 | Cora 1 | Equal Support 2
+  frontend selection: roundResults
+    Scores Table (gold) : Ana 15 + Cora 14
+    Runoff Table        : Ana 2 | Cora 1 | Equal Support 2
+
+compare on main, two non-winners: NaN
+Array.prototype.sort coerces that to +0, i.e. "equal" -- the runnerUpRound key is never read.

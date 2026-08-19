@@ -52,6 +52,18 @@ Tabulation test cases do **not** belong here — they go in `star-voting-library
 
 ## Current work
 
+### #1484 — the STAR Race Details tables name the wrong finalist (FILED, ours — FIXED locally, unpushed)
+
+A STAR results page states two runoffs at once whenever a scoring-round tie picks the second finalist: the charts and Tabulation Steps read `roundResults` and name the candidate the tiebreak advanced, while the Race Details tables read positions 0 and 1 of `summaryData.candidates` — score order — and recompute the runoff against the second-highest scorer. On [`qhjyr2`](https://bettervoting.com/qhjyr2/results) that is *Ana 2, Cora 1, Equal Support 2* in the chart against *Ana 3, Ben 2, Equal Support 0* in the table directly below it.
+
+Root cause is **one `NaN`**. `runBlocTabulator`'s comparator (`Util.ts:331`) separates the sort keys by subtracting them, and `Star.ts` uses `-Infinity` for "didn't win / wasn't runner-up". `-Infinity - -Infinity` is `NaN`, `Array.prototype.sort` coerces that to `+0`, so any two losing candidates compare *equal at the first key* and the `runnerUpRound` key that exists to lift the runner-up is never read. The frontend contract was right; the sort it depends on stopped one key early. `sortCandidates()` avoids the identical trap deliberately 140 lines up, with `999999` and a comment saying why.
+
+- **Not a deploy gap**, which the issue floats as the alternative: replaying `main`'s comparator over the payload production served reproduces that payload's order exactly.
+- **A frontend-only fix is not enough.** It repairs the Runoff Table but not the gold highlight, which is CSS `nth-child` over the served order. The backend fix is the necessary one; the `STARDetailedResults.tsx` change is defence in depth and matches what `Results.tsx:51` already does.
+- Four regression tests, three of which fail on `main`; `npx jest src/Tabulators/` goes 53/56 → 56/56. `VoterProfileWidget.tsx:33` takes the same two positions and is corrected without an edit.
+
+→ [`issues/1484-race-details-runner-up.md`](issues/1484-race-details-runner-up.md) · probe: [`analysis/1484-race-details-probe/`](analysis/1484-race-details-probe/README.md) · fix on `fix/1484-race-details-runner-up` (`a892a0ff`), **not pushed, no PR**
+
 ### #1507 — every STAR-PR result claims a random tiebreak (FILED, ours — FIX WRITTEN, unpushed)
 
 `AllocatedScore` asked *"was this decided by a tiebreak?"* by testing membership of `results.tied` — an array it appended the round winner to on **every** round — so the answer was yes for every Allocated Score election ever tabulated. `Results.tsx:444` turns any non-STAR `'random'` into the heading **"Tied!"**, so those results pages announced a draw instead of their winners.
