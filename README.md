@@ -52,6 +52,16 @@ Tabulation test cases do **not** belong here — they go in `star-voting-library
 
 ## Current work
 
+### #1507 — every STAR-PR result claims a random tiebreak (FILED, ours — FIX WRITTEN, unpushed)
+
+`AllocatedScore` asked *"was this decided by a tiebreak?"* by testing membership of `results.tied` — an array it appended the round winner to on **every** round — so the answer was yes for every Allocated Score election ever tabulated. `Results.tsx:444` turns any non-STAR `'random'` into the heading **"Tied!"**, so those results pages announced a draw instead of their winners.
+
+Confirmed live on `bvhchj` (BV2130): `tieBreakType: random`, `tied` == `elected`, and its own `weightedScoresByRound` show a **unique maximum in all seven rounds** — while the Plurality race on the same election reports `none`. Fixed by recording the tie where it happens (`ties.length > 1`); the 102-ballot production election replays to `none` with its published winner order intact. Two tests, one for each direction, so the fix can't be "delete the flag".
+
+Sibling defect found on the way, executed and left for its own issue: `runBlocTabulator` (`Util.ts:312`) copies only the **final** round's `tieBreakType`, so a tie that decided seat 1 of a bloc race is reported as `none` — the same bug inverted, across four methods.
+
+→ [`issues/1507-star-pr-tiebreaktype-always-random.md`](issues/1507-star-pr-tiebreaktype-always-random.md) · probe: [`analysis/1507-probe/`](analysis/1507-probe/probe1507.ts) · fix on `fix/1507-star-pr-tiebreaktype` (`9a2b8b2a`), **not pushed, no PR**
+
 ### #1059 / #1524 / #1525 — finding an election by its ID (PR OPEN, defect FILED, docs drafted)
 
 An admin pasted an election ID into the only search box on `/manage` and was told *"You don't have any elections yet."* One screen, two independent defects, and the second was hiding the first.
