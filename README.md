@@ -52,6 +52,17 @@ Tabulation test cases do **not** belong here — they go in `star-voting-library
 
 ## Current work
 
+### #1035 — `NaN%` in the STAR runoff table (OPEN, Adam's — FIX WRITTEN, unpushed)
+
+The runoff denominator is `finalistVotes`, and it is **zero** whenever every counted ballot rates the two finalists equally — no scoring-round tie needed, no abstention needed, `nTallyVotes` perfectly healthy. Three ballots of `5,5,0` do it. The root cause went upstream in August; this is the fix.
+
+- **Two surfaces, two symptoms.** The runoff **table** prints `NaN%` and a `100%` total of nothing; the **pie chart** renders a blank circle, because recharts draws no sectors when every value is zero and so never runs the label callback that would have printed `NaN`. The **bar** view was already safe — `ResultsBarChart.tsx:53` has done `Math.max(1, percentDenominator)` all along. The guard existed on one of the three views.
+- **The fix is a display guard and nothing else.** `formatPercent` returns `—` for a non-finite input (which also nets two unreported `x/0` call sites), the hard-coded `'100%'` total row is guarded explicitly, and `ResultsPieChart` says what happened instead of drawing an empty circle. No tabulator source changes; winner, scores and every finite percentage are byte-identical, shown against two controls including the `<1%` branch.
+- **Evidence, and its limit.** A new backend test pins the *condition* (`[5,5,0] × 3` → 3 votes, 0 abstentions, denominator 0) so a future change to the abstention rule trips it. The display guards have no harness at all — `packages/frontend` has zero test files — so they were verified by extracting the shipped `formatPercent` out of `util.tsx` and executing it against real `Star()` output. **Nothing was rendered in a browser**; [BV2264](test_cases/BV2264-nan-in-runoff-table.md)'s *Expected after the fix* is still the assertion to run, and the last prediction made about this pie chart was refuted by a screenshot.
+- **Why it goes first:** it is R2 from the abstention analysis. Today's `markAllEqualAsAbstention` rule is the only thing keeping the trigger set narrow, so any fix to #1053 / #1407 widens it.
+
+→ [`issues/1035-runoff-zero-denominator-fix.md`](issues/1035-runoff-zero-denominator-fix.md) · root cause: [`issues/1035-nan-root-cause-comment-posted.md`](issues/1035-nan-root-cause-comment-posted.md) · probe: [`analysis/flat-scores-abstention/probe/nan-fix-verify.ts`](analysis/flat-scores-abstention/probe/nan-fix-verify.ts) · fix on `fix/1035-runoff-zero-denominator` (`47d241a4`), **not pushed, no PR**
+
 ### #1484 — the STAR Race Details tables name the wrong finalist (FILED, ours — FIXED locally, unpushed)
 
 A STAR results page states two runoffs at once whenever a scoring-round tie picks the second finalist: the charts and Tabulation Steps read `roundResults` and name the candidate the tiebreak advanced, while the Race Details tables read positions 0 and 1 of `summaryData.candidates` — score order — and recompute the runoff against the second-highest scorer. On [`qhjyr2`](https://bettervoting.com/qhjyr2/results) that is *Ana 2, Cora 1, Equal Support 2* in the chart against *Ana 3, Ben 2, Equal Support 0* in the table directly below it.

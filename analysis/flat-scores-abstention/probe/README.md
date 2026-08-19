@@ -68,3 +68,19 @@ Two things fall straight out of the table:
 ## Caveat
 
 This exercises the **backend tabulator only**. The runoff and score percentages in the table are computed by applying `ResultsBarChart`'s own formulas (`percentDenominator` = sum of all bars; majority marker = sum excluding the last bar, halved) to the tabulator's real output. The `NaN%` prediction for the EX3 pie chart is read from `ResultsPieChart.tsx` and has **not** been rendered in a browser here — that check still wants doing on a branch.
+
+## `nan-fix-verify.ts` — the #1035 before/after
+
+Added 2026-08-19, for the zero-denominator fix on branch `fix/1035-runoff-zero-denominator` (`47d241a4`). It runs the real `Star()` over two degenerate ballot sets and two controls, then prints, per set, what each runoff render path produced **before** the fix and **after** it — the `% Between Finalists` column, its total row, and whether the pie chart has anything to draw.
+
+The point that closes the caveat above: it does **not** transcribe `formatPercent`. It reads `packages/frontend/src/components/util.tsx` at run time, extracts the function's source, erases its TypeScript annotations and evaluates it, so the "after" column is the shipped function and cannot drift from the file. The two remaining expressions — the total-row cell and the pie's `isEmpty` — live inside JSX and are transcribed verbatim, one line each.
+
+```bash
+# from a bettervoting checkout with node_modules already installed
+cp nan-fix-verify.ts <checkout>/nan-fix-verify.ts
+cd <checkout> && npx tsx nan-fix-verify.ts
+```
+
+Full output and what it proves: [`../../../issues/1035-runoff-zero-denominator-fix.md`](../../../issues/1035-runoff-zero-denominator-fix.md).
+
+The browser check is still outstanding — the same gap this README's caveat named in August.
