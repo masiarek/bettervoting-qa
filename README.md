@@ -52,6 +52,16 @@ Tabulation test cases do **not** belong here — they go in `star-voting-library
 
 ## Current work
 
+### Four code fixes, parked behind the PR freeze (#1469, #1507, #1484, #1035)
+
+Written, tested and committed to local branches; **not** submitted, because Adam was asked to hold new PRs until Arend catches up with the existing queue. The branches, the evidence, and the checklist for opening them later are in [`docs_proposals/PARKED_ready_for_bv.md` §7](docs_proposals/PARKED_ready_for_bv.md).
+
+- **[#1469](issues/1469-ranked-robin-degrees-of-ties.md)** — Ranked Robin never runs its own tiebreakers, so a tie among three or more candidates goes straight to the random rung. With three candidates and no drawn matchups *every* Condorcet cycle is such a tie, so the shuffle is the entire cycle path at the field size BetterVoting sees most. The fix walks the method's published ladder (1st Degree over the finalists, 2nd Degree over the field) and stops there, as the spec recommends for public elections. **Running the same question against our own engine found the mirror-image bug in it** — 11 of star-voting-library's 100 Ranked Robin cases changed winner, and two BV-backed cases that we had written up as an "LH vs BetterVoting divergence" turn out to have been BetterVoting being right.
+- **[#1507](issues/1507-star-pr-tiebreaktype-always-random.md)** — every STAR-PR result ever tabulated reported `tieBreakType: 'random'`, because the check was tautological. The results page turns that into a "Tied!" heading.
+- **[#1484](issues/1484-race-details-runner-up.md)** — one `NaN` in `runBlocTabulator`'s comparator stops its sort a key early, so Race Details shows the second-highest scorer where the page means the tiebreak runner-up.
+- **[#1035](issues/1035-runoff-zero-denominator-fix.md)** — `NaN%` in the runoff table and a blank pie when every counted ballot rates both finalists equally. Display guard only; no tally changes.
+
+
 ### 🚦 PR freeze on upstream (2026-08-20)
 
 Adam was asked not to open new PRs on Equal-Vote/bettervoting until Arend catches up with the existing queue. Ready and specified work is parked in [`docs_proposals/PARKED_ready_for_bv.md`](docs_proposals/PARKED_ready_for_bv.md) with per-item flags (READY / READY-AFTER-MERGE / AWAITING-DIRECTION). The docs/i18n/fixes program itself is indexed upstream in [issue #1556](https://github.com/Equal-Vote/bettervoting/issues/1556); its consistency review and judgment-call notes are preserved here under [`analysis/`](analysis/help-pages-consistency-review.md).

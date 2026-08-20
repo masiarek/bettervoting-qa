@@ -1,0 +1,106 @@
+FAIL src/Tabulators/Star.test.ts
+  ● STAR abstention test runs on the full candidate set (#1470) › Ballots that never mentioned the write-in still count
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 0
+    Received: 4
+
+      370 |
+      371 |         const results = Star(candidates, votes, 1)
+    > 372 |         expect(results.summaryData.nAbstentions).toBe(0);
+          |                                                  ^
+      373 |         expect(results.summaryData.nTallyVotes).toBe(7);
+      374 |
+      375 |         // With all seven ballots counted the totals match the same election run with
+
+
+FAIL src/test/writeIns.test.ts (10.993 s)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+          at Array.forEach (<anonymous>)
+
+
+          at Array.forEach (<anonymous>)
+
+
+          at Array.forEach (<anonymous>)
+
+
+          at Array.forEach (<anonymous>)
+
+
+          at Array.forEach (<anonymous>)
+
+
+          at Array.forEach (<anonymous>)
+
+
+          at Array.forEach (<anonymous>)
+
+
+          at Array.forEach (<anonymous>)
+
+
+          at Array.forEach (<anonymous>)
+
+
+          at Array.forEach (<anonymous>)
+
+
+          at Array.forEach (<anonymous>)
+
+
+          at Array.forEach (<anonymous>)
+
+
+          at Array.forEach (<anonymous>)
+
+
+          at Array.forEach (<anonymous>)
+
+
+          at Array.forEach (<anonymous>)
+
+  ● Approving a write-in must not discard flat official-slate ballots (#1470) › All seven ballots are tallied and the race matches its official-candidate twin
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 0
+    Received: 4
+
+      588 |
+      589 |         const raceResult = res.body.results[0];
+    > 590 |         expect(raceResult.summaryData.nAbstentions).toBe(0);
+          |                                                     ^
+      591 |         expect(raceResult.summaryData.nTallyVotes).toBe(7);
+      592 |
+      593 |         // The same numbers the identical ballots produce when Cedar is an official
+
+
+A worker process has failed to exit gracefully and has been force exited. This is likely caused by tests leaking due to improper teardown. Try running with --detectOpenHandles to find leaks. Active timers can also cause this, ensure that .unref() was called on them.
+Test Suites: 2 failed, 2 total
+Tests:       2 failed, 47 passed, 49 total
+Snapshots:   0 total
+Time:        12.094 s
+Ran all test suites matching /src\/Tabulators\/Star.test.ts|src\/test\/writeIns.test.ts/i.

@@ -82,6 +82,27 @@ Offered upstream: ~20-line check (byte-identical-to-English count per locale, ra
 
 Three options posted (own-on-signin / make claim-key work / document fire-and-forget as intended). Options 1 and 3 are small; do not start until answered.
 
+## 7. Four code fixes — READY (branches committed locally, nothing pushed)
+
+Tabulator and results-page defects, each with a root cause traced to a line, a failing-before test, and a QA page. All four sit on local branches cut from `origin/main` `454a38ae`; none is pushed, and no fork branch exists yet. `git worktree list` inside any BV clone shows the worktrees.
+
+| Issue | What the fix does | Branch @ commit · worktree | Evidence | Page |
+|---|---|---|---|---|
+| [#1469](https://github.com/Equal-Vote/bettervoting/issues/1469) | Ranked Robin walks its own tiebreak ladder (1st Degree over the finalists, then 2nd Degree over the field) before the random rung. Today a 3+-way tie — i.e. **every** three-candidate Condorcet cycle — goes straight to the shuffle | `fix/1469-ranked-robin-margins-tiebreaker` @ `585b08f1` · `bv-rr-degrees` | jest 52 → **58** green; 4 of the 6 new tests fail on `main`, 2 regression tests pass both sides; `tsc` clean | [1469](../issues/1469-ranked-robin-degrees-of-ties.md) |
+| [#1507](https://github.com/Equal-Vote/bettervoting/issues/1507) | Allocated Score stops reporting `tieBreakType: 'random'` when nothing tied — the check was tautological, so **every** STAR-PR election ever tabulated claimed a random tiebreak, and the results page announced "Tied!" | `fix/1507-star-pr-tiebreaktype` @ `9a2b8b2a` · `bv-1507` | jest 52 → **54** green; verified against live production `bvhchj` (7 seats, unique max in all 7 rounds, still reported `random`) | [1507](../issues/1507-star-pr-tiebreaktype-always-random.md) |
+| [#1484](https://github.com/Equal-Vote/bettervoting/issues/1484) | One `NaN` in `runBlocTabulator`'s comparator (`-Infinity - -Infinity`) stopped its lexicographic sort one key early, so the Race Details tables showed the second-highest scorer instead of the tiebreak runner-up | `fix/1484-race-details-runner-up` @ `a892a0ff` · `bv-1484` | jest 53/56 → **56/56**; comparator replayed over the frozen `qhjyr2` payload reproduces production's order exactly | [1484](../issues/1484-race-details-runner-up.md) |
+| [#1035](https://github.com/Equal-Vote/bettervoting/issues/1035) | `NaN%` in the runoff table and the blank runoff pie, when every counted ballot rates both finalists equally. Display guard only — **no winner, tally or percentage changes** | `fix/1035-runoff-zero-denominator` @ `47d241a4` · `bv-1035` | jest 52 → **53** green; probe evaluates the shipped `formatPercent` rather than a transcription | [1035](../issues/1035-runoff-zero-denominator-fix.md) |
+
+**Before any of these opens as a PR:**
+
+1. Rebase on the then-current `origin/main` and re-run `npx jest src/Tabulators/` in `packages/backend` (setup recipe: `npm install`, then `npm run build` in `packages/shared`, then `npm run generate:openapi` — without the last two, every tabulator suite fails on a missing module and it looks like the fix broke them).
+2. #1469 should first absorb two things from the duplicate branch `fix/1469-ranked-robin-margins-tiebreakers` @ `709d5c2e` (parked in `bv-copy-fix`): the 69-ballot five-way-cycle regression test, and printing the margin sums in the log lines. Credit that session in the PR body.
+3. #1484 and #1035 touch the same results page from different sides — #1484 changes *which pair* the runoff table calls the finalists, which is what decides whether #1035's denominator is zero. Open them in either order, but say so in both bodies.
+4. #1035 introduces two new `en.yaml` strings that are **not approved copy**. They need a wording decision, or the PR should propose them explicitly as such.
+5. Each page's "could not verify" section is real: none of the three display fixes was rendered in a browser. If the local stack is up when the freeze lifts, run `BV2264` first.
+
+---
+
 ---
 
 ## Not parked here, deliberately

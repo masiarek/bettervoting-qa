@@ -1,0 +1,86 @@
+PASS src/Tabulators/Star.test.ts
+  STAR Tests
+    ✓ Condorcet Winner (6 ms)
+    ✓ Runnerup tie (1 ms)
+    ✓ Runoff (1 ms)
+    ✓ Runoff tie, score resolves
+    ✓ Runoff & Score Tie, use five-star tiebreaker to resolve (1 ms)
+    ✓ True Tie, random winner
+    ✓ Test valid/invalid/under/bullet vote counts (1 ms)
+  STAR Score Round Tests
+    ✓ Simple score-runoff test (1 ms)
+    ✓ Simple score-runoff test, second candidate wins
+    ✓ Score tie, both advance (1 ms)
+    ✓ Two way score tie for second, head-to-head tie break
+    ✓ Two way score tie for second, five star tie break
+    ✓ Three way score tie for first, advance candidates with most five star votes (different)
+    ✓ Three way score tie for first, advance candidates with most five star votes (same)
+    ✓ Three way score tie for first, advance one candidate with most five star votes (1 ms)
+    ✓ Three way score tie for second, advance with most five star votes
+    ✓ Three way true tie for second, pick random to advance
+    ✓ Two way score tie for second, don't advance candidate not in score tie (1 ms)
+  STAR abstention test runs on the full candidate set (#1470)
+    ✓ Ballots that never mentioned the write-in still count (1 ms)
+    ✓ A ballot that is flat and non-zero over the FULL candidate set is still an abstention
+
+PASS src/test/writeIns.test.ts (10.955 s)
+  Write-In Candidates
+    ✓ Create election with write-ins enabled (32 ms)
+    ✓ Submit ballot with write-in candidate (7 ms)
+    ✓ Submit ballot with multiple write-ins (4 ms)
+    ✓ Submit ballot with only official candidates (no write-ins) (4 ms)
+    ✓ Reject ballot with write-in when write-ins disabled (6 ms)
+    ✓ Reject ballot with too many write-ins (>10) (3 ms)
+    ✓ Reject ballot with empty write-in name (3 ms)
+    ✓ Reject ballot with whitespace-only write-in name (4 ms)
+    ✓ Reject ballot with write-in name too long (>100 chars) (3 ms)
+    ✓ Get write-in names (3004 ms)
+    ✓ Set write-in results (approve Charlie) (6 ms)
+    ✓ Get results includes approved write-in, excludes unapproved (8 ms)
+    ✓ Results without any approved write-ins only show official candidates (4 ms)
+  Zero-ballot paths
+    ✓ Create election (3 ms)
+    ✓ getWriteIns returns empty data when no ballots exist (2 ms)
+    ✓ getElectionResults returns empty results when no ballots exist (3 ms)
+    ✓ getBallots returns empty list when no ballots exist (3 ms)
+  Write-In Validation (setWriteInResults)
+    ✓ Reject when write_in_results not provided (2 ms)
+    ✓ Reject when race_id is missing (2 ms)
+    ✓ Reject when race_id is invalid (2 ms)
+    ✓ Reject duplicate candidate names (2 ms)
+    ✓ Reject candidate_name exceeding max length (2 ms)
+    ✓ Reject too many aliases (3 ms)
+    ✓ Reject alias exceeding max length (2 ms)
+    ✓ Reject too many write-in candidates (>100) (2 ms)
+    ✓ Accept valid empty write-in candidates array (2 ms)
+  Approving a write-in must not discard flat official-slate ballots (#1470)
+    ✓ Cast the seven ballots (14 ms)
+    ✓ Approve the write-in (7010 ms)
+    ✓ All seven ballots are tallied and the race matches its official-candidate twin (4 ms)
+
+A worker process has failed to exit gracefully and has been force exited. This is likely caused by tests leaking due to improper teardown. Try running with --detectOpenHandles to find leaks. Active timers can also cause this, ensure that .unref() was called on them.
+Test Suites: 2 passed, 2 total
+Tests:       49 passed, 49 total
+Snapshots:   0 total
+Time:        12.043 s
+Ran all test suites matching /src\/Tabulators\/Star.test.ts|src\/test\/writeIns.test.ts/i.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

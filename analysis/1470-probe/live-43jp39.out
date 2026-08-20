@@ -1,0 +1,3 @@
+# GET https://bettervoting.com/API/ElectionResult/43jp39 — 2026-08-20 04:38 EDT (pre-fix production)
+race 1: tally=3 abstentions=4 winner=Cedar scores={'Cedar': 8, 'Ben': 7, 'Ann': 5}
+race 2: tally=7 abstentions=0 winner=Ben scores={'Ben': 23, 'Ann': 21, 'Cedar': 8}
