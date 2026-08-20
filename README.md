@@ -52,6 +52,12 @@ Tabulation test cases do **not** belong here — they go in `star-voting-library
 
 ## Current work
 
+### 🚦 PR freeze on upstream (2026-08-20)
+
+Adam was asked not to open new PRs on Equal-Vote/bettervoting until Arend catches up with the existing queue. Ready and specified work is parked in [`docs_proposals/PARKED_ready_for_bv.md`](docs_proposals/PARKED_ready_for_bv.md) with per-item flags (READY / READY-AFTER-MERGE / AWAITING-DIRECTION). The docs/i18n/fixes program itself is indexed upstream in [issue #1556](https://github.com/Equal-Vote/bettervoting/issues/1556); its consistency review and judgment-call notes are preserved here under [`analysis/`](analysis/help-pages-consistency-review.md).
+
+
+
 ### #1035 — `NaN%` in the STAR runoff table (OPEN, Adam's — FIX WRITTEN, unpushed)
 
 The runoff denominator is `finalistVotes`, and it is **zero** whenever every counted ballot rates the two finalists equally — no scoring-round tie needed, no abstention needed, `nTallyVotes` perfectly healthy. Three ballots of `5,5,0` do it. The root cause went upstream in August; this is the fix.
