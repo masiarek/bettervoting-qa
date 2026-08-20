@@ -1,6 +1,7 @@
 # #1470 — write-in abstention discards ordinary ballots
 
 **Posted upstream 2026-08-02: [Equal-Vote/bettervoting#1470](https://github.com/Equal-Vote/bettervoting/issues/1470)**
+**Fix written 2026-08-20**, on branch `fix/1470-write-in-abstention-normalization`, commit `c2fc5bd8`, off upstream `main` @ `454a38ae`, in clone `bv-1470`. **Local only — not pushed, no PR, nothing posted on the issue** (🚦 [PR freeze](../docs_proposals/PARKED_ready_for_bv.md)). See [The fix](#the-fix--written-parked-under-the-pr-freeze) below.
 
 Live repro: **[bettervoting.com/43jp39/results](https://bettervoting.com/43jp39/results)** (BV-WI1, created 2026-08-02, publicly readable, results verifiable with one unauthenticated `curl`).
 
@@ -12,6 +13,73 @@ Filed as a bug **independent of [#884](https://github.com/Equal-Vote/bettervotin
 - **The claim key is deliberately not in this repo** — it grants ownership and this repo is public. It is in the session notes, and it is now spent: `owner_id` is an account id rather than a `v-` temp id, so `tempUserAuth` can never be satisfied again and `canClaimElection` can never be re-granted. **The claim is one-way** — only a `system_admin` could move ownership now.
 - **`vgwvjr` is an orphan.** A first attempt set `owner_id` to a bare UUID. The guest-ownership gate (`elections.controllers.ts:86-97`) requires `owner_id` to follow the `v-` temp-id convention **and** a `{election_id}_claim_key` cookie hashing to the stored `claim_key_hash`; a bare UUID can never obtain the owner role. It holds the same ballots but its write-in could not be approved, and it can't be administered or deleted. Harmless, but it's there.
 - **Correction worth carrying forward:** administering a guest-created election needs the claim-key cookie as well as `temp_id`. The earlier `mj26yj` retest election has a bare-UUID owner too, so it is in the same position.
+
+## The fix — written, parked under the PR freeze
+
+Exactly the normalise-first change the issue proposed, applied in `filterInitialVotes`
+(`packages/backend/src/Tabulators/Util.ts:117`, at `main` @ `454a38ae`): build the
+candidate-set-complete `marks` **before** the stat tests run, test that object, and push the same
+object to `tallyVotes`.
+
+```diff
+   rawVotes.forEach(rawVote => {
++    const normalizedVote: vote = {
++      ...rawVote,
++      marks: Object.fromEntries(candidateIds.map(id => [id, rawVote.marks[id] ?? 0]))
++    };
+     // using a classic loop so that I can return out of it
+     for(let i = 0; i < tests.length; i++){
+       let [statName, statTest] = tests[i];
+-      if(statTest(rawVote)){
++      if(statTest(normalizedVote)){
+         summaryStats[statName] = (summaryStats[statName] ?? 0)+1;
+         return;
+       }
+     }
+     summaryStats.nTallyVotes++;
+-    tallyVotes.push({
+-      ...rawVote,
+-      marks: Object.fromEntries(candidateIds.map(id => [id, rawVote.marks[id] ?? 0]))
+-    })
++    tallyVotes.push(normalizedVote)
+   })
+```
+
+### Before
+
+1. **Production, live, 2026-08-20** — [`../analysis/1470-probe/live-43jp39.out`](../analysis/1470-probe/live-43jp39.out): race 1 (Cedar an approved write-in) `tally=3, abstentions=4, winner=Cedar (8, Ben 7, Ann 5)`; race 2 (Cedar official, same seven ballots) `tally=7, abstentions=0, winner=Ben (23, Ann 21, Cedar 8)`. Unchanged since filing.
+2. **The new tests against unpatched `main`** — [`../analysis/1470-probe/jest-before.out`](../analysis/1470-probe/jest-before.out): both result assertions fail with `nAbstentions: Expected 0, Received 4` — the tabulator-level reproduction in `Star.test.ts` and the end-to-end write-in flow in `writeIns.test.ts` (cast 7 ballots, approve the write-in, fetch results).
+
+### After
+
+[`../analysis/1470-probe/jest-after.out`](../analysis/1470-probe/jest-after.out): all 49 tests in the two suites pass — the four flat ballots count, race totals equal the official-candidate twin (`Ben 23, Ann 21, Cedar 8`, Ben elected, `nTallyVotes 7, nAbstentions 0`). Full backend suite `179 passed, 179 total` (main's 174 plus the 5 added); `npx tsc --noEmit` clean.
+
+### Tests added
+
+All on the same commit. Three groups:
+
+- **`Star.test.ts` — "Ballots that never mentioned the write-in still count"**: the 43jp39 profile fed straight to `Star()` with marks objects that genuinely lack the Cedar key (the existing `mapMethodInputs` helper can't produce a missing key — it writes `null`, which the tests already read as 0 — which is why no existing test ever hit this).
+- **`Star.test.ts` — "A ballot that is flat and non-zero over the FULL candidate set is still an abstention"**: pins that the [#884](https://github.com/Equal-Vote/bettervoting/issues/884)/[#1508](https://github.com/Equal-Vote/bettervoting/issues/1508) `markAllEqualAsAbstention` policy is untouched — a fix that "simplified" the policy away would fail it.
+- **`writeIns.test.ts` — "Approving a write-in must not discard flat official-slate ballots (#1470)"**: the full API flow (create, cast seven ballots, `setWriteInResults`, `GET /API/ElectionResult`) asserting `nTallyVotes 7, nAbstentions 0`, scores `Bob 23 / Alice 21 / Cedar 8`, Bob elected. Closes the gap the issue named: `writeIns.test.ts` had no case combining write-ins with the abstention path.
+
+### Blast radius
+
+- **Which ballots change classification:** only ballots whose `marks` lack a key for some candidate in the race. For a ballot that covers every candidate, zero-filling is a no-op and every stat test reads exactly what it read before (`makeAbstentionTest` already coerced `null` to 0; `makeBoundsTest` skipped `null`, and a filled-in 0 is in bounds for every method — every tabulator passes `minValue: 0`).
+- **Methods:** STAR and Allocated Score (`makeAbstentionTest(true)`) are where winners can change — the flat-over-officials class now counts. Approval, Plurality, IRV/STV and Ranked Robin use the all-marks-zero test, which is invariant under zero-filling (a ballot with no key and a ballot with an explicit 0 were already the same to it); their counts cannot move.
+- **Key filtering:** normalisation also drops any mark key that is *not* in the candidate set before the tests run. No live caller produces such keys today — `getElectionResultsController` only emits official-candidate and approved-write-in ids, and the sandbox length-checks each CSV row — so this is a behaviour change only for hypothetical future callers, and the right one (a disregarded score should not decide whether a ballot is an abstention).
+- **Sibling issue [#1478](https://github.com/Equal-Vote/bettervoting/issues/1478)** (a partial ballot whose marks are all equal is dropped): the same root cause whenever the partial ballot reaches the tabulator as *missing keys*. Whether the BV2105 `r4dqvd` ballots are stored as missing keys or as explicit `null`s decides whether this fix also closes that report — worth re-testing #1478 after this deploys rather than assuming.
+- **Retroactivity:** results are tabulated per request (nothing cached), so the day this deploys, `43jp39` race 1 flips from `Cedar (3 tallied, 4 abstentions)` to `Ben 23 / Ann 21 / Cedar 8 (7 tallied, 0 abstentions)` — identical to race 2. That flip is the deployment check; [BV2263](../test_cases/BV2263-writein-discards-ballots.md) carries it as the post-fix verification.
+
+### What could not be verified
+
+| Claim | How established |
+|---|---|
+| Live before-numbers on 43jp39 | **executed** — production API, 2026-08-20 |
+| Both new result assertions fail on unpatched `main` | **executed** — jest, Util.ts reverted to `origin/main`, tests kept |
+| All green with the fix; full suite; tsc | **executed** — 49/49, 179/179, tsc exit 0 |
+| Approval/Plurality/IRV/RR counts cannot move | reasoned from the all-zero test's invariance under zero-fill; **not** separately fuzzed |
+| #1478 is the same root cause | **prediction** — depends on how those ballots' marks are stored; re-test after deploy |
+| The results page flip on 43jp39 | **prediction** — per-request tabulation read from source; not seen in a browser against a patched stack |
 
 ## What was posted
 

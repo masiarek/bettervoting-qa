@@ -70,6 +70,8 @@ Race 1 reports **7 voters** and elects **Ben**, matching race 2. The four `4,4` 
 
 The `43jp39` election is **closed**, so these numbers are frozen and can be diffed against a fixed build.
 
+**Status 2026-08-20:** the fix is written and verified locally — branch `fix/1470-write-in-abstention-normalization`, commit `c2fc5bd8` in clone `bv-1470`, parked under the 🚦 PR freeze ([details on the issue page](../issues/1470-writein-abstention-discards-ballots.md#the-fix--written-parked-under-the-pr-freeze)). The patched tabulator reproduces exactly this table for race 1: tally 7, abstentions 0, `Ben 23 / Ann 21 / Cedar 8`, Ben elected. Once the fix deploys, this page's `curl` is the acceptance check.
+
 ## Related
 
 [#1470](https://github.com/Equal-Vote/bettervoting/issues/1470) · [`issues/1470-writein-abstention-discards-ballots.md`](../issues/1470-writein-abstention-discards-ballots.md)

@@ -52,7 +52,7 @@ Tabulation test cases do **not** belong here — they go in `star-voting-library
 
 ## Current work
 
-### Four code fixes, parked behind the PR freeze (#1469, #1507, #1484, #1035)
+### Five code fixes, parked behind the PR freeze (#1469, #1507, #1484, #1035, #1470)
 
 Written, tested and committed to local branches; **not** submitted, because Adam was asked to hold new PRs until Arend catches up with the existing queue. The branches, the evidence, and the checklist for opening them later are in [`docs_proposals/PARKED_ready_for_bv.md` §7](docs_proposals/PARKED_ready_for_bv.md).
 
@@ -60,6 +60,7 @@ Written, tested and committed to local branches; **not** submitted, because Adam
 - **[#1507](issues/1507-star-pr-tiebreaktype-always-random.md)** — every STAR-PR result ever tabulated reported `tieBreakType: 'random'`, because the check was tautological. The results page turns that into a "Tied!" heading.
 - **[#1484](issues/1484-race-details-runner-up.md)** — one `NaN` in `runBlocTabulator`'s comparator stops its sort a key early, so Race Details shows the second-highest scorer where the page means the tiebreak runner-up.
 - **[#1035](issues/1035-runoff-zero-denominator-fix.md)** — `NaN%` in the runoff table and a blank pie when every counted ballot rates both finalists equally. Display guard only; no tally changes.
+- **[#1470](issues/1470-writein-abstention-discards-ballots.md)** — approving a write-in silently discards every ballot that scored the official candidates equally, because the abstention test runs on the ballot's raw mark keys before they are zero-filled over the candidate set. On live [`43jp39`](https://bettervoting.com/43jp39/results) that hands the race to the write-in, 3 tallied ballots against 7. The fix normalizes first, exactly as the issue proposed; the #884/#1508 flat-ballot *policy* is deliberately untouched and a regression test pins that.
 
 
 ### 🚦 PR freeze on upstream (2026-08-20)
@@ -100,6 +101,14 @@ Confirmed live on `bvhchj` (BV2130): `tieBreakType: random`, `tied` == `elected`
 Sibling defect found on the way, executed and left for its own issue: `runBlocTabulator` (`Util.ts:312`) copies only the **final** round's `tieBreakType`, so a tie that decided seat 1 of a bloc race is reported as `none` — the same bug inverted, across four methods.
 
 → [`issues/1507-star-pr-tiebreaktype-always-random.md`](issues/1507-star-pr-tiebreaktype-always-random.md) · probe: [`analysis/1507-probe/`](analysis/1507-probe/probe1507.ts) · fix on `fix/1507-star-pr-tiebreaktype` (`9a2b8b2a`), **not pushed, no PR**
+
+### #1470 — approving a write-in discards flat official-slate ballots (FILED, ours — FIX WRITTEN, unpushed)
+
+`filterInitialVotes` runs the abstention and bounds tests on a ballot's **raw** mark keys and zero-fills over the full candidate set only afterwards, for the ballots that survive. A write-in candidate's key exists only on the ballots that wrote that name in, so `{Ann: 4, Ben: 4}` tests as "all marks equal" → abstention, when the ballot the tally would actually count is `{Ann: 4, Ben: 4, Cedar: 0}` — a strict preference for both officials over the write-in. On live [`43jp39`](https://bettervoting.com/43jp39/results) the same seven ballots elect **Ben** when Cedar is official and **Cedar** when Cedar is an approved write-in, because four of the seven voters are silently discarded.
+
+The fix normalizes before testing — exactly the issue's own sketch — and is behavior-preserving for any ballot that already covers the candidate set, so the contested [#884](https://github.com/Equal-Vote/bettervoting/issues/884)/[#1508](https://github.com/Equal-Vote/bettervoting/issues/1508) flat-ballot policy is untouched (a regression test pins that a full-set-flat ballot is still dropped). Three tests: the tabulator-level 43jp39 reproduction (the existing test helper can't even express a missing key, which is why nothing caught this), the policy pin, and the end-to-end write-in flow the issue said was missing from `writeIns.test.ts`. Both result assertions fail on `main`; 49/49 and the full 179-test suite pass with the fix. After deploy, [#1478](https://github.com/Equal-Vote/bettervoting/issues/1478) should be re-tested — same root cause if those partial ballots reach the tabulator as missing keys.
+
+→ [`issues/1470-writein-abstention-discards-ballots.md`](issues/1470-writein-abstention-discards-ballots.md) · acceptance: [`test_cases/BV2263-writein-discards-ballots.md`](test_cases/BV2263-writein-discards-ballots.md) · probe: [`analysis/1470-probe/`](analysis/1470-probe/live-43jp39.out) · fix on `fix/1470-write-in-abstention-normalization` (`c2fc5bd8`, clone `bv-1470`), **not pushed, no PR**
 
 ### #1059 / #1524 / #1525 — finding an election by its ID (PR OPEN, defect FILED, docs drafted)
 
