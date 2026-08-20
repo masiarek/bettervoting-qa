@@ -52,7 +52,7 @@ Tabulation test cases do **not** belong here — they go in `star-voting-library
 
 ## Current work
 
-### Five code fixes, parked behind the PR freeze (#1469, #1507, #1484, #1035, #1470)
+### Six code fixes, parked behind the PR freeze (#1469, #1507, #1484, #1035, #1470, #1480)
 
 Written, tested and committed to local branches; **not** submitted, because Adam was asked to hold new PRs until Arend catches up with the existing queue. The branches, the evidence, and the checklist for opening them later are in [`docs_proposals/PARKED_ready_for_bv.md` §7](docs_proposals/PARKED_ready_for_bv.md).
 
@@ -61,6 +61,7 @@ Written, tested and committed to local branches; **not** submitted, because Adam
 - **[#1484](issues/1484-race-details-runner-up.md)** — one `NaN` in `runBlocTabulator`'s comparator stops its sort a key early, so Race Details shows the second-highest scorer where the page means the tiebreak runner-up.
 - **[#1035](issues/1035-runoff-zero-denominator-fix.md)** — `NaN%` in the runoff table and a blank pie when every counted ballot rates both finalists equally. Display guard only; no tally changes.
 - **[#1470](issues/1470-writein-abstention-discards-ballots.md)** — approving a write-in silently discards every ballot that scored the official candidates equally, because the abstention test runs on the ballot's raw mark keys before they are zero-filled over the candidate set. On live [`43jp39`](https://bettervoting.com/43jp39/results) that hands the race to the write-in, 3 tallied ballots against 7. The fix normalizes first, exactly as the issue proposed; the #884/#1508 flat-ballot *policy* is deliberately untouched and a regression test pins that.
+- **[#1480](issues/rr-winner-highlight-positional-vs-elected.md)** — Ranked Robin is the only tabulator that neither re-sorts `summaryData.candidates` winners-first nor is order-safe by construction, so the frontend's by-convention trust in the backend's order stars the wrong candidate whenever the head-to-head rung elects past the pre-sort (live: `8h4bvh`). One line, the idiom IRV already uses. Double-gated: the freeze, plus the issue's by-design closure — the PR opens only if the backend reframe is accepted.
 
 
 ### 🚦 PR freeze on upstream (2026-08-20)
@@ -228,9 +229,11 @@ Reproduces on production 2026-08-04 and on upstream `main` @ `15289d30`; open si
 
 → [`issues/1166-ranked-robin-multiwinner-highlighting.md`](issues/1166-ranked-robin-multiwinner-highlighting.md) · fix: [PR #1479](https://github.com/Equal-Vote/bettervoting/pull/1479)
 
-### #1480 — the star can land on a candidate that didn't win (FILED, ours)
+### #1480 — the star can land on a candidate that didn't win (CLOSED as by-design — backend reframe drafted, fix parked)
 
 Split out of #1166 because it is a different defect and #1479 does not touch it. Highlighting keys on **row position** in `summaryData.candidates`; the winners are `results.elected`. Ranked Robin's head-to-head tiebreak rung ignores the `tieBreakOrder` the summary array is sorted by, so the two orderings disagree about half the time whenever a Copeland tie straddles the winner cutoff.
+
+**Closed 2026-08-20** as by-design: the frontend trusts the backend's order by convention. Which relocates the defect rather than resolving it — the convention is *implemented* (STAR and Approval pass `runBlocTabulator`'s `evaluate` re-sort, IRV re-sorts with `sortCandidates(…, roundResults)`, Allocated Score got its own elected-first sort in maintainer commit `cd1c01d9`), and Ranked Robin is the only tabulator that neither re-sorts nor is order-safe by construction. The issue's own Scope section over-reached (Approval/Plurality highlight positionally but *cannot* mismatch), which is conceded in the reply. Backend fix written, tested and parked as the sixth §7 row; see the [closure section of the page](issues/rr-winner-highlight-positional-vs-elected.md).
 
 Confirmed on production with **BV2270** (`8h4bvh`), minted for it: the heading reads *"Alder wins!"* while the star and the gold row sit on **Birch**, and both show 2 wins / 67% so the page offers no way to tell which is right. `tieBreakType: none` — the winner is fully determined by the ballots; only the row order came from the shuffle.
 

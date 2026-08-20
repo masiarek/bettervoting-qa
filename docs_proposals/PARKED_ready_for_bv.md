@@ -82,9 +82,9 @@ Offered upstream: ~20-line check (byte-identical-to-English count per locale, ra
 
 Three options posted (own-on-signin / make claim-key work / document fire-and-forget as intended). Options 1 and 3 are small; do not start until answered.
 
-## 7. Five code fixes — READY (branches committed locally, nothing pushed)
+## 7. Six code fixes — READY (branches committed locally, nothing pushed)
 
-Tabulator and results-page defects, each with a root cause traced to a line, a failing-before test, and a QA page. All five sit on local branches cut from `origin/main` `454a38ae`; none is pushed, and no fork branch exists yet. `git worktree list` inside any BV clone shows the worktrees (`bv-1470` is a plain clone, not a worktree).
+Tabulator and results-page defects, each with a root cause traced to a line, a failing-before test, and a QA page. The first five sit on local branches cut from `origin/main` `454a38ae`, #1480 from `b089323f`; none is pushed, and no fork branch exists yet. `git worktree list` inside any BV clone shows the worktrees (`bv-1470` is a plain clone, not a worktree).
 
 | Issue | What the fix does | Branch @ commit · worktree | Evidence | Page |
 |---|---|---|---|---|
@@ -93,6 +93,7 @@ Tabulator and results-page defects, each with a root cause traced to a line, a f
 | [#1484](https://github.com/Equal-Vote/bettervoting/issues/1484) | One `NaN` in `runBlocTabulator`'s comparator (`-Infinity - -Infinity`) stopped its lexicographic sort one key early, so the Race Details tables showed the second-highest scorer instead of the tiebreak runner-up | `fix/1484-race-details-runner-up` @ `a892a0ff` · `bv-1484` | jest 53/56 → **56/56**; comparator replayed over the frozen `qhjyr2` payload reproduces production's order exactly | [1484](../issues/1484-race-details-runner-up.md) |
 | [#1035](https://github.com/Equal-Vote/bettervoting/issues/1035) | `NaN%` in the runoff table and the blank runoff pie, when every counted ballot rates both finalists equally. Display guard only — **no winner, tally or percentage changes** | `fix/1035-runoff-zero-denominator` @ `47d241a4` · `bv-1035` | jest 52 → **53** green; probe evaluates the shipped `formatPercent` rather than a transcription | [1035](../issues/1035-runoff-zero-denominator-fix.md) |
 | [#1470](https://github.com/Equal-Vote/bettervoting/issues/1470) | The ballot stat tests run on the zero-filled marks, so a ballot scoring every **official** candidate equally is no longer dropped as an abstention when a write-in is approved — the class of discarded ballots that handed live `43jp39` to the write-in | `fix/1470-write-in-abstention-normalization` @ `c2fc5bd8` · `bv-1470` | jest: 2 result assertions fail on `main`, **49/49** green with the fix; full backend suite **179/179**; `tsc` clean; pre-fix production numbers snapshotted in `analysis/1470-probe/` | [1470](../issues/1470-writein-abstention-discards-ballots.md) |
+| [#1480](https://github.com/Equal-Vote/bettervoting/issues/1480) | Ranked Robin re-sorts `summaryData.candidates` into elected-first order — one line, the idiom IRV already uses (`sortCandidates(…, 'copelandScore', results.roundResults)`) — so the winner its head-to-head rung elects is also the row the frontend highlights. Row order only: `elected`, every `tieBreakOrder` value, and `perm` are byte-identical | `fix/1480-ranked-robin-summary-order` @ `7d679ba5` · `bv-1480` | jest: new regression test fails on `main` at exactly the defect (`candidates[0]` = the pairwise loser), **6/6** RR suite and **55/55** full tabulator suite green with the fix; `tsc` clean; first test coverage of the head-to-head rung's log line | [page](../issues/rr-winner-highlight-positional-vs-elected.md) |
 
 **Before any of these opens as a PR:**
 
@@ -102,6 +103,7 @@ Tabulator and results-page defects, each with a root cause traced to a line, a f
 4. #1035 introduces two new `en.yaml` strings that are **not approved copy**. They need a wording decision, or the PR should propose them explicitly as such.
 5. Each page's "could not verify" section is real: none of the three display fixes was rendered in a browser. If the local stack is up when the freeze lifts, run `BV2264` first.
 6. #1470's change is in the shared `filterInitialVotes`, so its PR body should carry the blast-radius notes from its page (only STAR / Allocated Score classifications can move; the all-marks-zero methods are invariant under zero-filling). After it deploys: live `43jp39` race 1 must flip to match race 2 ([BV2263](../test_cases/BV2263-writein-discards-ballots.md) is the acceptance check), and [#1478](https://github.com/Equal-Vote/bettervoting/issues/1478) should be re-tested — same root cause if those ballots reach the tabulator as missing keys.
+7. **#1480 is double-gated:** the freeze, *and* the issue was closed 2026-08-20 as by-design (frontend trusts the backend's order). The fix is the backend half of that very convention, but it opens as a PR only after Arend accepts the reframe — reopen or a fresh backend-scoped ticket (see the closure section of [its page](../issues/rr-winner-highlight-positional-vs-elected.md)). It composes with #1469: disjoint hunks in `RankedRobin.ts` (the ladder body vs the `runBlocTabulator` call site), and the re-sort reads whatever winner the ladder produces, so it is correct under either ladder.
 
 ---
 
