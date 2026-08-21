@@ -247,7 +247,7 @@ past STAR-PR election's results page changes its heading. No migration, no store
 and no winner moves. Anyone quoting a pre-fix export (as our own library does) is quoting a snapshot,
 not a record that will be re-served.
 
-**Not fixed here: `runBlocTabulator` has the opposite bug.** `Util.ts:312`–`:316` copies
+**Not fixed here: `runBlocTabulator` has the opposite bug — filed 2026-08-20 as [#1582](https://github.com/Equal-Vote/bettervoting/issues/1582) ([record](1582-bloc-final-seat-tiebreaktype-filed.md)).** `Util.ts:312`–`:316` copies
 `tied` / `tieBreakType` **only from the final round**, so a tie that decided seat 1 of a multi-seat
 Bloc race disappears from the exported label. Executed, not read — bloc Approval, 4 candidates,
 2 seats, `[1,1,1,0] [1,1,1,0] [1,1,0,1]`:

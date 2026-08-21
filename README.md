@@ -99,7 +99,7 @@ Root cause is **one `NaN`**. `runBlocTabulator`'s comparator (`Util.ts:331`) sep
 
 Confirmed live on `bvhchj` (BV2130): `tieBreakType: random`, `tied` == `elected`, and its own `weightedScoresByRound` show a **unique maximum in all seven rounds** — while the Plurality race on the same election reports `none`. Fixed by recording the tie where it happens (`ties.length > 1`); the 102-ballot production election replays to `none` with its published winner order intact. Two tests, one for each direction, so the fix can't be "delete the flag".
 
-Sibling defect found on the way, executed and left for its own issue: `runBlocTabulator` (`Util.ts:312`) copies only the **final** round's `tieBreakType`, so a tie that decided seat 1 of a bloc race is reported as `none` — the same bug inverted, across four methods.
+Sibling defect found on the way, executed, and filed 2026-08-20 as [#1582](https://github.com/Equal-Vote/bettervoting/issues/1582) ([record](issues/1582-bloc-final-seat-tiebreaktype-filed.md)): `runBlocTabulator` (`Util.ts:312`) copies only the **final** round's `tieBreakType`, so a tie that decided seat 1 of a bloc race is reported as `none` — the same bug inverted, across four methods.
 
 → [`issues/1507-star-pr-tiebreaktype-always-random.md`](issues/1507-star-pr-tiebreaktype-always-random.md) · probe: [`analysis/1507-probe/`](analysis/1507-probe/probe1507.ts) · fix on `fix/1507-star-pr-tiebreaktype` (`9a2b8b2a`), **not pushed, no PR**
 
