@@ -2,7 +2,7 @@
 
 **Filed 2026-08-09 (ours):** [Equal-Vote/bettervoting#1507](https://github.com/Equal-Vote/bettervoting/issues/1507).
 **Fix written 2026-08-19**, on branch `fix/1507-star-pr-tiebreaktype`, commit `9a2b8b2a`, off upstream
-`main` @ `454a38ae`. **Local only — not pushed, no PR, nothing posted on the issue.**
+`main` @ `454a38ae`. **Local only — not pushed, no PR.** One comment posted on the issue, 2026-08-20: the mirror-image gap in `IRV.ts` ([record](1507-irv-mirror-comment-posted.md)).
 
 ## The defect
 
