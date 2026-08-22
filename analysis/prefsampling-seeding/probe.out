@@ -1,0 +1,96 @@
+prefsampling 0.1.24 · numpy 2.2.6
+spaces: uniform_ball, uniform_sphere, uniform_cube, gaussian_ball, gaussian_cube, unbounded_gaussian
+
+==============================================================================
+1. GAUSSIAN_BALL, seeded: how many DISTINCT points come back?
+==============================================================================
+euclidean_space_to_sampler pins the seed inside inner_sampler_args, and
+ball_resampling's outer loop draws every point from that same dict.
+
+  seed  points  distinct  first point
+     0       8         1  [+0.041491 -0.043595]
+     1       8         1  [+0.114043 +0.271134]
+     7       8         1  [+0.000406 +0.098586]
+    42       8         1  [+0.100557 -0.343195]
+  2026       8         1  [-0.261730 +0.079389]
+
+Expected if correct: 8 distinct.  Observed: 1, for every seed.
+
+UNSEEDED (seed=None) is fine — the defect is created BY seeding, which is
+the practice the package recommends for reproducibility:
+  distinct points, seed=None: 8 of 8
+
+==============================================================================
+2. Does the rejection branch 'almost never' fire?  (No — about a third.)
+==============================================================================
+  first draw lands OUTSIDE the ball: 625/2000 = 31.2%
+  analytic (Rayleigh tail, sigma=0.33, r=0.5, d=2): exp(-r^2/2s^2) = 31.7%
+
+So an early draft's 'the branch effectively never runs' was wrong. It does
+not matter: the defect is the seed PERSISTING in inner_sampler_args, so once
+any point is accepted, every later outer iteration re-draws that same point.
+Identical points with probability 1, not 'usually'.
+
+==============================================================================
+3. sample_election_positions: does candidate j land on voter j?
+==============================================================================
+Both _sample_points calls receive the same `seed`, and _sample_points does
+positions_args['seed'] = seed AFTER merging user args — so a caller cannot
+even work around it by passing per-side seeds.
+
+  5 voters x 3 candidates   (a 'hit' = candidate j at exactly voter j; 3 comparable indices)
+    uniform_ball         every index collides in    0/200 seeds   clean
+    uniform_sphere       every index collides in    0/200 seeds   clean
+    uniform_cube         every index collides in  200/200 seeds   COLLIDES
+    gaussian_ball        every index collides in  200/200 seeds   COLLIDES
+    gaussian_cube        every index collides in  200/200 seeds   COLLIDES
+    unbounded_gaussian   every index collides in  200/200 seeds   COLLIDES
+
+  4 voters x 4 candidates   (a 'hit' = candidate j at exactly voter j; 4 comparable indices)
+    uniform_ball         every index collides in  200/200 seeds   COLLIDES
+    uniform_sphere       every index collides in  200/200 seeds   COLLIDES
+    uniform_cube         every index collides in  200/200 seeds   COLLIDES
+    gaussian_ball        every index collides in  200/200 seeds   COLLIDES
+    gaussian_cube        every index collides in  200/200 seeds   COLLIDES
+    unbounded_gaussian   every index collides in  200/200 seeds   COLLIDES
+
+The escape at unequal counts is NOT protective and NOT rejection sampling:
+ball_uniform is the direct polar method with no rejection at all. It draws
+rng.normal(size=(num_dimensions, num_points)) — a DIMENSION-major array — so
+the mapping from stream position to (point, coordinate) depends on the point
+count. Change the count and the correspondence scrambles; make the counts
+equal and it lines back up. That is an accident of array shape.
+
+==============================================================================
+4. Why the shape decides it: same seed, 5 points vs 3 points
+==============================================================================
+  cube (point-major)         point j identical in both runs: 3/3
+  ball_uniform (dim-major)   point j identical in both runs: 0/3
+
+  cube  does rng.random((num_points, num_dimensions))  -> C-order, row per
+        point, so point j owns stream slots [j*d, j*d+d) whatever n is.
+  ball_uniform does rng.normal(size=(num_dimensions, num_points)) -> the
+        first n draws are the x-coordinate of every point. n changes, the
+        whole correspondence shifts.
+
+==============================================================================
+5. Downstream — pref_voting.generate_profile(probmodel='euclidean')
+==============================================================================
+  space               distinct profiles over 300 seeds   (5 voters, 3 candidates)
+    uniform_ball          277
+    uniform_sphere        265
+    uniform_cube          127
+    gaussian_ball           1
+    gaussian_cube         126
+    unbounded_gaussian    114
+
+  gaussian_ball returns ONE profile for every seed: all voters collapse to a
+  single point AND the candidates collapse onto that same point, so every
+  distance is zero, every ballot is a total tie, and the ranking that comes
+  back is index order. That is the shape a Condorcet-cycle sweep reads as a
+  suspiciously clean 0.00%.
+
+  The other five look healthy on THIS count — 5 != 3 — which is exactly why
+  the duplication has to be checked separately (section 3), and why filing
+  'pref_voting users are affected' flatly would have been refuted in one line
+  by a maintainer testing the default path.
