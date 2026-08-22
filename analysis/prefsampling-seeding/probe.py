@@ -147,8 +147,23 @@ def section_3(trials: int = 200) -> None:
             print(f"    {space:<20} every index collides in "
                   f"{hit_all:>4}/{trials} seeds   {verdict}")
         print()
+    print("  Equal counts, other sizes and dimensions — the candidate array IS the\n"
+          "  voter array (same function, same arguments):")
+    for d in (1, 2, 3):
+        ok = all(
+            np.array_equal(*sample_election_positions(
+                num_voters=nn, num_candidates=nn, num_dimensions=d,
+                voters_positions=space, candidates_positions=space, seed=seed))
+            for nn in (3, 6, 10) for space in SPACES for seed in range(20)
+        )
+        print(f"    d={d}: identical for all 6 spaces x (3,6,10) x 20 seeds: {ok}")
+    v, c = sample_election_positions(
+        num_voters=4, num_candidates=4, num_dimensions=2,
+        voters_positions="uniform_ball", candidates_positions="uniform_cube", seed=7)
+    print(f"    control — DIFFERENT spaces both sides (ball vs cube, 4x4): "
+          f"identical: {np.array_equal(v, c)}")
     print(
-        "The escape at unequal counts is NOT protective and NOT rejection sampling:\n"
+        "\nThe escape at unequal counts is NOT protective and NOT rejection sampling:\n"
         "ball_uniform is the direct polar method with no rejection at all. It draws\n"
         "rng.normal(size=(num_dimensions, num_points)) — a DIMENSION-major array — so\n"
         "the mapping from stream position to (point, coordinate) depends on the point\n"
@@ -163,17 +178,60 @@ def section_3(trials: int = 200) -> None:
 def section_4() -> None:
     rule("4. Why the shape decides it: same seed, 5 points vs 3 points")
     seed = 42
-    for name, fn in (("cube (point-major)", cube), ("ball_uniform (dim-major)", ball_uniform)):
-        five = np.array(fn(num_points=5, num_dimensions=2, seed=seed))
-        three = np.array(fn(num_points=3, num_dimensions=2, seed=seed))
+    cases = (
+        ("cube (point-major)", cube, {}),
+        ("gaussian (point-major)", gaussian, {}),
+        ("gaussian + widths (loop)", gaussian, {"widths": np.array([1.0, 1.0])}),
+        ("ball_uniform (dim-major)", ball_uniform, {}),
+    )
+    for name, fn, extra in cases:
+        five = np.array(fn(num_points=5, num_dimensions=2, seed=seed, **extra))
+        three = np.array(fn(num_points=3, num_dimensions=2, seed=seed, **extra))
         same = sum(1 for j in range(3) if np.allclose(five[j], three[j]))
         print(f"  {name:<26} point j identical in both runs: {same}/3")
     print(
         "\n  cube  does rng.random((num_points, num_dimensions))  -> C-order, row per\n"
         "        point, so point j owns stream slots [j*d, j*d+d) whatever n is.\n"
+        "  gaussian without widths fills (num_points, num_dimensions) the same way;\n"
+        "        with widths it draws d normals per point in a rejection loop, and\n"
+        "        identical seeds walk identical accept/reject paths — n-independent too.\n"
         "  ball_uniform does rng.normal(size=(num_dimensions, num_points)) -> the\n"
         "        first n draws are the x-coordinate of every point. n changes, the\n"
         "        whole correspondence shifts."
+    )
+
+    # The dim-major 'escape' is not independence: voter j and candidate j still
+    # come out of one stream, and share the raw normal that becomes their x
+    # numerator (slot j of the first row in each run).
+    vx, cx = [], []
+    for s in range(2000):
+        v, c = sample_election_positions(
+            num_voters=5, num_candidates=3, num_dimensions=2,
+            voters_positions="uniform_ball", candidates_positions="uniform_ball",
+            seed=s,
+        )
+        vx.append(v[0])
+        cx.append(c[0])
+    vx, cx = np.array(vx), np.array(cx)
+    rxx = np.corrcoef(vx[:, 0], cx[:, 0])[0, 1]
+    ryy = np.corrcoef(vx[:, 1], cx[:, 1])[0, 1]
+    d_same = np.linalg.norm(vx - cx, axis=1).mean()
+    rng = np.random.default_rng(0)
+
+    def _uball(n):
+        w = rng.normal(size=(n, 2))
+        w /= np.linalg.norm(w, axis=1, keepdims=True)
+        return w * (0.5 * rng.random(n) ** 0.5)[:, None]
+
+    d_ind = np.linalg.norm(_uball(2000) - _uball(2000), axis=1).mean()
+    print(
+        "\n  And the escape is not independence — at 5 voters x 3 candidates on\n"
+        "  uniform_ball, voter j and candidate j share the raw draw behind their\n"
+        "  x numerator:\n"
+        f"    corr(voter0.x, cand0.x) over 2000 seeds: {rxx:+.2f}"
+        f"    corr(voter0.y, cand0.y): {ryy:+.2f}\n"
+        f"    mean |voter0 - cand0|  same seed: {d_same:.3f}"
+        f"    independent draws: {d_ind:.3f}"
     )
 
 
@@ -186,6 +244,7 @@ def section_5(trials: int = 300) -> None:
 
     print("  space               distinct profiles over "
           f"{trials} seeds   (5 voters, 3 candidates)")
+    seeded_counts = {}
     for space in SPACES:
         seen = set()
         for seed in range(trials):
@@ -193,6 +252,7 @@ def section_5(trials: int = 300) -> None:
                 3, 5, probmodel="euclidean", space=space, num_dimensions=2, seed=seed
             )
             seen.add(tuple(tuple(r) for r in prof.rankings))
+        seeded_counts[space] = len(seen)
         print(f"    {space:<20} {len(seen):>4}")
     print(
         "\n  gaussian_ball returns ONE profile for every seed: all voters collapse to a\n"
@@ -200,10 +260,32 @@ def section_5(trials: int = 300) -> None:
         "  distance is zero, every ballot is a total tie, and the ranking that comes\n"
         "  back is index order. That is the shape a Condorcet-cycle sweep reads as a\n"
         "  suspiciously clean 0.00%.\n"
-        "\n  The other five look healthy on THIS count — 5 != 3 — which is exactly why\n"
-        "  the duplication has to be checked separately (section 3), and why filing\n"
-        "  'pref_voting users are affected' flatly would have been refuted in one line\n"
-        "  by a maintainer testing the default path."
+        "\n  The other five look healthy at a glance on THIS count — 5 != 3 — which is\n"
+        "  exactly why the duplication has to be checked separately (section 3), and\n"
+        "  why filing 'pref_voting users are affected' flatly would have been refuted\n"
+        "  in one line by a maintainer testing the default path."
+    )
+    print(
+        "\n  Baseline check — the two 'escape' spaces rerun UNSEEDED, 3 reps each\n"
+        "  (this block re-rolls every run; the seeded numbers above do not):"
+    )
+    for space in ("uniform_ball", "uniform_sphere"):
+        reps = []
+        for _ in range(3):
+            seen = set()
+            for _ in range(trials):
+                prof = generate_profile(
+                    3, 5, probmodel="euclidean", space=space,
+                    num_dimensions=2, seed=None,
+                )
+                seen.add(tuple(tuple(r) for r in prof.rankings))
+            reps.append(len(seen))
+        print(f"    {space:<20} {min(reps)}-{max(reps)} distinct of {trials}"
+              f"   (seeded gave {seeded_counts[space]})")
+    print(
+        "\n  Even the escape rows run a notch below their unseeded baseline — the\n"
+        "  footprint of the voter/candidate entanglement measured in section 4.\n"
+        "  Seeding degrades all six spaces; it just ruins some more visibly."
     )
 
 
@@ -213,7 +295,12 @@ def main() -> None:
     args = ap.parse_args()
     wanted = args.section or list(range(1, 6))
 
-    print(f"prefsampling {prefsampling.__version__} · numpy {np.__version__}")
+    try:
+        import pref_voting
+        pv_version = f" · pref_voting {pref_voting.__version__}"
+    except ImportError:
+        pv_version = ""
+    print(f"prefsampling {prefsampling.__version__} · numpy {np.__version__}{pv_version}")
     print(f"spaces: {', '.join(SPACES)}")
 
     for n in wanted:
