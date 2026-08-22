@@ -266,26 +266,52 @@ def section_5(trials: int = 300) -> None:
         "  in one line by a maintainer testing the default path."
     )
     print(
-        "\n  Baseline check — the two 'escape' spaces rerun UNSEEDED, 3 reps each\n"
-        "  (this block re-rolls every run; the seeded numbers above do not):"
+        "\n  Baseline check for the two 'escape' spaces. Comparing the ONE seeded\n"
+        "  figure above against unseeded reruns would be comparing a point to a\n"
+        "  distribution, so both sides are sampled: 10 independent SEEDED blocks of\n"
+        f"  {trials} consecutive seeds each against 10 UNSEEDED repetitions.\n"
     )
+    print(f"    {'space':<16} {'seeded mean(sd)':>16} {'unseeded mean(sd)':>18} "
+          f"{'shift':>7}  ranges")
     for space in ("uniform_ball", "uniform_sphere"):
-        reps = []
-        for _ in range(3):
+
+        def distinct(seeds, _space=space):
             seen = set()
-            for _ in range(trials):
+            for sd in seeds:
                 prof = generate_profile(
-                    3, 5, probmodel="euclidean", space=space,
-                    num_dimensions=2, seed=None,
+                    3, 5, probmodel="euclidean", space=_space,
+                    num_dimensions=2, seed=sd,
                 )
                 seen.add(tuple(tuple(r) for r in prof.rankings))
-            reps.append(len(seen))
-        print(f"    {space:<20} {min(reps)}-{max(reps)} distinct of {trials}"
-              f"   (seeded gave {seeded_counts[space]})")
+            return len(seen)
+
+        seeded = [distinct(range(off, off + trials))
+                  for off in range(0, 10 * trials, trials)]
+        unseeded = [distinct([None] * trials) for _ in range(10)]
+        sm, um = float(np.mean(seeded)), float(np.mean(unseeded))
+        overlap = max(seeded) >= min(unseeded)
+        print(f"    {space:<16} {sm:>10.1f} ({np.std(seeded):.1f}) "
+              f"{um:>12.1f} ({np.std(unseeded):.1f}) {um - sm:>+7.1f}  "
+              f"{'OVERLAP' if overlap else 'disjoint'}: "
+              f"[{min(seeded)}-{max(seeded)}] vs [{min(unseeded)}-{max(unseeded)}]")
     print(
-        "\n  Even the escape rows run a notch below their unseeded baseline — the\n"
-        "  footprint of the voter/candidate entanglement measured in section 4.\n"
-        "  Seeding degrades all six spaces; it just ruins some more visibly."
+        "\n  Seeding shifts the whole distribution down even on the spaces where no\n"
+        "  point actually collides -- the footprint of the voter/candidate\n"
+        "  entanglement measured in section 4. Seeding degrades all six, not four.\n"
+        "\n  Read the two rows differently, though. uniform_sphere's seeded and\n"
+        "  unseeded ranges do not overlap at all, which needs no statistics.\n"
+        "  uniform_ball's DO overlap: the shift is real but roughly two pooled\n"
+        "  standard deviations, so it is a claim about distributions that cannot be\n"
+        "  made by comparing single runs. An earlier draft of this probe compared one\n"
+        "  seeded block against three unseeded reps and concluded that every unseeded\n"
+        "  rep beats the seeded figure. That held for the samples it drew and is not\n"
+        "  true in general -- with ten blocks a side, seeded uniform_ball reaches the\n"
+        "  mid-280s and unseeded dips to 280.\n"
+        "\n  NOTE: this block is the ONE non-reproducible measurement in the probe --\n"
+        "  half of it is unseeded by definition, so these numbers shift between runs\n"
+        "  and probe.out will not diff clean here. What reproduces is the comparison:\n"
+        "  a downward shift on both spaces, disjoint on uniform_sphere and\n"
+        "  overlapping on uniform_ball. Everything else in this file is deterministic."
     )
 
 

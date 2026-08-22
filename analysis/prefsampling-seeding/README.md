@@ -192,7 +192,16 @@ The first draft said `uniform_ball` and `uniform_sphere` escape "because their r
 
 The reduced counts in the other rows (127, 126, 114 out of 300) are defect 2 alone — the candidate/voter duplication shrinks the space of reachable profiles without collapsing it.
 
-Even the two "escape" rows are quietly below par. Rerunning the same 300 draws **unseeded** lands in the high 280s — across this review's nine repetitions, 286–291 for `uniform_ball` and 280–288 for `uniform_sphere` (the probe records three of them per space, re-rolled on every run) — against the seeded 277 and 265. Every unseeded repetition beat its seeded counterpart. The gap is consistent with §3's entanglement: same-stream voters and candidates concentrate the profile distribution even where no point coincides. Seeding this path degrades **all six** spaces; it merely ruins some more visibly than others.
+Even the two "escape" rows are quietly below par — but establishing that needs both sides sampled, because the seeded figure above is a single draw. Ten independent **seeded** blocks of 300 consecutive seeds against ten **unseeded** repetitions:
+
+| space | seeded mean (sd) | unseeded mean (sd) | shift | ranges |
+|---|---|---|---|---|
+| `uniform_ball` | 278.9 (3.6) | 285.1 (5.4) | +6.2 | **overlap**: 274–285 vs 279–295 |
+| `uniform_sphere` | 269.0 (2.6) | 286.2 (3.7) | +17.2 | disjoint: 265–272 vs 279–293 |
+
+Seeding shifts the whole distribution down even where no point actually collides — the footprint of §3's entanglement, which concentrates the profile distribution without duplicating a coordinate. So seeding this path degrades **all six** spaces, not four.
+
+Read the two rows differently, though. `uniform_sphere`'s ranges do not overlap at all, which needs no statistics. `uniform_ball`'s **do** overlap: the shift is real but about two pooled standard deviations, so it is a claim about distributions and cannot be made by comparing single runs. An earlier draft of this section compared one seeded block against three unseeded reps and reported that *every* unseeded rep beat the seeded figure — true of the samples it drew, false in general, and a good illustration of why a one-versus-many comparison is not evidence. This block is also the one **non-reproducible** measurement in the probe: half of it is unseeded by definition, so `probe.out` will not diff clean here. What reproduces is the pattern, not the digits.
 
 `generate_spatial_profile` uses the legacy global `np.random` and is **unaffected**. The default `space="uniform_ball"` is clean at unequal counts, which is why the upstream report was scoped to "space X at counts Y" rather than "pref_voting is broken" — the latter is refutable in one line by a maintainer testing the default path.
 

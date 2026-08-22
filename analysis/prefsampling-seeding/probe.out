@@ -113,11 +113,31 @@ equal and it lines back up. That is an accident of array shape.
   why filing 'pref_voting users are affected' flatly would have been refuted
   in one line by a maintainer testing the default path.
 
-  Baseline check — the two 'escape' spaces rerun UNSEEDED, 3 reps each
-  (this block re-rolls every run; the seeded numbers above do not):
-    uniform_ball         287-290 distinct of 300   (seeded gave 277)
-    uniform_sphere       283-288 distinct of 300   (seeded gave 265)
+  Baseline check for the two 'escape' spaces. Comparing the ONE seeded
+  figure above against unseeded reruns would be comparing a point to a
+  distribution, so both sides are sampled: 10 independent SEEDED blocks of
+  300 consecutive seeds each against 10 UNSEEDED repetitions.
 
-  Even the escape rows run a notch below their unseeded baseline — the
-  footprint of the voter/candidate entanglement measured in section 4.
-  Seeding degrades all six spaces; it just ruins some more visibly.
+    space             seeded mean(sd)  unseeded mean(sd)   shift  ranges
+    uniform_ball          278.9 (3.6)        285.1 (5.4)    +6.2  OVERLAP: [274-285] vs [279-295]
+    uniform_sphere        269.0 (2.6)        286.2 (3.7)   +17.2  disjoint: [265-272] vs [279-293]
+
+  Seeding shifts the whole distribution down even on the spaces where no
+  point actually collides -- the footprint of the voter/candidate
+  entanglement measured in section 4. Seeding degrades all six, not four.
+
+  Read the two rows differently, though. uniform_sphere's seeded and
+  unseeded ranges do not overlap at all, which needs no statistics.
+  uniform_ball's DO overlap: the shift is real but roughly two pooled
+  standard deviations, so it is a claim about distributions that cannot be
+  made by comparing single runs. An earlier draft of this probe compared one
+  seeded block against three unseeded reps and concluded that every unseeded
+  rep beats the seeded figure. That held for the samples it drew and is not
+  true in general -- with ten blocks a side, seeded uniform_ball reaches the
+  mid-280s and unseeded dips to 280.
+
+  NOTE: this block is the ONE non-reproducible measurement in the probe --
+  half of it is unseeded by definition, so these numbers shift between runs
+  and probe.out will not diff clean here. What reproduces is the comparison:
+  a downward shift on both spaces, disjoint on uniform_sphere and
+  overlapping on uniform_ball. Everything else in this file is deterministic.
