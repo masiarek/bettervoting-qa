@@ -68,6 +68,15 @@ Written, tested and committed to local branches; **not** submitted, because Adam
 
 Adam was asked not to open new PRs on Equal-Vote/bettervoting until Arend catches up with the existing queue. Ready and specified work is parked in [`docs_proposals/PARKED_ready_for_bv.md`](docs_proposals/PARKED_ready_for_bv.md) with per-item flags (READY / READY-AFTER-MERGE / AWAITING-DIRECTION). The docs/i18n/fixes program itself is indexed upstream in [issue #1556](https://github.com/Equal-Vote/bettervoting/issues/1556); its consistency review and judgment-call notes are preserved here under [`analysis/`](analysis/help-pages-consistency-review.md).
 
+### Polish reads like a form, not like Polish — a fix queue
+
+*"Wybory — nazwa:"* on [a live results page](https://bettervoting.com/vx89hj/results?lng=pl) is a field label with the noun stranded in the nominative; Polish wants *"Nazwa wyborów:"*. The translation is complete and token-faithful — the stiffness was **forced**, by [#1574](https://github.com/Equal-Vote/bettervoting/issues/1574): interpolated vocabulary nouns arrive in one case only, so any sentence needing a genitive gets rephrased around it.
+
+The queue's finding is that **most of it needs no maintainer decision**. `useSubstitutedTranslation` spreads the whole `keyword.<election|poll>` block as interpolation values, and each locale supplies its own block — so Polish can add its own declension forms in `pl.yaml` alone, with no code change and no effect on any other locale. Six stiff strings and two ungrammatical-under-`poll` ones fix that way; only `this_election_uses` genuinely waits on #1574. Also found: `results.single_vote` is a **dead key in three locale files** and in no English file.
+
+→ [`analysis/polish-translation-fixes.md`](analysis/polish-translation-fixes.md)
+
+
 
 
 ### #1035 — `NaN%` in the STAR runoff table (OPEN, Adam's — FIX WRITTEN, unpushed)

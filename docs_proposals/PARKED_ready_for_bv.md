@@ -74,6 +74,8 @@ From [the consistency review](../analysis/help-pages-consistency-review.md), sec
 
 Offered upstream: fix the gendered-noun problem for the worst ~12 strings via `_election`/`_poll` variants or i18next `context`. Blocked on maintainers choosing a direction. Evidence and string list are in the issue.
 
+**Not all of it is blocked.** [`analysis/polish-translation-fixes.md`](../analysis/polish-translation-fixes.md) works the Polish case string by string and finds that six stiff strings and two ungrammatical ones are fixable in `pl.yaml` alone — the `keyword.<election|poll>` block is spread as interpolation values and is per-locale, so Polish can carry its own declension forms with no code change and no effect on any other locale. Only `this_election_uses` genuinely needs the #1574 decision. That queue is READY once the freeze lifts, independently of this item.
+
 ## 5. CI check for untranslated locale values — AWAITING-DIRECTION ([#1575](https://github.com/Equal-Vote/bettervoting/issues/1575))
 
 Offered upstream: ~20-line check (byte-identical-to-English count per locale, ratchet variant). The validation logic already exists — it is the script used to verify all seven locale PRs; porting it to the repo's CI is mechanical once a maintainer says which harness (plain node vs vitest).
