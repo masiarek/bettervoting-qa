@@ -1,5 +1,7 @@
 # Add "Stats for Nerds" to Bloc STAR (multi-winner STAR) results
 
+> **PR: [Equal-Vote/bettervoting#1675](https://github.com/Equal-Vote/bettervoting/pull/1675)** (draft, opened 2026-09-23 from `masiarek/star-server` branch `feat/1674-bloc-star-stats-for-nerds`; four commits, verified locally against production data).
+>
 > **Filed 2026-09-23 as [Equal-Vote/bettervoting#1674](https://github.com/Equal-Vote/bettervoting/issues/1674)** with labels Role: Front End, Complexity: Small, Track Via Parent (#1652). The text below is what was posted; screenshots embed from `bloc-star-stats-for-nerds/img/` in this repo.
 
 <!-- Labels: Role: Front End · Complexity: Small · Track Via Parent (#1652) -->
