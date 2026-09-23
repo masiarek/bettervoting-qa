@@ -1,0 +1,67 @@
+election_title: "Stats for Nerds — Bloc STAR, 3 seats: the same runner-up loses twice, then wins seat 3 on the score tiebreaker"
+
+scenario_description: |-
+  Nine voters, four candidates, THREE seats, counted by Bloc STAR. Built for the
+  BetterVoting "Stats for Nerds" dropdown on multi-winner results.
+
+  Scores: Finn 33, Gus 32, Hana 31, Ivy 26 — all distinct, so no scoring-round
+  tie anywhere.
+
+    - Seat 1: Finn and Gus advance. Finn beats Gus 5-2, Equal Support 2.
+      Gus is the runner-up.
+    - Seat 2: Finn is removed. Gus and Hana advance. Hana beats Gus 5-3,
+      Equal Support 1 — a runoff reversal (Gus out-scores Hana 32-31 but
+      loses head to head). Gus is the runner-up AGAIN.
+    - Seat 3: Gus and Ivy are the only two left. The runoff TIES 2-2 with
+      five voters giving them the same score. First tiebreaker, highest total
+      score: Gus 32 beats Ivy 26. Gus takes seat 3. tieBreakType "score" —
+      deterministic, no lot.
+
+  What the per-seat widgets must show:
+    - Distribution of Equal Support, seat 1 (Finn vs Gus): 5 stars 1, 3 stars 1.
+    - Seat 2 (Gus vs Hana): 4 stars 1.
+    - Seat 3 (Gus vs Ivy): 5 stars 1, 3 stars 3, 2 stars 1 — Equal Support is the
+      MAJORITY of the electorate (5 of 9), which is why the seat ends in a tie.
+  Gus is a finalist in all three seats, so a widget keyed on the winner alone,
+  or on roundResults[0], cannot tell the seats apart; the histograms can.
+  The Tabulation Steps text for seat 3 must name the score tiebreak, and the
+  Equal Support pair for seat 3 must be Gus / Ivy.
+
+  BetterVoting caveat: the top-level tieBreakType only records the LAST seat,
+  so this election reports "score" at the top level; a variant with the tie in
+  seat 1 or 2 would report "none". No flat ballots; nTallyVotes 9.
+  Create the election with public results so the page opens without admin
+  rights.
+
+options:
+  show_description: false
+  show_matrix: true
+  matrix_finalists_only: false
+  show_condorcet: true
+  show_score_counts: true
+  show_irv: false
+  show_runoff_percent: true
+  brief: true
+  collapse_ballots: false
+  count_separator: "×"
+
+num_winners: 3
+voting_method: Bloc STAR
+ballots: |-
+  Finn,Gus,Hana,Ivy
+  5,4,4,0
+  5,3,4,3
+  4,2,3,2
+  5,5,2,1
+  3,3,4,4
+  2,4,3,5
+  1,5,2,5
+  4,3,5,3
+  4,3,4,3
+
+expected_winners:
+  - Finn
+  - Hana
+  - Gus
+
+# file: sfn_bloc_three_seats_score_tiebreak_c4_b9.yaml

@@ -1,0 +1,58 @@
+election_title: "Stats for Nerds — Bloc STAR: the runner-up is picked by a five-star tiebreak, then the same pair ties again"
+
+scenario_description: |-
+  Six voters, three candidates, two seats, counted by Bloc STAR. Both seats
+  reach the five-star tiebreaker, and both are deterministic (no lot).
+
+  Scores: Pia 24, Quinn 18, Rosa 18. Quinn and Rosa are level in every
+  head-to-head reading too: 2-2 pairwise, 18-18 on score. Quinn holds two
+  5-star votes, Rosa none.
+
+    - Seat 1: Pia advances on score. The second finalist is decided by the
+      scoring-round tiebreak between Quinn and Rosa: pairwise 2-2 (tied), then
+      five-star count 2-0 — Quinn advances. Pia beats Quinn 3-2, Equal Support 1.
+      The RUNNER-UP of seat 1 (Quinn) is therefore a product of the tiebreak.
+    - Seat 2: Pia is removed. Quinn vs Rosa: runoff 2-2 (tied), score 18-18
+      (tied), five-star 2-0 — Quinn wins. tieBreakType "five_star".
+
+  What the per-seat widgets must show:
+    - Distribution of Equal Support, seat 1 (Pia vs Quinn): 5 stars 1.
+    - Seat 2 (Quinn vs Rosa): 4 stars 1, 3 stars 1.
+  The seat-1 pair is only right if the widget takes the runner-up from the
+  tabulator's roundResults[0].runner_up (Quinn) rather than re-deriving
+  "second by score", which is ambiguous here (Quinn and Rosa are tied).
+  The Tabulation Steps text for each seat must name the five-star rung.
+
+  BetterVoting: the final-seat runoff is a genuine tie, so the results title
+  shows "Tied!" and the top-level tieBreakType is "five_star". No flat ballots;
+  nTallyVotes 6. Create the election with public results so the page opens
+  without admin rights.
+
+options:
+  show_description: false
+  show_matrix: true
+  matrix_finalists_only: false
+  show_condorcet: true
+  show_score_counts: true
+  show_irv: false
+  show_runoff_percent: true
+  brief: true
+  collapse_ballots: false
+  count_separator: "×"
+
+num_winners: 2
+voting_method: Bloc STAR
+ballots: |-
+  Pia,Quinn,Rosa
+  5,5,1
+  5,0,4
+  4,5,2
+  3,1,4
+  5,3,3
+  2,4,4
+
+expected_winners:
+  - Pia
+  - Quinn
+
+# file: sfn_bloc_five_star_tiebreak_c3_b6.yaml

@@ -1,0 +1,84 @@
+diff -ru a/Results.tsx b/Results.tsx
+--- a/Results.tsx	2026-09-23 12:34:28
++++ b/Results.tsx	2026-09-23 12:34:53
+@@ -48,7 +48,7 @@
+         <STARDetailedResults/>
+         <DetailExpander level={1}>
+           <STARResultDetailedStepsWidget results={results} rounds={rounds} t={t} filterRandomFromLogs={filterRandomFromLogs}/>
+-          <STAREqualPreferencesWidget frontRunners={[results.roundResults[0].winners[0], results.roundResults[0].runner_up[0]] as [starCandidate, starCandidate]}/>
++          <STAREqualPreferencesWidget/>
+           <HeadToHeadWidget/>
+           <VoterProfileWidget topScore={5}/>
+           {flags.isSet('ALL_STATS') && <ScoreRangeWidget/>}
+@@ -59,7 +59,15 @@
+     }
+     {rounds > 1 &&
+       <DetailExpander>
+-        <STARResultDetailedStepsWidget results={results} rounds={rounds} t={t} filterRandomFromLogs={filterRandomFromLogs}/>
++        <DetailExpander level={1}>
++          <STARResultDetailedStepsWidget results={results} rounds={rounds} t={t} filterRandomFromLogs={filterRandomFromLogs}/>
++          <STAREqualPreferencesWidget/>
++          <HeadToHeadWidget/>
++          <VoterProfileWidget topScore={5}/>
++          {flags.isSet('ALL_STATS') && <ScoreRangeWidget/>}
++          {flags.isSet('ALL_STATS') && <ColumnDistributionWidget/>}
++          {flags.isSet('ALL_STATS') && <NameRecognitionWidget/>}
++        </DetailExpander>
+       </DetailExpander>
+     }
+   </ResultsViewer>
+diff -ru a/STAR/STAREqualPreferencesWidget.tsx b/STAR/STAREqualPreferencesWidget.tsx
+--- a/STAR/STAREqualPreferencesWidget.tsx	2026-09-23 12:34:28
++++ b/STAR/STAREqualPreferencesWidget.tsx	2026-09-23 12:35:33
+@@ -1,26 +1,41 @@
++import { Box, Typography } from "@mui/material";
+ import useElection from "~/components/ElectionContextProvider";
++import useRace from "~/components/RaceContextProvider";
+ import ResultsBarChart from "../components/ResultsBarChart"
+ import Widget from "../components/Widget"
+ import useAnonymizedBallots from "~/components/AnonymizedBallotsContextProvider";
+ import { Candidate } from "@equal-vote/star-vote-shared/domain_model/Candidate";
+ import { getEntry } from "@equal-vote/star-vote-shared/domain_model/Util";
+-import { candidate } from "@equal-vote/star-vote-shared/domain_model/ITabulators";
++import { candidate, starResults } from "@equal-vote/star-vote-shared/domain_model/ITabulators";
+ 
+-const STAREqualPreferencesWidget = ({frontRunners}: {frontRunners: candidate[]}) => {
++const STAREqualPreferencesWidget = () => {
+     const {t} = useElection();
++    const {results} = useRace();
+     const {ballotsForRace} = useAnonymizedBallots();
++    // one roundResults entry per seat (runBlocTabulator); single-winner has exactly one
++    const roundResults = (results as starResults).roundResults;
+ 
+-    const equalPreferences = new Array(6).fill(0);
+-    
+     const b = ballotsForRace()
+-    b.forEach(scores => {
+-        // treat skipped candidates (null score) as 0, matching the tabulator
+-        const topScores = ([0, 1]).map(i => getEntry(scores, frontRunners[i].id, 'candidate_id').score ?? 0);
+-        if(topScores[0] == topScores[1]) equalPreferences[topScores[0]]++;
+-    })
++    const countEqualPreferences = (frontRunners: candidate[]) => {
++        const equalPreferences = new Array(6).fill(0);
++        b.forEach(scores => {
++            // treat skipped candidates (null score) as 0, matching the tabulator
++            const topScores = ([0, 1]).map(i => getEntry(scores, frontRunners[i].id, 'candidate_id').score ?? 0);
++            if(topScores[0] == topScores[1]) equalPreferences[topScores[0]]++;
++        })
++        return equalPreferences;
++    }
+ 
+     return <Widget title={t('results.star.equal_preferences_title')} wide>
+-        <ResultsBarChart data={equalPreferences.map((count, i) => ({name: `${i} ⭐`, count})).reverse()} xKey='count' percentage={true}/>
++        {roundResults.map((round, r) => {
++            // a seat filled by the last remaining candidate has no runoff pair (e.g. 2 candidates, 2 seats)
++            if(round.runner_up.length == 0) return null;
++            const equalPreferences = countEqualPreferences([round.winners[0], round.runner_up[0]]);
++            return <Box key={r}>
++                {roundResults.length > 1 && <Typography variant="h4">{`Winner ${r + 1}`}</Typography>}
++                <ResultsBarChart data={equalPreferences.map((count, i) => ({name: `${i} ⭐`, count})).reverse()} xKey='count' percentage={true}/>
++            </Box>
++        })}
+     </Widget>
+ }
+ 

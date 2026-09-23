@@ -1,0 +1,69 @@
+election_title: "Stats for Nerds — Bloc STAR, 2 candidates / 2 seats: the last seat has no runner-up"
+
+scenario_description: |-
+  Five voters, two candidates, two seats, counted by Bloc STAR. The degenerate
+  shape: candidates == seats, which BetterVoting's race form accepts (it only
+  rejects MORE winners than candidates).
+
+    - Seat 1: Mia 19, Noah 14. Mia beats Noah 2-1, Equal Support 2. Runner-up
+      Noah.
+    - Seat 2: Mia is removed and Noah is the only candidate left. The tabulator
+      seats him without a scoring round or a runoff, and roundResults[1]
+      carries winners [Noah] and runner_up [] — an EMPTY runner-up list.
+
+  What the per-seat widgets must survive:
+    - Distribution of Equal Support, seat 1 (Mia vs Noah): 4 stars 1, 2 stars 1.
+    - Seat 2: there is no finalist pair. A widget that reads
+      roundResults[i].runner_up[0].id will throw on undefined here; it has to
+      hide itself or say that the seat was uncontested. The Tabulation Steps
+      for seat 2 should say the same thing.
+    - Head-to-Head Matchups and Average Supporter Profile are seat-independent
+      and should still render (one pair).
+
+  No tie-break is used.
+
+  BetterVoting caveat, specific to two candidates: a ballot that scores both
+  finalists equally is ALSO an all-equal ballot, and BV drops all-equal ballots
+  as abstentions (makeAbstentionTest(true)). So BV reports nAbstentions 2,
+  nTallyVotes 3, scores Mia 13 / Noah 8, and a seat-1 runoff of Mia 2, Noah 1,
+  Equal Support 0 — while STAREqualPreferencesWidget, which reads every ballot
+  that carries a score, still draws the 4-star and 2-star bars (histogram
+  total 2 against a runoff Equal Support of 0). Same winners either way. The
+  LH count above keeps all 5 ballots. Create the election with public results
+  so the page opens without admin rights.
+
+  Engine note: the LH engine REFUSES this file as written ("cannot fill 2
+  seats from 2 candidate(s) — num_winners must be smaller than the number of
+  candidates", starvote_larry_hastings.py guard near line 3474). Seat 1 was
+  verified by running the identical ballots as a one-seat STAR race
+  (verify_c/c_seat1_as_single_winner.yaml); seat 2 follows from BV's
+  singleWinnerStar: one remaining candidate is seated with runner_up [].
+  This case is a BetterVoting probe, not a library CI case.
+
+options:
+  show_description: false
+  show_matrix: true
+  matrix_finalists_only: false
+  show_condorcet: true
+  show_score_counts: true
+  show_irv: false
+  show_runoff_percent: true
+  brief: true
+  collapse_ballots: false
+  count_separator: "×"
+
+num_winners: 2
+voting_method: Bloc STAR
+ballots: |-
+  Mia,Noah
+  5,2
+  4,4
+  3,5
+  5,1
+  2,2
+
+expected_winners:
+  - Mia
+  - Noah
+
+# file: sfn_bloc_two_candidates_two_seats_c2_b5.yaml
